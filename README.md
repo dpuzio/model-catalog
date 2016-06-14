@@ -3,21 +3,18 @@
 # model-catalog
 Service for exposing data models
 
-# Required services
+## Run
 
-* **service-exposer** - holds information about service instances
+### Build project
+To build application you can use maven:
 
-# How to build
+```mvn clean package```
 
-It's a Spring Boot application build by maven. All that's needed is a single command to compile, run tests and build a jar:
-
-```
-$ mvn verify
-```
-
-# How to run locally
+It will generate two jar files in target directory:
 
 ```
-$ mvn spring-boot:run
+model-catalog-<version>.jar
+model-catalog-<version>-api.jar
 ```
-After starting a local instance, it's available at http://localhost:9994
+
+The first one is model-catalog application. The other one is a model provider api. All models providers should implement it.
