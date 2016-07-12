@@ -20,6 +20,7 @@ VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpres
 PROJECT_NAME=$(basename $(pwd))
 PACKAGE_CATALOG=${PROJECT_NAME}-${VERSION}
 JAR_NAME="${PACKAGE_CATALOG}.jar"
+API_JAR_NAME="${PACKAGE_CATALOG}-api.jar"
 
 # build project
 mvn clean package -Dmaven.test.skip=true
@@ -30,6 +31,7 @@ mkdir ${PACKAGE_CATALOG}
 # files to package
 cp manifest.yml ${PACKAGE_CATALOG}
 cp --parents target/${JAR_NAME} ${PACKAGE_CATALOG}
+cp --parents target/${API_JAR_NAME} ${PACKAGE_CATALOG}
 
 # prepare build manifest
 echo "commit_sha=$(git rev-parse HEAD)" > ${PACKAGE_CATALOG}/build_info.ini

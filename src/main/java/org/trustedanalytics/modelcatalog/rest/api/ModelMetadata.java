@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Intel Corporation
+ * Copyright (c) 2016 Intel Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.modelcatalog.data;
+package org.trustedanalytics.modelcatalog.rest.api;
 
-import lombok.Data;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-public class H2oModelId {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
+public class ModelMetadata {
 
-    private String type;
-    private String name;
+    private String modelId;
+    private String modelName;
+    private String description;
+    private String status;
+
 }
