@@ -17,24 +17,15 @@ package org.trustedanalytics.modelcatalog.rest.api;
 
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.Collection;
 
-public interface ModelProviderRestApi {
+public interface ModelProviderApi {
 
-    String GET_ALL_MODELS_URL = "/rest/v0/models";
-    String GET_MODEL_METADATA_URL = "/rest/v0/models/{modelId}/metadata";
-    String GET_MODEL_URL = "/rest/v0/models/{modelId}";
-
-    @RequestMapping(value = GET_ALL_MODELS_URL, method = RequestMethod.GET)
     Collection<ModelMetadata> listModels();
 
-    @RequestMapping(value = GET_MODEL_METADATA_URL, method = RequestMethod.GET)
     ModelMetadata getModelMetadata(@PathVariable String modelId);
 
-    @RequestMapping(value = GET_MODEL_URL, method = RequestMethod.GET)
     FileSystemResource downloadModel(@PathVariable String modelId);
 
 }
