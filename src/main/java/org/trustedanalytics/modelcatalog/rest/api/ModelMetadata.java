@@ -16,7 +16,6 @@
 package org.trustedanalytics.modelcatalog.rest.api;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,13 +23,15 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
 public class ModelMetadata {
 
-    private String modelId;
-    private String modelName;
+    private String id;
+    private String name;
+    private String format;
+    private String algorithm;
     private String description;
-    private String status;
+    private ModelStatus status;
+    private String ownerId;
 
 }

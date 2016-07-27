@@ -15,13 +15,6 @@
  */
 package org.trustedanalytics.modelcatalog.rest.api;
 
-public class ModelProviderPaths {
-
-    private static final String BEGINNING = "/rest/";
-    private static final String API_VERSION = "v0";
-
-    public static final String GET_ALL_MODELS_PATH = BEGINNING + API_VERSION + "/models";
-    public static final String GET_MODEL_METADATA_PATH = BEGINNING + API_VERSION + "/models/{modelId}/metadata";
-    public static final String GET_MODEL_PATH = BEGINNING + API_VERSION + "/models/{modelId}/artifacts";
-
+public enum ModelStatus {
+    DRAFT, PUBLISHED
 }

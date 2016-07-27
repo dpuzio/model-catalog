@@ -16,16 +16,16 @@
 package org.trustedanalytics.modelcatalog.rest.api;
 
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.Collection;
+import java.util.UUID;
 
 public interface ModelProviderApi {
 
-    Collection<ModelMetadata> listModels();
+    Collection<ModelMetadata> listModels(UUID orgId);
 
-    ModelMetadata getModelMetadata(@PathVariable String modelId);
+    ModelMetadata fetchModelMetadata(String modelId);
 
-    FileSystemResource downloadModel(@PathVariable String modelId);
+    FileSystemResource downloadModel(String modelId);
 
 }
