@@ -6,13 +6,20 @@
 
     <groupId>org.trustedanalytics.modelcatalog</groupId>
     <artifactId>model-catalog</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1</version>
 
     <parent>
         <groupId>org.trustedanalytics</groupId>
         <artifactId>trustedanalytics-cloud-parent</artifactId>
         <version>0.6.3</version>
     </parent>
+
+    <properties>
+        <jacoco-measurement-instructions>0.63</jacoco-measurement-instructions>
+        <jacoco-measurement-branches>0.64</jacoco-measurement-branches>
+        <jacoco-measurement-lines>0.64</jacoco-measurement-lines>
+        <jacoco-measurement-classes>0.64</jacoco-measurement-classes>
+    </properties>
 
     <dependencies>
 
@@ -49,10 +56,27 @@
             <version>${feign.version}</version>
         </dependency>
 
+        <!-- storage -->
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-mongodb</artifactId>
+        </dependency>
+
         <!-- test -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.4.1</version>
             <scope>test</scope>
         </dependency>
 
@@ -61,6 +85,10 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
 
     </dependencies>
@@ -114,9 +142,9 @@
                         <configuration>
                             <classifier>api</classifier>
                             <includes>
-                                <include>**/rest/api/*</include>
+                                <include>**/domain/*</include>
                                 <include>**/rest/client/*</include>
-                                <include>**/rest/entity/*</include>
+                                <include>**/ModelCatalogPaths.class</include>
                             </includes>
                         </configuration>
                     </execution>
@@ -140,6 +168,27 @@
                         <argument>manifest.yml</argument>
                     </arguments>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration combine.children="append">
+                    <excludes>
+                        <exclude>**/Application.class</exclude>
+                        <exclude>**/*Config.class</exclude>
+                        <exclude>**/ClientOrchestrator.class</exclude>
+                        <exclude>**/*Properties.class</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>jacoco-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
 

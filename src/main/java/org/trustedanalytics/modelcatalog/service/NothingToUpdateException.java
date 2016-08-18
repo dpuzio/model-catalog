@@ -13,14 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.modelcatalog.rest.api;
+package org.trustedanalytics.modelcatalog.service;
 
-public class ModelCatalogPaths {
-
-  private static final String BEGINNING = "/api/";
-  public static final String API_VERSION = "v1";
-
-  public static final String MODELS = BEGINNING + API_VERSION + "/models";
-  public static final String MODEL = BEGINNING + API_VERSION + "/models/{modelId}";
-
+public class NothingToUpdateException extends RuntimeException {
+  private static final long serialVersionUID = -5787982407378515244L;
 }

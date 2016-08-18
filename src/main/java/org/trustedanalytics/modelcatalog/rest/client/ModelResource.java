@@ -15,8 +15,8 @@
  */
 package org.trustedanalytics.modelcatalog.rest.client;
 
-import org.trustedanalytics.modelcatalog.rest.api.ModelCatalogPaths;
-import org.trustedanalytics.modelcatalog.rest.entity.Model;
+import org.trustedanalytics.modelcatalog.rest.ModelCatalogPaths;
+import org.trustedanalytics.modelcatalog.domain.Model;
 
 import java.util.Collection;
 import java.util.UUID;

@@ -1,1 +1,9 @@
-server.port: 9999
+server.port: 9913
+
+services:
+  store:
+    serverName: ${vcap.services.models-store.credentials.hostname:localhost}
+    serverPort: ${vcap.services.models-store.credentials.port:27017}
+    dbName: ${vcap.services.models-store.credentials.dbname:models}
+    user: ${vcap.services.models-store.credentials.username:}
+    password: ${vcap.services.models-store.credentials.password:}

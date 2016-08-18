@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.modelcatalog.rest.entity;
+package org.trustedanalytics.modelcatalog.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
@@ -40,15 +39,12 @@ public class Model {
   private String revision;
   private String algorithm;
   private String description;
-
   private String addedBy;
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_FORMAT)
   private Date addedOn;
-
   private String modifiedBy;
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_FORMAT)
   private Date modifiedOn;
-
-  private Set<UUID> artifactsIds = Collections.emptySet();
+  private Set<UUID> artifactsIds;
 
 }

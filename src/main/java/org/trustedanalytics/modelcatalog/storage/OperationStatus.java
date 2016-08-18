@@ -13,21 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.modelcatalog.rest.api;
+package org.trustedanalytics.modelcatalog.storage;
 
-import org.trustedanalytics.modelcatalog.rest.entity.Model;
-
-import java.util.UUID;
-
-
-public interface ModelCatalogWriterApi {
-
-  Model addModel(Model model, UUID orgId);
-
-  Model updateModel(UUID modelId, Model model);
-
-  Model patchModel(UUID modelId, Model model);
-
-  Model deleteModel(UUID modelId);
-
+public enum OperationStatus {
+  SUCCESS, FAILURE
 }

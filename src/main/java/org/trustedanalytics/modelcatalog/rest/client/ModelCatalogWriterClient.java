@@ -15,15 +15,14 @@
  */
 package org.trustedanalytics.modelcatalog.rest.client;
 
-import org.trustedanalytics.modelcatalog.rest.api.ModelCatalogWriterApi;
-import org.trustedanalytics.modelcatalog.rest.entity.Model;
+import org.trustedanalytics.modelcatalog.domain.Model;
 
 import java.util.UUID;
 import java.util.function.Function;
 
 import feign.Feign;
 
-public class ModelCatalogWriterClient implements ModelCatalogWriterApi {
+public class ModelCatalogWriterClient {
 
   private final ModelResource modelResource;
 
@@ -50,22 +49,18 @@ public class ModelCatalogWriterClient implements ModelCatalogWriterApi {
     modelResource = ClientOrchestrator.prepareModelResource(url, customizations);
   }
 
-  @Override
   public Model addModel(Model model, UUID orgId) {
     return modelResource.addModel(model, orgId);
   }
 
-  @Override
   public Model updateModel(UUID modelId, Model model) {
     return modelResource.updateModel(modelId, model);
   }
 
-  @Override
   public Model patchModel(UUID modelId, Model model) {
     return modelResource.patchModel(modelId, model);
   }
 
-  @Override
   public Model deleteModel(UUID modelId) {
     return modelResource.deleteModel(modelId);
   }
