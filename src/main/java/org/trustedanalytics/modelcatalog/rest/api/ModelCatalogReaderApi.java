@@ -15,6 +15,15 @@
  */
 package org.trustedanalytics.modelcatalog.rest.api;
 
-public enum ModelStatus {
-    DRAFT, PUBLISHED
+import org.trustedanalytics.modelcatalog.rest.entity.Model;
+
+import java.util.Collection;
+import java.util.UUID;
+
+public interface ModelCatalogReaderApi {
+
+  Collection<Model> listModels(UUID orgId);
+
+  Model fetchModel(UUID modelId);
+
 }

@@ -15,13 +15,19 @@
  */
 package org.trustedanalytics.modelcatalog.rest.api;
 
-public class ModelProviderPaths {
+import org.trustedanalytics.modelcatalog.rest.entity.Model;
 
-    private static final String BEGINNING = "/rest/";
-    private static final String API_VERSION = "v0";
+import java.util.UUID;
 
-    public static final String GET_ALL_MODELS_PATH = BEGINNING + API_VERSION + "/models";
-    public static final String GET_MODEL_METADATA_PATH = BEGINNING + API_VERSION + "/models/{modelId}/metadata";
-    public static final String GET_MODEL_PATH = BEGINNING + API_VERSION + "/models/{modelId}/artifacts";
+
+public interface ModelCatalogWriterApi {
+
+  Model addModel(Model model, UUID orgId);
+
+  Model updateModel(UUID modelId, Model model);
+
+  Model patchModel(UUID modelId, Model model);
+
+  Model deleteModel(UUID modelId);
 
 }

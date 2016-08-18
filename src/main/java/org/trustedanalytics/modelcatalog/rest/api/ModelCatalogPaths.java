@@ -15,23 +15,12 @@
  */
 package org.trustedanalytics.modelcatalog.rest.api;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+public class ModelCatalogPaths {
 
-@Getter
-@Setter
-@NoArgsConstructor
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
-public class ModelMetadata {
+  private static final String BEGINNING = "/api/";
+  public static final String API_VERSION = "v1";
 
-    private String id;
-    private String name;
-    private String format;
-    private String algorithm;
-    private String description;
-    private ModelStatus status;
-    private String ownerId;
+  public static final String MODELS = BEGINNING + API_VERSION + "/models";
+  public static final String MODEL = BEGINNING + API_VERSION + "/models/{modelId}";
 
 }

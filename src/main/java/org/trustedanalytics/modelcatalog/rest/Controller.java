@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class Controller {
 
-    @RequestMapping(value = "/rest/hello", method = RequestMethod.GET)
-    String sayHello() {
-        return "hello";
-    }
+  @RequestMapping(value = "/rest/hello", method = RequestMethod.GET)
+  String sayHello() {
+    return "hello";
+  }
 
 }
