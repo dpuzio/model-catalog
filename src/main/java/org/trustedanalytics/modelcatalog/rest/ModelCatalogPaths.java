@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.modelcatalog.rest.api;
+package org.trustedanalytics.modelcatalog.rest;
 
-import org.trustedanalytics.modelcatalog.rest.entity.Model;
-
-import java.util.Collection;
 import java.util.UUID;
 
-public interface ModelCatalogReaderApi {
+public class ModelCatalogPaths {
 
-  Collection<Model> listModels(UUID orgId);
+  private static final String BEGINNING = "/api";
+  public static final String API_VERSION = "/v1";
 
-  Model fetchModel(UUID modelId);
+  public static final String MODELS = BEGINNING + API_VERSION + "/models";
+  public static final String MODEL = BEGINNING + API_VERSION + "/models/{modelId}";
+
+  public static String pathToSpecificModel(UUID modelId) {
+    return MODEL.replace("{modelId}", modelId.toString());
+  }
 
 }

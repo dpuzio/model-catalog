@@ -15,8 +15,7 @@
  */
 package org.trustedanalytics.modelcatalog.rest.client;
 
-import org.trustedanalytics.modelcatalog.rest.api.ModelCatalogReaderApi;
-import org.trustedanalytics.modelcatalog.rest.entity.Model;
+import org.trustedanalytics.modelcatalog.domain.Model;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -24,7 +23,7 @@ import java.util.function.Function;
 
 import feign.Feign;
 
-public class ModelCatalogReaderClient implements ModelCatalogReaderApi {
+public class ModelCatalogReaderClient {
 
   private final ModelResource modelResource;
 
@@ -51,13 +50,11 @@ public class ModelCatalogReaderClient implements ModelCatalogReaderApi {
     modelResource = ClientOrchestrator.prepareModelResource(url, customizations);
   }
 
-  @Override
   public Collection<Model> listModels(UUID orgId) {
     return modelResource.listModels(orgId);
   }
 
-  @Override
-  public Model fetchModel(UUID modelId) {
+  public Model retrieveModel(UUID modelId) {
     return modelResource.fetchModel(modelId);
   }
 
