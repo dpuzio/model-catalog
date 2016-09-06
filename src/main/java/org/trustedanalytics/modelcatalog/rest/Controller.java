@@ -55,7 +55,8 @@ public class Controller {
   }
 
   @ApiOperation(
-          value = "Get all models in given organization."
+          value = "Get all models in given organization.",
+          notes = "Privilege level: Consumer of this endpoint must have a valid access token"
   )
   @ApiResponses(value = {
           @ApiResponse(code = 200, message = "SUCCESS"),
@@ -72,7 +73,8 @@ public class Controller {
   }
 
   @ApiOperation(
-          value = "Gets the model with specified id"
+          value = "Gets the model with specified id",
+          notes = "Privilege level: Consumer of this endpoint must have a valid access token"
   )
   @ApiResponses(value = {
           @ApiResponse(code = 200, message = "SUCCESS"),
@@ -90,8 +92,8 @@ public class Controller {
   }
 
   @ApiOperation(
-          value = "Inserts given model entity in given organization",
-          notes = "Model gets random UUID - returned in the response in Model entity."
+          value = "Inserts given model entity with random generated UUID in given organization.",
+          notes = "Privilege level: Consumer of this endpoint must have a valid access token"
   )
   @ApiResponses(value = {
           @ApiResponse(code = 201, message = "Created"),
@@ -112,7 +114,8 @@ public class Controller {
   }
 
   @ApiOperation(
-          value = "Updates model entity"
+          value = "Updates model entity",
+          notes = "Privilege level: Consumer of this endpoint must have a valid access token"
   )
   @ApiResponses(value = {
           @ApiResponse(code = 200, message = "Model updated"),
@@ -131,7 +134,8 @@ public class Controller {
   }
 
   @ApiOperation(
-          value = "Updates given fields of a model entity"
+          value = "Updates given fields of a model entity",
+          notes = "Privilege level: Consumer of this endpoint must have a valid access token"
   )
   @ApiResponses(value = {
           @ApiResponse(code = 200, message = "Model updated"),
@@ -151,7 +155,8 @@ public class Controller {
   }
 
   @ApiOperation(
-          value = "Deletes model entity with given id"
+          value = "Deletes model entity with given id",
+          notes = "Privilege level: Consumer of this endpoint must have a valid access token"
   )
   @ApiResponses(value = {
           @ApiResponse(code = 200, message = "Deleted"),

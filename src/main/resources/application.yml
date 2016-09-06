@@ -1,5 +1,13 @@
 server.port: 9913
 
+security:
+  ignored: /v2/api-docs
+
+spring.oauth2.resource:
+  id: cloud_controller
+  jwt:
+    keyUri: ${vcap.services.sso.credentials.tokenKey}
+
 services:
   store:
     serverName: ${vcap.services.models-store.credentials.hostname:localhost}
