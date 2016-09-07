@@ -120,9 +120,9 @@ public class ModelServiceTest {
   public void updateModel_shouldUpdateAndReturnModelWithGivenId() {
     // given
     final UUID id = UUID.randomUUID();
-    Model model = new Model();
+    when(modelStore.retrieveModel(id)).thenReturn(new Model());
     // when
-    Model returnedModel = modelService.updateModel(id, model);
+    Model returnedModel = modelService.updateModel(id, new Model());
     // then
     assertThat(returnedModel.getId()).isEqualTo(id);
   }
@@ -144,6 +144,7 @@ public class ModelServiceTest {
   public void updateModel_shouldPreparePropertiesMapContainingNullProperties() {
     // given
     final UUID modelId = UUID.randomUUID();
+    when(modelStore.retrieveModel(modelId)).thenReturn(new Model());
     Model model = TestModelsBuilder.prepareExemplaryModel(modelId);
     final String nullProperty = "name";
     model.setName(null);
@@ -175,14 +176,15 @@ public class ModelServiceTest {
   @Test(expected = NothingToUpdateException.class)
   public void patchModel_shouldThrowExceptionIfNothingToUpdate() {
     // given
-    Model model = new Model();
+    when(modelStore.retrieveModel(any(UUID.class))).thenReturn(new Model());
     // when
-    modelService.patchModel(UUID.randomUUID(), model);
+    modelService.patchModel(UUID.randomUUID(), new Model());
   }
 
   @Test(expected = FailedUpdateException.class)
   public void updateModel_shouldThrowFailedUpdateException_whenUpdateWasNotSuccessful() {
     // given
+    when(modelStore.retrieveModel(any(UUID.class))).thenReturn(new Model());
     when(modelStore.updateModel(any(UUID.class), any(Map.class))).thenReturn(OperationStatus.FAILURE);
     // when
     modelService.updateModel(UUID.randomUUID(), new Model());
@@ -191,9 +193,10 @@ public class ModelServiceTest {
   @Test(expected = FailedUpdateException.class)
   public void patchModel_shouldThrowFailedUpdateException_whenUpdateWasNotSuccessful() {
     // given
-    when(modelStore.updateModel(any(UUID.class), any(Map.class))).thenReturn(OperationStatus.FAILURE);
     UUID modelId = UUID.randomUUID();
     Model model = TestModelsBuilder.prepareExemplaryModel(modelId);
+    when(modelStore.retrieveModel(modelId)).thenReturn(new Model());
+    when(modelStore.updateModel(any(UUID.class), any(Map.class))).thenReturn(OperationStatus.FAILURE);
     // when
     modelService.patchModel(modelId, model);
   }

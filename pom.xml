@@ -15,10 +15,10 @@
     </parent>
 
     <properties>
-        <jacoco-measurement-instructions>0.63</jacoco-measurement-instructions>
-        <jacoco-measurement-branches>0.64</jacoco-measurement-branches>
-        <jacoco-measurement-lines>0.64</jacoco-measurement-lines>
-        <jacoco-measurement-classes>0.64</jacoco-measurement-classes>
+        <jacoco-measurement-instructions>0.8</jacoco-measurement-instructions>
+        <jacoco-measurement-branches>0.99</jacoco-measurement-branches>
+        <jacoco-measurement-lines>0.8</jacoco-measurement-lines>
+        <jacoco-measurement-classes>0.8</jacoco-measurement-classes>
     </properties>
 
     <dependencies>
@@ -63,6 +63,18 @@
         </dependency>
 
         <!-- test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.fakemongo</groupId>
+            <artifactId>fongo</artifactId>
+            <version>1.6.5</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -112,6 +124,35 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
             <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-test-source</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/it/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <executions>
@@ -130,7 +171,7 @@
                     </arguments>
                 </configuration>
             </plugin>
-             <plugin>
+            <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>
                     <execution>
@@ -180,15 +221,6 @@
                         <exclude>**/*Properties.class</exclude>
                     </excludes>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>jacoco-check</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
 
