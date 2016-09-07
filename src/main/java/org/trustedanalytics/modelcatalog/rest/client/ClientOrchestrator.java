@@ -17,7 +17,6 @@ package org.trustedanalytics.modelcatalog.rest.client;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -51,9 +50,7 @@ class ClientOrchestrator {
   }
 
   private static ObjectMapper prepareObjectMapper() {
-    return new ObjectMapper()
-            .setPropertyNamingStrategy(new PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy())
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    return new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
   }
 
 }

@@ -80,6 +80,7 @@ public class ModelService {
 
   private Model update(UUID modelId, Model model, UpdateMode updateMode) {
     throwExceptionIfIdsMismatch(modelId, model);
+    retrieveModel(modelId);
     Map<String, Object> propertiesToUpdate = null;
     try {
       propertiesToUpdate = PropertiesReader.preparePropertiesToUpdateMap(
