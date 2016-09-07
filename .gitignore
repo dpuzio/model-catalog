@@ -1,6 +1,7 @@
 # Build output directies
 target/
 build/
+*.zip
 
 # IntelliJ specific files/directories
 out

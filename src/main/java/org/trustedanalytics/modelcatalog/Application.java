@@ -15,10 +15,13 @@
  */
 package org.trustedanalytics.modelcatalog;
 
+import org.trustedanalytics.utils.errorhandling.EnableRestErrorHandling;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.security.oauth2.resource.EnableOAuth2Resource;
 
+@EnableRestErrorHandling
 @SpringBootApplication
 @EnableOAuth2Resource
 public class Application {

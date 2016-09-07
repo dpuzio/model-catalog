@@ -29,7 +29,6 @@ mvn clean package -Dmaven.test.skip=true
 mkdir ${PACKAGE_CATALOG}
 
 # files to package
-cp manifest.yml ${PACKAGE_CATALOG}
 cp --parents target/${JAR_NAME} ${PACKAGE_CATALOG}
 cp --parents target/${API_JAR_NAME} ${PACKAGE_CATALOG}
 

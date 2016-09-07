@@ -6,12 +6,12 @@ security:
 spring.oauth2.resource:
   id: cloud_controller
   jwt:
-    keyUri: ${vcap.services.sso.credentials.tokenKey}
+    keyUri: ${sso.tokenKey}
 
 services:
   store:
-    serverName: ${vcap.services.models-store.credentials.hostname:localhost}
-    serverPort: ${vcap.services.models-store.credentials.port:27017}
-    dbName: ${vcap.services.models-store.credentials.dbname:models}
-    user: ${vcap.services.models-store.credentials.username:}
-    password: ${vcap.services.models-store.credentials.password:}
+    serverName: ${mongo.host:localhost}
+    serverPort: ${mongo.port:27017}
+    dbName: ${mongo.dbname:models}
+    user: ${mongo.username:}
+    password: ${mongo.password:}
