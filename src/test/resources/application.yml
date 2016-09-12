@@ -1,0 +1,10 @@
+server.port: 9912
+
+security:
+  ignored: /**
+
+services:
+  store:
+    serverName: localhost
+    serverPort: 27017
+    dbName: models
