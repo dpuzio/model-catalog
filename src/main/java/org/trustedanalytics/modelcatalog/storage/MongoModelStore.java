@@ -35,7 +35,7 @@ public class MongoModelStore implements ModelStore {
 
   private static final String ID = "_id";
 
-  private MongoOperations mongoOperations;
+  private final MongoOperations mongoOperations;
 
   @Autowired
   public MongoModelStore(MongoOperations mongoOperations) {
@@ -76,9 +76,11 @@ public class MongoModelStore implements ModelStore {
   }
 
   private OperationStatus writeResultToOperationStatus(WriteResult writeResult) {
-    if (writeResult.getN() > 0)
+    if (writeResult.getN() > 0) {
       return OperationStatus.SUCCESS;
-    return OperationStatus.FAILURE;
+    } else {
+      return OperationStatus.FAILURE;
+    }
   }
 
   private Query matchId(UUID modelId) {

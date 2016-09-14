@@ -13,29 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.modelcatalog.domain;
+package org.trustedanalytics.modelcatalog.rest.service;
 
 import java.time.Instant;
-import java.util.Set;
-import java.util.UUID;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
-import lombok.Getter;
-import lombok.experimental.Builder;
+public class InstantFormatter {
 
-@Getter
-@Builder
-public class Model {
+  private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm z";
+  private static final DateTimeFormatter formatter =
+          DateTimeFormatter.ofPattern(DATE_FORMAT).withZone(ZoneId.of("GMT"));
 
-   private final UUID id;
-   private final String name;
-   private final String revision;
-   private final String algorithm;
-   private final String creationTool;
-   private final String description;
-   private final String addedBy;
-   private final Instant addedOn;
-   private final String modifiedBy;
-   private final Instant modifiedOn;
-   private final Set<UUID> artifactsIds;
+  public static String format(Instant instant) {
+    if (null == instant) {
+      return null;
+    }
+    return formatter.format(instant);
+  }
+
+  public static Instant parse(String txt) {
+    return Instant.from(formatter.parse(txt));
+  }
 
 }

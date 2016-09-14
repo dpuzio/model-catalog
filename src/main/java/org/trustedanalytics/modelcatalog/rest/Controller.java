@@ -27,13 +27,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
+import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
+import org.trustedanalytics.modelcatalog.rest.service.RestService;
 import org.trustedanalytics.modelcatalog.service.CannotMapPropertiesException;
 import org.trustedanalytics.modelcatalog.service.FailedUpdateException;
-import org.trustedanalytics.modelcatalog.service.MismatchedIdsException;
 import org.trustedanalytics.modelcatalog.service.ModelNotFoundException;
 import org.trustedanalytics.modelcatalog.service.NothingToUpdateException;
-import org.trustedanalytics.modelcatalog.domain.Model;
-import org.trustedanalytics.modelcatalog.service.ModelService;
 
 import java.net.URI;
 import java.util.Collection;
@@ -47,11 +47,11 @@ import io.swagger.annotations.ApiResponses;
 @RestController
 public class Controller {
 
-  private ModelService modelService;
+  private final RestService service;
 
   @Autowired
-  public Controller(ModelService modelService) {
-    this.modelService = modelService;
+  public Controller(RestService service) {
+    this.service = service;
   }
 
   @ApiOperation(
@@ -67,9 +67,9 @@ public class Controller {
           method = RequestMethod.GET,
           produces = "application/json; charset=UTF-8"
   )
-  public Collection<Model> listModels(
+  public Collection<ModelDTO> listModels(
           @ApiParam(value = "Organization id", required = true) @RequestParam UUID orgId) {
-    return modelService.listModels(orgId);
+    return service.listModels(orgId);
   }
 
   @ApiOperation(
@@ -86,13 +86,13 @@ public class Controller {
           method = RequestMethod.GET,
           produces = "application/json; charset=UTF-8"
   )
-  public Model retrieveModel(
+  public ModelDTO retrieveModel(
           @ApiParam(value = "Model id", required = true) @PathVariable UUID modelId) {
-    return modelService.retrieveModel(modelId);
+    return service.retrieveModel(modelId);
   }
 
   @ApiOperation(
-          value = "Inserts given model entity with random generated UUID in given organization.",
+          value = "Inserts new model entity with given parameters in given organization.",
           notes = "Privilege level: Consumer of this endpoint must have a valid access token"
   )
   @ApiResponses(value = {
@@ -104,10 +104,10 @@ public class Controller {
           method = RequestMethod.POST,
           produces = "application/json; charset=UTF-8")
   @ResponseStatus(HttpStatus.CREATED)
-  public ResponseEntity<Model> addModelAndReturnWithLocationHeader (
-          @ApiParam(value = "Model entity", required = true) @RequestBody Model model,
+  public ResponseEntity<ModelDTO> addModelAndReturnWithLocationHeader (
+          @ApiParam(value = "Model entity containing only modifiable fields", required = true) @RequestBody ModelModificationParametersDTO model,
           @ApiParam(value = "Organization id", required = true) @RequestParam UUID orgId) {
-    Model addedModel = modelService.addModel(model, orgId);
+    ModelDTO addedModel = service.addModel(model, orgId);
     HttpHeaders httpHeaders = new HttpHeaders();
     addModelLocation(addedModel, httpHeaders);
     return new ResponseEntity<>(addedModel, httpHeaders, HttpStatus.CREATED);
@@ -120,17 +120,16 @@ public class Controller {
   @ApiResponses(value = {
           @ApiResponse(code = 200, message = "Model updated"),
           @ApiResponse(code = 404, message = "Model not Found"),
-          @ApiResponse(code = 422, message = "Model entity contains id that differs from the one in URI"),
           @ApiResponse(code = 500, message = "Internal server error, e.g. error updating model metadata"),
   })
   @RequestMapping(
           value = ModelCatalogPaths.MODEL,
           method = RequestMethod.PUT,
           produces = "application/json; charset=UTF-8")
-  public Model updateModel(
+  public ModelDTO updateModel(
           @ApiParam(value = "Model id", required = true) @PathVariable UUID modelId,
-          @ApiParam(value = "Model entity", required = true) @RequestBody Model model) {
-    return modelService.updateModel(modelId, model);
+          @ApiParam(value = "Model entity containing only modifiable fields", required = true) @RequestBody ModelModificationParametersDTO model) {
+    return service.updateModel(modelId, model);
   }
 
   @ApiOperation(
@@ -141,17 +140,16 @@ public class Controller {
           @ApiResponse(code = 200, message = "Model updated"),
           @ApiResponse(code = 304, message = "Nothing to update"),
           @ApiResponse(code = 404, message = "Model not Found"),
-          @ApiResponse(code = 422, message = "Model entity contains id that differs from the one in URI"),
           @ApiResponse(code = 500, message = "Internal server error, e.g. error updating model metadata"),
   })
   @RequestMapping(
           value = ModelCatalogPaths.MODEL,
           method = RequestMethod.PATCH,
           produces = "application/json; charset=UTF-8")
-  public Model patchModel(
+  public ModelDTO patchModel(
           @ApiParam(value = "Model id", required = true) @PathVariable UUID modelId,
-          @ApiParam(value = "Model entity", required = true) @RequestBody Model model) {
-    return modelService.patchModel(modelId, model);
+          @ApiParam(value = "Model entity containing only modifiable fields", required = true) @RequestBody ModelModificationParametersDTO model) {
+    return service.patchModel(modelId, model);
   }
 
   @ApiOperation(
@@ -167,11 +165,12 @@ public class Controller {
           value = ModelCatalogPaths.MODEL,
           method = RequestMethod.DELETE,
           produces = "application/json; charset=UTF-8")
-  public Model deleteModel(
+  public ModelDTO deleteModel(
           @ApiParam(value = "Model id", required = true) @PathVariable UUID modelId) {
-    return modelService.deleteModel(modelId);
+    return service.deleteModel(modelId);
   }
 
+  @SuppressWarnings("EmptyMethod")
   @ExceptionHandler(CannotMapPropertiesException.class)
   @ResponseStatus(
           value = HttpStatus.INTERNAL_SERVER_ERROR,
@@ -179,6 +178,7 @@ public class Controller {
   void handleCannotMapPropertiesException() {
   }
 
+  @SuppressWarnings("EmptyMethod")
   @ExceptionHandler(FailedUpdateException.class)
   @ResponseStatus(
           value = HttpStatus.INTERNAL_SERVER_ERROR,
@@ -186,24 +186,19 @@ public class Controller {
   void handleFailedUpdateException() {
   }
 
-  @ExceptionHandler(MismatchedIdsException.class)
-  @ResponseStatus(
-          value = HttpStatus.UNPROCESSABLE_ENTITY,
-          reason = "Entity id in the URI does not match the one inside the entity.")
-  void handleMismatchedIdsException() {
-  }
-
+  @SuppressWarnings("EmptyMethod")
   @ExceptionHandler(ModelNotFoundException.class)
   @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Model with given id not found")
   void handleModelNotFoundException() {
   }
 
+  @SuppressWarnings("EmptyMethod")
   @ExceptionHandler(NothingToUpdateException.class)
   @ResponseStatus(value= HttpStatus.NOT_MODIFIED, reason = "Nothing to update")
   void handleNothingToUpdateException() {
   }
 
-  private void addModelLocation(Model addedModel, HttpHeaders httpHeaders) {
+  private void addModelLocation(ModelDTO addedModel, HttpHeaders httpHeaders) {
     String locationString = ModelCatalogPaths.pathToSpecificModel(addedModel.getId());
     URI location = URI.create(locationString);
     httpHeaders.setLocation(location);

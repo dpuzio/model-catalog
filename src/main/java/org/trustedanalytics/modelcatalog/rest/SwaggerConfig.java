@@ -44,7 +44,7 @@ public class SwaggerConfig {
   }
 
   private Predicate<String> orgsPaths() {
-    return or(regex("/api/.*"));
+    return or(regex(ModelCatalogPaths.BEGINNING + "/.*"));
   }
 
   private ApiInfo buildApiInfo() {
@@ -56,4 +56,5 @@ public class SwaggerConfig {
             .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0")
             .build();
   }
+
 }

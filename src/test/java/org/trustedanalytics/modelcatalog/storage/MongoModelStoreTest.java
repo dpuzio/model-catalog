@@ -40,6 +40,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.trustedanalytics.modelcatalog.TestModelsBuilder;
 import org.trustedanalytics.modelcatalog.domain.Model;
 
 import java.util.HashMap;
@@ -89,7 +90,7 @@ public class MongoModelStoreTest {
   @Test
   public void shouldAddModelAndReturnSuccessStatus_whenNoExceptionThrown() {
     // when
-    OperationStatus status = mongoModelStore.addModel(new Model(), UUID.randomUUID());
+    OperationStatus status = mongoModelStore.addModel(TestModelsBuilder.emptyModel(), UUID.randomUUID());
     // then
     assertThat(status == SUCCESS);
   }
@@ -100,7 +101,7 @@ public class MongoModelStoreTest {
     doThrow(mock(WriteConcernException.class)).when(mongoOperations).insert(any(Model.class));
     // when, then
     thrown.expect(WriteConcernException.class);
-    mongoModelStore.addModel(new Model(), UUID.randomUUID());
+    mongoModelStore.addModel(TestModelsBuilder.emptyModel(), UUID.randomUUID());
   }
 
   @Test

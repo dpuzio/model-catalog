@@ -20,9 +20,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.trustedanalytics.modelcatalog.domain.Model;
+import org.trustedanalytics.modelcatalog.security.UsernameExtractor;
 import org.trustedanalytics.modelcatalog.storage.ModelStore;
 import org.trustedanalytics.modelcatalog.storage.OperationStatus;
 
+import java.beans.IntrospectionException;
+import java.lang.reflect.InvocationTargetException;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -38,11 +42,13 @@ public class ModelService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ModelService.class);
 
-  private ModelStore modelStore;
+  private final ModelStore modelStore;
+  private final UsernameExtractor usernameExtractor;
 
   @Autowired
-  public ModelService(ModelStore modelStore) {
+  public ModelService(ModelStore modelStore, UsernameExtractor usernameExtractor) {
     this.modelStore = modelStore;
+    this.usernameExtractor = usernameExtractor;
   }
 
   public Collection<Model> listModels(UUID orgId) {
@@ -55,19 +61,19 @@ public class ModelService {
     return model;
   }
 
-  public Model addModel(Model model, UUID orgId) {
-    model.setId(UUID.randomUUID());
+  public Model addModel(ModelModificationParameters params, UUID orgId) {
+    Model model = initiateNewModel(params);
     OperationStatus additionStatus = modelStore.addModel(model, orgId);
     throwExceptionIfUpdateWasNotSuccessful(additionStatus);
     return model;
   }
 
-  public Model updateModel(UUID modelId, Model model) {
-    return update(modelId, model, UpdateMode.OVERWRITE);
+  public Model updateModel(UUID modelId, ModelModificationParameters params) {
+    return update(modelId, params, UpdateMode.OVERWRITE);
   }
 
-  public Model patchModel(UUID modelId, Model model) {
-    return update(modelId, model, UpdateMode.PATCH);
+  public Model patchModel(UUID modelId, ModelModificationParameters params) {
+    return update(modelId, params, UpdateMode.PATCH);
   }
 
   public Model deleteModel(UUID modelId) {
@@ -78,27 +84,48 @@ public class ModelService {
     return model;
   }
 
-  private Model update(UUID modelId, Model model, UpdateMode updateMode) {
-    throwExceptionIfIdsMismatch(modelId, model);
+  private Model initiateNewModel(ModelModificationParameters params) {
+    String user = obtainUserName();
+    return Model.builder()
+            .addedBy(user)
+            .addedOn(Instant.now())
+            .algorithm(params.getAlgorithm())
+            .artifactsIds(params.getArtifactsIds())
+            .creationTool(params.getCreationTool())
+            .description(params.getDescription())
+            .id(UUID.randomUUID())
+            .modifiedBy(user)
+            .modifiedOn(Instant.now())
+            .name(params.getName())
+            .revision(params.getRevision())
+            .build();
+  }
+
+  private String obtainUserName() {
+    return usernameExtractor.obtainUsername();
+  }
+
+  private Model update(UUID modelId, ModelModificationParameters params, UpdateMode updateMode) {
     retrieveModel(modelId);
-    Map<String, Object> propertiesToUpdate = null;
+    Map<String, Object> propertiesToUpdate;
     try {
       propertiesToUpdate = PropertiesReader.preparePropertiesToUpdateMap(
-              model,
-              updateMode == UpdateMode.OVERWRITE ? false : true);
-    } catch (Exception e) {
+              params,
+              updateMode != UpdateMode.OVERWRITE);
+    } catch (IllegalAccessException | IntrospectionException | InvocationTargetException e) {
       LOGGER.error("Exception while preparing properties map: " + e);
       throw new CannotMapPropertiesException();
     }
     throwExceptionIfNothingToUpdate(propertiesToUpdate);
+    addModifiedOnAndByProperties(propertiesToUpdate);
     OperationStatus operationStatus = modelStore.updateModel(modelId, propertiesToUpdate);
     throwExceptionIfUpdateWasNotSuccessful(operationStatus);
-    if (updateMode == UpdateMode.OVERWRITE) {
-      model.setId(modelId);
-      return model;
-    } else {
-      return retrieveModel(modelId);
-    }
+    return retrieveModel(modelId);
+  }
+
+  private void addModifiedOnAndByProperties(Map<String, Object> propertiesToUpdate) {
+    propertiesToUpdate.put("modifiedBy", obtainUserName());
+    propertiesToUpdate.put("modifiedOn", Instant.now());
   }
 
   private void throwExceptionIfNotFound(Model model) {
@@ -110,12 +137,6 @@ public class ModelService {
   private void throwExceptionIfUpdateWasNotSuccessful(OperationStatus operationStatus) {
     if (operationStatus == OperationStatus.FAILURE) {
       throw new FailedUpdateException();
-    }
-  }
-
-  private void throwExceptionIfIdsMismatch(UUID modelId, Model model) {
-    if (!Objects.isNull(model.getId()) && !Objects.equals(modelId, model.getId())) {
-      throw new MismatchedIdsException();
     }
   }
 

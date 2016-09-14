@@ -15,23 +15,18 @@
  */
 package org.trustedanalytics.modelcatalog.service;
 
-import com.google.common.collect.Sets;
-
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
-public class PropertiesReader {
+class PropertiesReader {
 
-  private static final Set<String> IGNORED_PROPERTIES =
-          Collections.unmodifiableSet(Sets.newHashSet("id", "class"));
+  private static final String IGNORED_CLASS_PROPERTY = "class";
 
   public static Map<String, Object> preparePropertiesToUpdateMap(Object source, boolean skipNullProperties)
           throws IntrospectionException, InvocationTargetException, IllegalAccessException {
@@ -47,7 +42,7 @@ public class PropertiesReader {
           PropertyDescriptor property, Map<String, Object> propertiesAndValues, Object source, boolean skipNullProperties)
           throws IllegalAccessException, InvocationTargetException {
     String propertyName = property.getName();
-    if (IGNORED_PROPERTIES.contains(propertyName)) {
+    if (IGNORED_CLASS_PROPERTY.equals(propertyName)) {
       return;
     }
     Object propertyValue = property.getReadMethod().invoke(source);

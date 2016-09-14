@@ -13,29 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.modelcatalog.domain;
+package org.trustedanalytics.modelcatalog.rest.entities;
 
-import java.time.Instant;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import java.util.Set;
 import java.util.UUID;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.Builder;
 
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class Model {
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+public class ModelDTO {
 
-   private final UUID id;
-   private final String name;
-   private final String revision;
-   private final String algorithm;
-   private final String creationTool;
-   private final String description;
-   private final String addedBy;
-   private final Instant addedOn;
-   private final String modifiedBy;
-   private final Instant modifiedOn;
-   private final Set<UUID> artifactsIds;
+  private UUID id;
+  private String name;
+  private String revision;
+  private String algorithm;
+  private String creationTool;
+  private String description;
+  private String addedBy;
+  private String addedOn;
+  private String modifiedBy;
+  private String modifiedOn;
+  private Set<UUID> artifactsIds;
 
 }

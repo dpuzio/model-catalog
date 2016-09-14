@@ -6,7 +6,7 @@
 
     <groupId>org.trustedanalytics.modelcatalog</groupId>
     <artifactId>model-catalog</artifactId>
-    <version>0.3.6</version>
+    <version>0.3.7</version>
 
     <parent>
         <groupId>org.trustedanalytics</groupId>
@@ -16,7 +16,7 @@
 
     <properties>
         <jacoco-measurement-instructions>0.8</jacoco-measurement-instructions>
-        <jacoco-measurement-branches>0.99</jacoco-measurement-branches>
+        <jacoco-measurement-branches>0.95</jacoco-measurement-branches>
         <jacoco-measurement-lines>0.8</jacoco-measurement-lines>
         <jacoco-measurement-classes>0.8</jacoco-measurement-classes>
         <docker.imageName>${project.artifactId}</docker.imageName>
@@ -183,7 +183,7 @@
                         <configuration>
                             <classifier>api</classifier>
                             <includes>
-                                <include>**/domain/*</include>
+                                <include>**/rest/entities/*</include>
                                 <include>**/rest/client/*</include>
                                 <include>**/ModelCatalogPaths.class</include>
                             </includes>

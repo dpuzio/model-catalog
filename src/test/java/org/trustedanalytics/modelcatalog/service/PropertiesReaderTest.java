@@ -18,8 +18,7 @@ package org.trustedanalytics.modelcatalog.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
-import org.trustedanalytics.modelcatalog.TestModelsBuilder;
-import org.trustedanalytics.modelcatalog.domain.Model;
+import org.trustedanalytics.modelcatalog.TestModelParamsBuilder;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -29,45 +28,32 @@ public class PropertiesReaderTest {
   @Test
   public void shouldPreparePropertiesMap() throws Exception {
     // given
-    Model model = TestModelsBuilder.prepareExemplaryModel();
+    ModelModificationParameters params = TestModelParamsBuilder.exemplaryParams();
     // when
-    Map<String, Object> properties = PropertiesReader.preparePropertiesToUpdateMap(model, true);
+    Map<String, Object> properties = PropertiesReader.preparePropertiesToUpdateMap(params, true);
     // then
-    checkThatMapContainsModelProperties(properties);
+    checkThatMapContainsAllParams(properties);
   }
 
   @Test
   public void shouldSkipClassProperty() throws Exception {
     // given
-    Model model = new Model();
+    ModelModificationParameters params = TestModelParamsBuilder.exemplaryParams();
     // when
-    Map<String, Object> properties = PropertiesReader.preparePropertiesToUpdateMap(model, false);
+    Map<String, Object> properties = PropertiesReader.preparePropertiesToUpdateMap(params, false);
     // then
     assertThat(properties.keySet()).doesNotContain("class");
   }
 
   @Test
-  public void shouldSkipIdProperty() throws Exception {
-    // given
-    Model model = new Model();
-    // when
-    Map<String, Object> properties = PropertiesReader.preparePropertiesToUpdateMap(model, false);
-    // then
-    assertThat(properties.keySet()).doesNotContain("id");
-  }
-
-
-  @Test
   public void shouldMapNullProperties_whenSkipNullPropertiesIsFalse() throws Exception {
     // given
-    Model model = new Model();
+    ModelModificationParameters params = TestModelParamsBuilder.emptyParams();
     // when
-    Map<String, Object> properties = PropertiesReader.preparePropertiesToUpdateMap(model, false);
+    Map<String, Object> properties = PropertiesReader.preparePropertiesToUpdateMap(params, false);
     // then
-    Field[] fields = Model.class.getDeclaredFields();
+    Field[] fields = ModelModificationParameters.class.getDeclaredFields();
     for (Field field : fields) {
-      if (field.getName().equals("DATE_FORMAT")) continue; //it's not a bean property
-      if (field.getName().equals("id")) continue; //shouldn't map id
       if (field.getName().equals("$jacocoData")) continue; //yep
       assertThat(properties.keySet()).contains(field.getName());
       assertThat(properties.get(field)).isNull();
@@ -77,23 +63,20 @@ public class PropertiesReaderTest {
   @Test
   public void shouldSkipNullProperties_whenSkipNullPropertiesIsTrue() throws Exception {
     // given
-    Model model = new Model();
+    ModelModificationParameters params = TestModelParamsBuilder.emptyParams();
     // when
-    Map<String, Object> properties = PropertiesReader.preparePropertiesToUpdateMap(model, true);
+    Map<String, Object> properties = PropertiesReader.preparePropertiesToUpdateMap(params, true);
     // then
     assertThat(properties).isEmpty();
   }
 
-  private void checkThatMapContainsModelProperties(Map<String, Object> properties) {
-    assertThat(properties.get("addedBy")).isEqualTo(TestModelsBuilder.ADDED_BY);
-    assertThat(properties.get("addedOn")).isEqualTo(TestModelsBuilder.ADDED_ON);
-    assertThat(properties.get("algorithm")).isEqualTo(TestModelsBuilder.ALGORITHM);
-    assertThat(properties.get("artifactsIds")).isEqualTo(TestModelsBuilder.ARTIFACTS_IDS);
-    assertThat(properties.get("description")).isEqualTo(TestModelsBuilder.DESCRIPTION);
-    assertThat(properties.get("modifiedBy")).isEqualTo(TestModelsBuilder.MODIFIED_BY);
-    assertThat(properties.get("modifiedOn")).isEqualTo(TestModelsBuilder.MODIFIED_ON);
-    assertThat(properties.get("name")).isEqualTo(TestModelsBuilder.NAME);
-    assertThat(properties.get("revision")).isEqualTo(TestModelsBuilder.REVISION);
+  private void checkThatMapContainsAllParams(Map<String, Object> properties) {
+    assertThat(properties.get("name")).isEqualTo(TestModelParamsBuilder.NAME);
+    assertThat(properties.get("revision")).isEqualTo(TestModelParamsBuilder.REVISION);
+    assertThat(properties.get("algorithm")).isEqualTo(TestModelParamsBuilder.ALGORITHM);
+    assertThat(properties.get("creationTool")).isEqualTo(TestModelParamsBuilder.CREATION_TOOL);
+    assertThat(properties.get("description")).isEqualTo(TestModelParamsBuilder.DESCRIPTION);
+    assertThat(properties.get("artifactsIds")).isEqualTo(TestModelParamsBuilder.ARTIFACTS_IDS);
   }
 
 }

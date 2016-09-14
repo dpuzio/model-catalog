@@ -18,12 +18,12 @@ package org.trustedanalytics.modelcatalog.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Sets;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -31,11 +31,15 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.trustedanalytics.modelcatalog.ModelParamsChecker;
+import org.trustedanalytics.modelcatalog.TestModelParamsBuilder;
 import org.trustedanalytics.modelcatalog.TestModelsBuilder;
 import org.trustedanalytics.modelcatalog.domain.Model;
+import org.trustedanalytics.modelcatalog.security.UsernameExtractor;
 import org.trustedanalytics.modelcatalog.storage.ModelStore;
 import org.trustedanalytics.modelcatalog.storage.OperationStatus;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -46,17 +50,32 @@ public class ModelServiceTest {
 
   @Mock
   private ModelStore modelStore;
-
+  @Mock
+  private UsernameExtractor usernameExtractor;
   @InjectMocks
   private ModelService modelService;
 
   @Captor
   private ArgumentCaptor<Map<String, Object>> propertiesToUpdateMapCaptor;
 
+  private static final String MODIFIED_BY_PROPERTY_NAME = "modifiedBy";
+  private static final String MODIFIED_ON_PROPERTY_NAME = "modifiedOn";
+  private static final String NAME_PROPERTY_NAME = "name";
+  private static final String USERNAME = "username";
+
+  private final Model model = TestModelsBuilder.exemplaryModel();
+  private final UUID modelId = TestModelsBuilder.ID;
+  private final ModelModificationParameters params = TestModelParamsBuilder.exemplaryParams();
+
+  @Before
+  public void setUp() {
+    when(usernameExtractor.obtainUsername()).thenReturn(USERNAME);
+  }
+
   @Test
   public void shouldListModels() {
     // given
-    Set<Model> models = Sets.newHashSet(TestModelsBuilder.prepareExemplaryModel(), TestModelsBuilder.prepareExemplaryModel());
+    Set<Model> models = Sets.newHashSet(TestModelsBuilder.exemplaryModel(), TestModelsBuilder.exemplaryModel());
     when(modelStore.listModels(any(UUID.class))).thenReturn(models);
     // when
     Collection<Model> returnedModels = modelService.listModels(UUID.randomUUID());
@@ -67,8 +86,6 @@ public class ModelServiceTest {
   @Test
   public void shouldRetrieveExistingModel() {
     // given
-    UUID modelId = UUID.randomUUID();
-    Model model = TestModelsBuilder.prepareExemplaryModel(modelId);
     when(modelStore.retrieveModel(modelId)).thenReturn(model);
     // when
     Model retrievedModel = modelService.retrieveModel(modelId);
@@ -83,17 +100,20 @@ public class ModelServiceTest {
   }
 
   @Test
-  public void shouldAddAndReturnModel_withGeneratedUUIDAndGivenProperties() {
+  public void shouldInitiateAddAndReturnModel_withGivenProperties() {
     // given
-    UUID modelId = UUID.randomUUID();
-    Model model = TestModelsBuilder.prepareExemplaryModel(modelId);
-    when(modelStore.addModel(same(model), any(UUID.class))).thenReturn(OperationStatus.SUCCESS);
+    when(modelStore.addModel(any(Model.class), any(UUID.class))).thenReturn(OperationStatus.SUCCESS);
     // when
-    Model addedModel = modelService.addModel(model, UUID.randomUUID());
+    Instant before = Instant.now();
+    Model addedModel = modelService.addModel(params, UUID.randomUUID());
+    Instant after = Instant.now();
     // then
-    assertThat(addedModel.getId()).isNotEqualTo(modelId);
-    model.setId(addedModel.getId());
-    assertThat(addedModel).isEqualToComparingFieldByField(model);
+    ModelParamsChecker.checkThatModelDTOContainsParamsDTO(addedModel, params);
+    assertThat(addedModel.getId()).isNotNull();
+    assertThat(addedModel.getAddedBy()).isEqualTo(USERNAME);
+    checkThatIsBetween(addedModel.getAddedOn(), before, after);
+    assertThat(addedModel.getModifiedBy()).isEqualTo(USERNAME);
+    checkThatIsBetween(addedModel.getModifiedOn(), before, after);
   }
 
   @Test(expected = FailedUpdateException.class)
@@ -101,111 +121,137 @@ public class ModelServiceTest {
     // given
     when(modelStore.addModel(any(Model.class), any(UUID.class))).thenReturn(OperationStatus.FAILURE);
     // when
-    modelService.addModel(new Model(), UUID.randomUUID());
-  }
-
-  @Test(expected = MismatchedIdsException.class)
-  public void updateModel_shouldThrowException_whenIdInModelEntityIsGivenAndIsDifferentThanExplicitlyGivenId() {
-    // when
-    modelService.updateModel(UUID.randomUUID(), TestModelsBuilder.prepareExemplaryModel());
-  }
-
-  @Test(expected = MismatchedIdsException.class)
-  public void patchModel_shouldThrowException_whenIdInModelEntityIsGivenAndIsDifferentThanExplicitlyGivenId() {
-    // when
-    modelService.patchModel(UUID.randomUUID(), TestModelsBuilder.prepareExemplaryModel());
+    modelService.addModel(params, UUID.randomUUID());
   }
 
   @Test
-  public void updateModel_shouldUpdateAndReturnModelWithGivenId() {
+  public void shouldUpdateAndReturnRetrievedModel() {
     // given
-    final UUID id = UUID.randomUUID();
-    when(modelStore.retrieveModel(id)).thenReturn(new Model());
+    when(modelStore.retrieveModel(modelId)).thenReturn(model);
+    when(modelStore.updateModel(eq(modelId), any(Map.class))).thenReturn(OperationStatus.SUCCESS);
     // when
-    Model returnedModel = modelService.updateModel(id, new Model());
+    Model updatedModel = modelService.updateModel(modelId, params);
     // then
-    assertThat(returnedModel.getId()).isEqualTo(id);
+    assertThat(updatedModel).isSameAs(model);
+  }
+
+  @Test(expected = ModelNotFoundException.class)
+  public void updateModel_shouldThrowException_whenModelNotFound() {
+    // given
+    when(modelStore.retrieveModel(modelId)).thenReturn(null);
+    // when
+    modelService.updateModel(modelId, params);
   }
 
   @Test
-  public void patchModel_shouldUpdateAndReturnModelRetrievedFromDbWithGivenId() {
+  public void updateModel_shouldPassPropertiesMapContainingNullProperties() {
     // given
-    final UUID id = UUID.randomUUID();
-    Model model = TestModelsBuilder.prepareExemplaryModel(id);
-    Model modelRetrievedFromDb = new Model();
-    when(modelStore.retrieveModel(id)).thenReturn(modelRetrievedFromDb);
+    when(modelStore.retrieveModel(modelId)).thenReturn(model);
+    ModelModificationParameters params = TestModelParamsBuilder.paramsWithNullNameProperty();
     // when
-    Model returnedModel = modelService.patchModel(id, model);
-    // then
-    assertThat(returnedModel).isSameAs(modelRetrievedFromDb);
-  }
-
-  @Test
-  public void updateModel_shouldPreparePropertiesMapContainingNullProperties() {
-    // given
-    final UUID modelId = UUID.randomUUID();
-    when(modelStore.retrieveModel(modelId)).thenReturn(new Model());
-    Model model = TestModelsBuilder.prepareExemplaryModel(modelId);
-    final String nullProperty = "name";
-    model.setName(null);
-    // when
-    modelService.updateModel(modelId, model);
+    modelService.updateModel(modelId, params);
     // then
     verify(modelStore).updateModel(eq(modelId), propertiesToUpdateMapCaptor.capture());
     Map<String, Object> propertiesMap = propertiesToUpdateMapCaptor.getValue();
-    assertThat(propertiesMap).containsKey(nullProperty);
-    assertThat(propertiesMap.get(nullProperty)).isNull();
+    assertThat(propertiesMap).containsKey(NAME_PROPERTY_NAME);
+    assertThat(propertiesMap.get(NAME_PROPERTY_NAME)).isNull();
   }
 
   @Test
-  public void patchModel_shouldPreparePropertiesMapOmittingNullProperties() {
+  public void updateModel_shouldUpdateModifiedOnAndByProperties() {
     // given
-    UUID modelId = UUID.randomUUID();
-    Model model = TestModelsBuilder.prepareExemplaryModel(modelId);
-    final String nullProperty = "name";
-    model.setName(null);
-    when(modelStore.retrieveModel(modelId)).thenReturn(new Model());
+    when(modelStore.retrieveModel(modelId)).thenReturn(model);
     // when
-    modelService.patchModel(modelId, model);
+    Instant before = Instant.now();
+    modelService.updateModel(modelId, params);
+    Instant after = Instant.now();
     // then
     verify(modelStore).updateModel(eq(modelId), propertiesToUpdateMapCaptor.capture());
     Map<String, Object> propertiesMap = propertiesToUpdateMapCaptor.getValue();
-    assertThat(propertiesMap).doesNotContainKey(nullProperty);
-  }
-
-  @Test(expected = NothingToUpdateException.class)
-  public void patchModel_shouldThrowExceptionIfNothingToUpdate() {
-    // given
-    when(modelStore.retrieveModel(any(UUID.class))).thenReturn(new Model());
-    // when
-    modelService.patchModel(UUID.randomUUID(), new Model());
+    assertThat(propertiesMap).containsKey(MODIFIED_BY_PROPERTY_NAME);
+    assertThat(propertiesMap.get(MODIFIED_BY_PROPERTY_NAME)).isEqualTo(USERNAME);
+    assertThat(propertiesMap).containsKey(MODIFIED_ON_PROPERTY_NAME);
+    checkThatIsBetween((Instant) propertiesMap.get(MODIFIED_ON_PROPERTY_NAME), before, after);
   }
 
   @Test(expected = FailedUpdateException.class)
   public void updateModel_shouldThrowFailedUpdateException_whenUpdateWasNotSuccessful() {
     // given
-    when(modelStore.retrieveModel(any(UUID.class))).thenReturn(new Model());
+    when(modelStore.retrieveModel(any(UUID.class))).thenReturn(model);
     when(modelStore.updateModel(any(UUID.class), any(Map.class))).thenReturn(OperationStatus.FAILURE);
     // when
-    modelService.updateModel(UUID.randomUUID(), new Model());
+    modelService.updateModel(UUID.randomUUID(), params);
+  }
+
+  @Test
+  public void shouldPatchAndReturnRetrievedModel() {
+    // given
+    when(modelStore.retrieveModel(modelId)).thenReturn(model);
+    when(modelStore.updateModel(eq(modelId), any(Map.class))).thenReturn(OperationStatus.SUCCESS);
+    // when
+    Model patchedModel = modelService.patchModel(modelId, params);
+    // then
+    assertThat(patchedModel).isSameAs(model);
+  }
+
+  @Test(expected = ModelNotFoundException.class)
+  public void patchModel_shouldThrowException_whenModelNotFound() {
+    // given
+    when(modelStore.retrieveModel(modelId)).thenReturn(null);
+    // when
+    modelService.patchModel(modelId, params);
+  }
+
+  @Test
+  public void patchModel_shouldPassPropertiesMapOmittingNullProperties() {
+    // given
+    when(modelStore.retrieveModel(modelId)).thenReturn(model);
+    ModelModificationParameters params = TestModelParamsBuilder.paramsWithNullNameProperty();
+    // when
+    modelService.patchModel(modelId, params);
+    // then
+    verify(modelStore).updateModel(eq(modelId), propertiesToUpdateMapCaptor.capture());
+    Map<String, Object> propertiesMap = propertiesToUpdateMapCaptor.getValue();
+    assertThat(propertiesMap).doesNotContainKey(NAME_PROPERTY_NAME);
+  }
+
+  @Test
+  public void patchModel_shouldUpdateModifiedOnAndByProperties() {
+    // given
+    when(modelStore.retrieveModel(modelId)).thenReturn(model);
+    // when
+    Instant before = Instant.now();
+    modelService.patchModel(modelId, params);
+    Instant after = Instant.now();
+    // then
+    verify(modelStore).updateModel(eq(modelId), propertiesToUpdateMapCaptor.capture());
+    Map<String, Object> propertiesMap = propertiesToUpdateMapCaptor.getValue();
+    assertThat(propertiesMap).containsKey(MODIFIED_BY_PROPERTY_NAME);
+    assertThat(propertiesMap.get(MODIFIED_BY_PROPERTY_NAME)).isEqualTo(USERNAME);
+    assertThat(propertiesMap).containsKey(MODIFIED_ON_PROPERTY_NAME);
+    checkThatIsBetween((Instant) propertiesMap.get(MODIFIED_ON_PROPERTY_NAME), before, after);
   }
 
   @Test(expected = FailedUpdateException.class)
   public void patchModel_shouldThrowFailedUpdateException_whenUpdateWasNotSuccessful() {
     // given
-    UUID modelId = UUID.randomUUID();
-    Model model = TestModelsBuilder.prepareExemplaryModel(modelId);
-    when(modelStore.retrieveModel(modelId)).thenReturn(new Model());
+    when(modelStore.retrieveModel(any(UUID.class))).thenReturn(model);
     when(modelStore.updateModel(any(UUID.class), any(Map.class))).thenReturn(OperationStatus.FAILURE);
     // when
-    modelService.patchModel(modelId, model);
+    modelService.patchModel(UUID.randomUUID(), params);
+  }
+
+  @Test(expected = NothingToUpdateException.class)
+  public void patchModel_shouldThrowExceptionIfNothingToUpdate() {
+    // given
+    when(modelStore.retrieveModel(any(UUID.class))).thenReturn(model);
+    // when
+    modelService.patchModel(UUID.randomUUID(), TestModelParamsBuilder.emptyParams());
   }
 
   @Test
   public void shouldDeleteAndReturnModel() {
     // given
-    final UUID modelId = UUID.randomUUID();
-    final Model model = new Model();
     when(modelStore.retrieveModel(modelId)).thenReturn(model);
     // when
     Model deletedModel = modelService.deleteModel(modelId);
@@ -215,9 +261,8 @@ public class ModelServiceTest {
   }
 
   @Test(expected = ModelNotFoundException.class)
-  public void testDeleteModel_shouldThrowException_whenModelNotFound() throws Exception {
+  public void testDeleteModel_shouldThrowException_whenModelNotFound() {
     // given
-    UUID modelId = UUID.randomUUID();
     when(modelStore.retrieveModel(modelId)).thenReturn(null);
     // when
     modelService.deleteModel(modelId);
@@ -226,10 +271,15 @@ public class ModelServiceTest {
   @Test(expected = FailedUpdateException.class)
   public void deleteModel_shouldThrowFailedUpdateException_whenUpdateWasNotSuccessful() {
     // given
-    when(modelStore.retrieveModel(any(UUID.class))).thenReturn(new Model());
+    when(modelStore.retrieveModel(any(UUID.class))).thenReturn(model);
     when(modelStore.deleteModel(any(UUID.class))).thenReturn(OperationStatus.FAILURE);
     // when
     modelService.deleteModel(UUID.randomUUID());
+  }
+
+  private void checkThatIsBetween(Instant instant, Instant start, Instant end) {
+    assertThat(instant).isGreaterThanOrEqualTo(start);
+    assertThat(instant).isLessThanOrEqualTo(end);
   }
 
 }

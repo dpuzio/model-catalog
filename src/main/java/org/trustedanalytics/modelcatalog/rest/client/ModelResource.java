@@ -16,7 +16,8 @@
 package org.trustedanalytics.modelcatalog.rest.client;
 
 import org.trustedanalytics.modelcatalog.rest.ModelCatalogPaths;
-import org.trustedanalytics.modelcatalog.domain.Model;
+import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
+import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -29,24 +30,24 @@ import feign.RequestLine;
 interface ModelResource {
 
   @RequestLine("GET " + ModelCatalogPaths.MODELS + "?orgId={orgId}")
-  Collection<Model> listModels(@Param("orgId") UUID orgId);
+  Collection<ModelDTO> listModels(@Param("orgId") UUID orgId);
 
   @RequestLine("POST " + ModelCatalogPaths.MODELS + "?orgId={orgId}")
   @Headers("Content-Type: application/json")
-  Model addModel(Model model, @Param("orgId") UUID orgId);
+  ModelDTO addModel(ModelModificationParametersDTO params, @Param("orgId") UUID orgId);
 
   @RequestLine("GET " + ModelCatalogPaths.MODEL)
-  Model fetchModel(@Param("modelId") UUID modelId);
+  ModelDTO fetchModel(@Param("modelId") UUID modelId);
 
   @RequestLine("PUT " + ModelCatalogPaths.MODEL)
   @Headers("Content-Type: application/json")
-  Model updateModel(@Param("modelId") UUID modelId, Model model);
+  ModelDTO updateModel(@Param("modelId") UUID modelId, ModelModificationParametersDTO params);
 
   @RequestLine("PATCH " + ModelCatalogPaths.MODEL)
   @Headers("Content-Type: application/json")
-  Model patchModel(@Param("modelId") UUID modelId, Model model);
+  ModelDTO patchModel(@Param("modelId") UUID modelId, ModelModificationParametersDTO params);
 
   @RequestLine("DELETE " + ModelCatalogPaths.MODEL)
-  Model deleteModel(@Param("modelId") UUID modelId);
+  ModelDTO deleteModel(@Param("modelId") UUID modelId);
 
 }
