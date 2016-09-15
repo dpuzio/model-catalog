@@ -13,40 +13,22 @@
  */
 package org.trustedanalytics.modelcatalog.rest.client;
 
+import org.trustedanalytics.modelcatalog.rest.entities.ArtifactDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
+
+import org.springframework.core.io.FileSystemResource;
 
 import java.util.Collection;
 import java.util.UUID;
-import java.util.function.Function;
-
-import feign.Feign;
 
 public class ModelCatalogReaderClient {
 
   private final ModelResource modelResource;
+  private final ArtifactResource artifactResource;
 
-  /**
-   * Creates client applying default configuration
-   * @param url endpoint url
-   */
-  public ModelCatalogReaderClient(String url) {
-    modelResource = ClientOrchestrator.prepareModelResource(url, Function.identity());
-  }
-
-  /**
-   * Creates client applying default configuration and then customizations. Example:
-   * <pre>
-   * {@code
-   * new ModelCatalogReaderClient(apiUrl, builder -> builder.requestInterceptor(template ->
-   * template.header("Authorization", "bearer " + token)));
-   * }
-   * </pre>
-   * @param url endpoint url
-   * @param customizations custom configuration that should be applied after defaults
-   */
-  public ModelCatalogReaderClient(String url, Function<Feign.Builder, Feign.Builder>
-          customizations) {
-    modelResource = ClientOrchestrator.prepareModelResource(url, customizations);
+  ModelCatalogReaderClient(ModelResource modelResource, ArtifactResource artifactResource) {
+    this.modelResource = modelResource;
+    this.artifactResource = artifactResource;
   }
 
   public Collection<ModelDTO> listModels(UUID orgId) {
@@ -55,6 +37,14 @@ public class ModelCatalogReaderClient {
 
   public ModelDTO retrieveModel(UUID modelId) {
     return modelResource.fetchModel(modelId);
+  }
+
+  public ArtifactDTO retrieveArtifactMetadata(UUID modelId, UUID artifactId) {
+    return artifactResource.retrieveArtifactMetadata(modelId, artifactId);
+  }
+
+  public FileSystemResource retrieveArtifactFile(UUID modelId, UUID artifactId) {
+    return artifactResource.retrieveArtifactFile(modelId, artifactId);
   }
 
 }

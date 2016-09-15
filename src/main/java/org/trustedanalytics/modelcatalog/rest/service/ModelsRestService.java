@@ -13,27 +13,28 @@
  */
 package org.trustedanalytics.modelcatalog.rest.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.trustedanalytics.modelcatalog.domain.Model;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
 import org.trustedanalytics.modelcatalog.service.ModelModificationParameters;
 import org.trustedanalytics.modelcatalog.service.ModelService;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class RestService {
+public class ModelsRestService {
 
   private final ModelService modelService;
   private final ModelMapper modelMapper = new ModelMapper();
   private final ParamsMapper paramsMapper = new ParamsMapper();
 
   @Autowired
-  public RestService(ModelService modelService) {
+  public ModelsRestService(ModelService modelService) {
     this.modelService = modelService;
   }
 

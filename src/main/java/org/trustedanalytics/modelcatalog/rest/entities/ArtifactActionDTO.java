@@ -13,29 +13,8 @@
  */
 package org.trustedanalytics.modelcatalog.rest.entities;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.Builder;
-
-import java.util.Set;
-import java.util.UUID;
-
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public class ModelModificationParametersDTO {
-
-  private String name;
-  private String revision;
-  private String algorithm;
-  private String creationTool;
-  private String description;
-  private Set<UUID> artifactsIds;
-
+public enum ArtifactActionDTO {
+  DOWNLOAD,
+  PUBLISH_TO_TAP_SCORING_ENGINE,
+  PUBLISH_TO_MARKETPLACE,
 }

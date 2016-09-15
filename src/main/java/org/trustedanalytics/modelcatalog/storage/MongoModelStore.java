@@ -15,14 +15,14 @@ package org.trustedanalytics.modelcatalog.storage;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-import com.mongodb.WriteResult;
+import org.trustedanalytics.modelcatalog.domain.Model;
 
+import com.mongodb.WriteResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
-import org.trustedanalytics.modelcatalog.domain.Model;
 
 import java.util.Collection;
 import java.util.Map;

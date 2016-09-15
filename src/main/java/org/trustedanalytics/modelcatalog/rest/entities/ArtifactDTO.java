@@ -14,11 +14,9 @@
 package org.trustedanalytics.modelcatalog.rest.entities;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.Builder;
 
 import java.util.Set;
 import java.util.UUID;
@@ -26,16 +24,13 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public class ModelModificationParametersDTO {
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
+public class ArtifactDTO {
 
-  private String name;
-  private String revision;
-  private String algorithm;
-  private String creationTool;
-  private String description;
-  private Set<UUID> artifactsIds;
+  private UUID id;
+  private UUID modelId;
+  private String filename;
+  private String location;
+  private Set<ArtifactActionDTO> actions;
 
 }

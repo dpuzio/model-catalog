@@ -11,23 +11,10 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog;
+package org.trustedanalytics.modelcatalog.domain;
 
-import org.trustedanalytics.modelcatalog.security.UsernameExtractor;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-
-@Configuration
-@Profile("integration-test")
-public class ITSecurityConfig {
-
-  public static final String USERNAME = "Aga";
-
-  @Bean
-  protected UsernameExtractor usernameExtractor() {
-    return () -> USERNAME;
-  }
-
+public enum ArtifactAction {
+  DOWNLOAD,
+  PUBLISH_TO_TAP_SCORING_ENGINE,
+  PUBLISH_TO_MARKETPLACE,
 }

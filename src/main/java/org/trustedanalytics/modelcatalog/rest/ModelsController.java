@@ -13,6 +13,18 @@
  */
 package org.trustedanalytics.modelcatalog.rest;
 
+import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
+import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
+import org.trustedanalytics.modelcatalog.rest.service.ModelsRestService;
+import org.trustedanalytics.modelcatalog.service.CannotMapPropertiesException;
+import org.trustedanalytics.modelcatalog.service.FailedUpdateException;
+import org.trustedanalytics.modelcatalog.service.ModelNotFoundException;
+import org.trustedanalytics.modelcatalog.service.NothingToUpdateException;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,35 +37,23 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
-import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
-import org.trustedanalytics.modelcatalog.rest.service.RestService;
-import org.trustedanalytics.modelcatalog.service.CannotMapPropertiesException;
-import org.trustedanalytics.modelcatalog.service.FailedUpdateException;
-import org.trustedanalytics.modelcatalog.service.ModelNotFoundException;
-import org.trustedanalytics.modelcatalog.service.NothingToUpdateException;
 
 import java.net.URI;
 import java.util.Collection;
 import java.util.UUID;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
 @RestController
-public class Controller {
+public class ModelsController {
 
-  private final RestService service;
+  private final ModelsRestService service;
 
   @Autowired
-  public Controller(RestService service) {
+  public ModelsController(ModelsRestService service) {
     this.service = service;
   }
 
   @ApiOperation(
-          value = "Get all models in given organization.",
+          value = "Returns all models in given organization.",
           notes = "Privilege level: Consumer of this endpoint must have a valid access token"
   )
   @ApiResponses(value = {
@@ -64,7 +64,7 @@ public class Controller {
   @RequestMapping(
           value = ModelCatalogPaths.MODELS,
           method = RequestMethod.GET,
-          produces = "application/json; charset=UTF-8"
+          produces = RequestParams.CONTENT_TYPE_APP_JSON_UTF
   )
   public Collection<ModelDTO> listModels(
           @ApiParam(value = "Organization id", required = true) @RequestParam UUID orgId) {
@@ -72,7 +72,7 @@ public class Controller {
   }
 
   @ApiOperation(
-          value = "Gets the model with specified id",
+          value = "Returns model metadata",
           notes = "Privilege level: Consumer of this endpoint must have a valid access token"
   )
   @ApiResponses(value = {
@@ -84,7 +84,7 @@ public class Controller {
   @RequestMapping(
           value = ModelCatalogPaths.MODEL,
           method = RequestMethod.GET,
-          produces = "application/json; charset=UTF-8"
+          produces = RequestParams.CONTENT_TYPE_APP_JSON_UTF
   )
   public ModelDTO retrieveModel(
           @ApiParam(value = "Model id", required = true) @PathVariable UUID modelId) {
@@ -103,7 +103,7 @@ public class Controller {
   @RequestMapping(
           value = ModelCatalogPaths.MODELS,
           method = RequestMethod.POST,
-          produces = "application/json; charset=UTF-8")
+          produces = RequestParams.CONTENT_TYPE_APP_JSON_UTF)
   @ResponseStatus(HttpStatus.CREATED)
   public ResponseEntity<ModelDTO> addModelAndReturnWithLocationHeader(
           @ApiParam(value = "Model entity containing only modifiable fields", required = true)
@@ -116,7 +116,7 @@ public class Controller {
   }
 
   @ApiOperation(
-          value = "Updates model entity",
+          value = "Updates model",
           notes = "Privilege level: Consumer of this endpoint must have a valid access token"
   )
   @ApiResponses(value = {
@@ -128,7 +128,7 @@ public class Controller {
   @RequestMapping(
           value = ModelCatalogPaths.MODEL,
           method = RequestMethod.PUT,
-          produces = "application/json; charset=UTF-8")
+          produces = RequestParams.CONTENT_TYPE_APP_JSON_UTF)
   public ModelDTO updateModel(
           @ApiParam(value = "Model id", required = true) @PathVariable UUID modelId,
           @ApiParam(value = "Model entity containing only modifiable fields", required = true)
@@ -137,7 +137,7 @@ public class Controller {
   }
 
   @ApiOperation(
-          value = "Updates given fields of a model entity",
+          value = "Updates given model properties",
           notes = "Privilege level: Consumer of this endpoint must have a valid access token"
   )
   @ApiResponses(value = {
@@ -150,7 +150,7 @@ public class Controller {
   @RequestMapping(
           value = ModelCatalogPaths.MODEL,
           method = RequestMethod.PATCH,
-          produces = "application/json; charset=UTF-8")
+          produces = RequestParams.CONTENT_TYPE_APP_JSON_UTF)
   public ModelDTO patchModel(
           @ApiParam(value = "Model id", required = true) @PathVariable UUID modelId,
           @ApiParam(value = "Model entity containing only modifiable fields", required = true)
@@ -159,7 +159,7 @@ public class Controller {
   }
 
   @ApiOperation(
-          value = "Deletes model entity with given id",
+          value = "Deletes model",
           notes = "Privilege level: Consumer of this endpoint must have a valid access token"
   )
   @ApiResponses(value = {
@@ -171,7 +171,7 @@ public class Controller {
   @RequestMapping(
           value = ModelCatalogPaths.MODEL,
           method = RequestMethod.DELETE,
-          produces = "application/json; charset=UTF-8")
+          produces = RequestParams.CONTENT_TYPE_APP_JSON_UTF)
   public ModelDTO deleteModel(
           @ApiParam(value = "Model id", required = true) @PathVariable UUID modelId) {
     return service.deleteModel(modelId);
@@ -206,7 +206,7 @@ public class Controller {
   }
 
   private void addModelLocation(ModelDTO addedModel, HttpHeaders httpHeaders) {
-    String locationString = ModelCatalogPaths.pathToSpecificModel(addedModel.getId());
+    String locationString = ModelCatalogPaths.pathToModel(addedModel.getId());
     URI location = URI.create(locationString);
     httpHeaders.setLocation(location);
   }

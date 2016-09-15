@@ -13,9 +13,9 @@
  */
 package org.trustedanalytics.modelcatalog;
 
-import com.google.common.collect.Sets;
-
 import org.trustedanalytics.modelcatalog.domain.Model;
+
+import com.google.common.collect.Sets;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -43,7 +43,7 @@ public class TestModelsBuilder {
             .addedOn(ADDED_ON)
             .algorithm(ALGORITHM)
             .creationTool(CREATION_TOOL)
-            .artifactsIds(ARTIFACTS_IDS)
+//            .artifactsIds(ARTIFACTS_IDS) TODO DPNG-10149
             .description(DESCRIPTION)
             .modifiedBy(MODIFIED_BY)
             .modifiedOn(MODIFIED_ON)

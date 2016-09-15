@@ -15,8 +15,9 @@ package org.trustedanalytics.modelcatalog.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
 import org.trustedanalytics.modelcatalog.TestModelParamsBuilder;
+
+import org.junit.Test;
 
 import java.lang.reflect.Field;
 import java.util.Map;

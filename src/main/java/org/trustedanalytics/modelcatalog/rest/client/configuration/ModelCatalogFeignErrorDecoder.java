@@ -11,23 +11,20 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog;
+package org.trustedanalytics.modelcatalog.rest.client.configuration;
 
-import org.trustedanalytics.modelcatalog.security.UsernameExtractor;
+import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogClientFailedException;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import feign.FeignException;
+import feign.Response;
+import feign.codec.ErrorDecoder;
 
-@Configuration
-@Profile("integration-test")
-public class ITSecurityConfig {
+class ModelCatalogFeignErrorDecoder implements ErrorDecoder {
 
-  public static final String USERNAME = "Aga";
-
-  @Bean
-  protected UsernameExtractor usernameExtractor() {
-    return () -> USERNAME;
+  @Override
+  public Exception decode(String method, Response response) {
+    FeignException feignException = FeignException.errorStatus(method, response);
+    return new ModelCatalogClientFailedException(feignException);
   }
 
 }

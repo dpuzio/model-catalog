@@ -16,6 +16,14 @@ package org.trustedanalytics.modelcatalog;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 
+import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogClientBuilder;
+import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogClientFailedException;
+import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogReaderClient;
+import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogWriterClient;
+import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
+import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
+import org.trustedanalytics.modelcatalog.rest.service.InstantFormatter;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -28,19 +36,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogReaderClient;
-import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogWriterClient;
-import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
-import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
-import org.trustedanalytics.modelcatalog.rest.service.InstantFormatter;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
-
 import javax.annotation.PostConstruct;
-
-import feign.FeignException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {Application.class, FongoConfig.class})
@@ -65,8 +65,8 @@ public class ModelCatalogIT {
 
   @PostConstruct
   public void init() {
-    modelCatalogReader = new ModelCatalogReaderClient(url);
-    modelCatalogWriter = new ModelCatalogWriterClient(url);
+    modelCatalogReader = new ModelCatalogClientBuilder(url).buildReader();
+    modelCatalogWriter = new ModelCatalogClientBuilder(url).buildWriter();
   }
 
   @Test
@@ -81,7 +81,7 @@ public class ModelCatalogIT {
 
   @Test
   public void retrieveModel_shouldReturn404WhenModelNotFound() {
-    expectFeignExceptionWithStatusAndReason(HttpStatus.NOT_FOUND);
+    expectModelCatalogExceptionWithStatusAndReason(HttpStatus.NOT_FOUND);
     modelCatalogReader.retrieveModel(UUID.randomUUID());
   }
 
@@ -105,7 +105,7 @@ public class ModelCatalogIT {
 
   @Test
   public void updateModel_shouldReturn404WhenModelNotFound() {
-    expectFeignExceptionWithStatusAndReason(HttpStatus.NOT_FOUND);
+    expectModelCatalogExceptionWithStatusAndReason(HttpStatus.NOT_FOUND);
     modelCatalogWriter.updateModel(UUID.randomUUID(), params);
   }
 
@@ -130,19 +130,19 @@ public class ModelCatalogIT {
   @Test
   public void patchModel_shouldReturn304WhenNothingToUpdate() {
     addExemplaryModel();
-    expectFeignExceptionWithStatus(HttpStatus.NOT_MODIFIED);
+    expectModelCatalogExceptionWithStatus(HttpStatus.NOT_MODIFIED);
     modelCatalogWriter.patchModel(addedModel.getId(), TestModelParamsBuilder.emptyParamsDTO());
   }
 
   @Test
   public void patchModel_shouldReturn404WhenModelNotFound() {
-    expectFeignExceptionWithStatusAndReason(HttpStatus.NOT_FOUND);
+    expectModelCatalogExceptionWithStatusAndReason(HttpStatus.NOT_FOUND);
     modelCatalogWriter.patchModel(UUID.randomUUID(), params);
   }
 
   @Test
   public void deleteModel_shouldReturn404WhenModelNotFound() {
-    expectFeignExceptionWithStatusAndReason(HttpStatus.NOT_FOUND);
+    expectModelCatalogExceptionWithStatusAndReason(HttpStatus.NOT_FOUND);
     modelCatalogWriter.deleteModel(UUID.randomUUID());
   }
 
@@ -184,13 +184,13 @@ public class ModelCatalogIT {
     modelCatalogWriter.deleteModel(addedModel.getId());
   }
 
-  private void expectFeignExceptionWithStatusAndReason(HttpStatus status) {
-    expectFeignExceptionWithStatus(status);
+  private void expectModelCatalogExceptionWithStatusAndReason(HttpStatus status) {
+    expectModelCatalogExceptionWithStatus(status);
     thrown.expectMessage(containsString(status.getReasonPhrase()));
   }
 
-  private void expectFeignExceptionWithStatus(HttpStatus status) {
-    thrown.expect(FeignException.class);
+  private void expectModelCatalogExceptionWithStatus(HttpStatus status) {
+    thrown.expect(ModelCatalogClientFailedException.class);
     thrown.expectMessage(containsString(status.toString()));
   }
 

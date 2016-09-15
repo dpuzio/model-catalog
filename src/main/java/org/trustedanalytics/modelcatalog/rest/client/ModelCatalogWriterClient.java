@@ -13,40 +13,27 @@
  */
 package org.trustedanalytics.modelcatalog.rest.client;
 
+import org.trustedanalytics.modelcatalog.rest.entities.ArtifactActionDTO;
+import org.trustedanalytics.modelcatalog.rest.entities.ArtifactDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
 
+import java.io.File;
+import java.util.List;
 import java.util.UUID;
-import java.util.function.Function;
-
-import feign.Feign;
 
 public class ModelCatalogWriterClient {
 
   private final ModelResource modelResource;
+  private final ArtifactResource artifactResource;
+  private final MultipartRequestsSender multipartRequestsSender;
 
-  /**
-   * Creates client applying default configuration
-   * @param url endpoint url
-   */
-  public ModelCatalogWriterClient(String url) {
-    modelResource = ClientOrchestrator.prepareModelResource(url, Function.identity());
-  }
-
-  /**
-   * Creates client applying default configuration and then customizations. Example:
-   * <pre>
-   * {@code
-   * new ModelCatalogReaderClient(apiUrl, builder -> builder.requestInterceptor(template ->
-   * template.header("Authorization", "bearer " + token)));
-   * }
-   * </pre>
-   * @param url endpoint url
-   * @param customizations custom configuration that should be applied after defaults
-   */
-  public ModelCatalogWriterClient(String url, Function<Feign.Builder, Feign.Builder>
-          customizations) {
-    modelResource = ClientOrchestrator.prepareModelResource(url, customizations);
+  ModelCatalogWriterClient(ModelResource modelResource,
+                           ArtifactResource artifactResource,
+                           MultipartRequestsSender multipartRequestsSender) {
+    this.modelResource = modelResource;
+    this.artifactResource = artifactResource;
+    this.multipartRequestsSender = multipartRequestsSender;
   }
 
   public ModelDTO addModel(ModelModificationParametersDTO params, UUID orgId) {
@@ -63,6 +50,16 @@ public class ModelCatalogWriterClient {
 
   public ModelDTO deleteModel(UUID modelId) {
     return modelResource.deleteModel(modelId);
+  }
+
+  public ArtifactDTO addArtifact(UUID modelId,
+                                 List<ArtifactActionDTO> artifactActions,
+                                 File artifactFile) {
+    return multipartRequestsSender.postArtifact(modelId, artifactActions, artifactFile);
+  }
+
+  public ArtifactDTO deleteArtifact(UUID modelId, UUID artifactId) {
+    return artifactResource.deleteArtifact(modelId, artifactId);
   }
 
 }

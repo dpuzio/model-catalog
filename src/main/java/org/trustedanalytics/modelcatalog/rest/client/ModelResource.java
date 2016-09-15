@@ -17,15 +17,15 @@ import org.trustedanalytics.modelcatalog.rest.ModelCatalogPaths;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
 
-import java.util.Collection;
-import java.util.UUID;
-
 import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
 
+import java.util.Collection;
+import java.util.UUID;
+
 @Headers("Accept: application/json")
-interface ModelResource {
+public interface ModelResource {
 
   @RequestLine("GET " + ModelCatalogPaths.MODELS + "?orgId={orgId}")
   Collection<ModelDTO> listModels(@Param("orgId") UUID orgId);

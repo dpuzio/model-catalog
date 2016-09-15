@@ -14,15 +14,14 @@
 package org.trustedanalytics.modelcatalog.rest.entities;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import java.util.Set;
-import java.util.UUID;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Builder;
+
+import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -42,6 +41,6 @@ public class ModelDTO {
   private String addedOn;
   private String modifiedBy;
   private String modifiedOn;
-  private Set<UUID> artifactsIds;
+  private Set<ArtifactDTO> artifacts;
 
 }

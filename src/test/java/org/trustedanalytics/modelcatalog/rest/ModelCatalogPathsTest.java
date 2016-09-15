@@ -16,17 +16,32 @@ package org.trustedanalytics.modelcatalog.rest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
-import org.trustedanalytics.modelcatalog.rest.ModelCatalogPaths;
 
 import java.util.UUID;
 
 public class ModelCatalogPathsTest {
 
   @Test
-  public void pathToSpecificModel_shouldConsistOfPathToModelsAndModelUUID() {
-    String uuidStr = "239b9991-c33d-4a5f-9bf7-3c7a3c770678";
-    assertThat(ModelCatalogPaths.pathToSpecificModel(UUID.fromString(uuidStr)))
-            .isEqualTo(ModelCatalogPaths.MODELS + "/" + uuidStr);
+  public void pathToModel_shouldConsistOfPathToModelsAndModelUUID() {
+    UUID uuid = UUID.randomUUID();
+    assertThat(ModelCatalogPaths.pathToModel(uuid))
+            .isEqualTo(ModelCatalogPaths.MODELS + "/" + uuid);
+  }
+
+  @Test
+  public void pathToModelArtifacts_shouldConsistOfPathToModelPlusArtifactsString() {
+    UUID uuid = UUID.randomUUID();
+    assertThat(ModelCatalogPaths.pathToModelArtifacts(uuid))
+            .isEqualTo(ModelCatalogPaths.pathToModel(uuid) + "/artifacts");
+  }
+
+  @Test
+  public void
+  pathToModelArtifact_shouldConsistOfPathToModelPlusArtifactStringAndArtifactId() {
+    UUID modelId = UUID.randomUUID();
+    UUID artifactId = UUID.randomUUID();
+    assertThat(ModelCatalogPaths.pathToModelArtifact(modelId, artifactId))
+            .isEqualTo(ModelCatalogPaths.pathToModel(modelId) + "/artifacts/" + artifactId);
   }
 
 }

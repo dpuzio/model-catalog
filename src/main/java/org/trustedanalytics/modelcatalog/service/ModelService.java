@@ -13,14 +13,15 @@
  */
 package org.trustedanalytics.modelcatalog.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.trustedanalytics.modelcatalog.domain.Model;
 import org.trustedanalytics.modelcatalog.security.UsernameExtractor;
 import org.trustedanalytics.modelcatalog.storage.ModelStore;
 import org.trustedanalytics.modelcatalog.storage.OperationStatus;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
@@ -56,7 +57,7 @@ public class ModelService {
   public Model retrieveModel(UUID modelId) {
     Model model = modelStore.retrieveModel(modelId);
     throwExceptionIfNotFound(model);
-    return model;
+    return model; //TODO retrieve artifacts -> DPNG-10149
   }
 
   public Model addModel(ModelModificationParameters params, UUID orgId) {
@@ -77,6 +78,7 @@ public class ModelService {
   public Model deleteModel(UUID modelId) {
     Model model = modelStore.retrieveModel(modelId);
     throwExceptionIfNotFound(model);
+    //TODO handle artifacts - check if they exist and delete them also
     OperationStatus deleteStatus = modelStore.deleteModel(modelId);
     throwExceptionIfUpdateWasNotSuccessful(deleteStatus);
     return model;
@@ -88,7 +90,7 @@ public class ModelService {
             .addedBy(user)
             .addedOn(Instant.now())
             .algorithm(params.getAlgorithm())
-            .artifactsIds(params.getArtifactsIds())
+//            .artifactsIds(params.getArtifactsIds()) TODO artifacts -> DPNG-10149
             .creationTool(params.getCreationTool())
             .description(params.getDescription())
             .id(UUID.randomUUID())
@@ -104,6 +106,7 @@ public class ModelService {
   }
 
   private Model update(UUID modelId, ModelModificationParameters params, UpdateMode updateMode) {
+    //TODO handle artifacts -> DPNG-10149 (check if they exist, add, delete)
     retrieveModel(modelId);
     Map<String, Object> propertiesToUpdate;
     try {

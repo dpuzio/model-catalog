@@ -13,10 +13,10 @@
  */
 package org.trustedanalytics.modelcatalog;
 
-import com.google.common.collect.Sets;
-
 import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
 import org.trustedanalytics.modelcatalog.service.ModelModificationParameters;
+
+import com.google.common.collect.Sets;
 
 import java.util.HashSet;
 import java.util.UUID;

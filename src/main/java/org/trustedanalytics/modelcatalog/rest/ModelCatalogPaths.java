@@ -17,18 +17,39 @@ import java.util.UUID;
 
 public class ModelCatalogPaths {
 
-
   static final String BEGINNING = "/api";
   static final String API_VERSION = "/v1";
 
+  private static final String MODEL_ID = "{modelId}";
+  private static final String ARTIFACT_ID = "{artifactId}";
+
   public static final String MODELS = BEGINNING + API_VERSION + "/models";
-  public static final String MODEL = BEGINNING + API_VERSION + "/models/{modelId}";
+  public static final String MODEL = BEGINNING + API_VERSION + "/models/" + MODEL_ID;
+  public static final String ARTIFACTS = MODEL + "/artifacts";
+  public static final String ARTIFACT = ARTIFACTS + "/" + ARTIFACT_ID;
+  public static final String ARTIFACT_FILE = ARTIFACT + "/file";
 
   private ModelCatalogPaths() {
   }
 
-  public static String pathToSpecificModel(UUID modelId) {
-    return MODEL.replace("{modelId}", modelId.toString());
+  public static String pathToModel(UUID modelId) {
+    return replaceModelId(MODEL, modelId);
+  }
+
+  public static String pathToModelArtifacts(UUID modelId) {
+    return replaceModelId(ARTIFACTS, modelId);
+  }
+
+  public static String pathToModelArtifact(UUID modelId, UUID artifactId) {
+    return replaceArtifactId(replaceModelId(ARTIFACT, modelId), artifactId);
+  }
+
+  private static String replaceModelId(String path, UUID id) {
+    return path.replace(MODEL_ID, id.toString());
+  }
+
+  private static String replaceArtifactId(String path, UUID id) {
+    return path.replace(ARTIFACT_ID, id.toString());
   }
 
 }

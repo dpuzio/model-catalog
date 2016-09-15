@@ -11,23 +11,22 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog;
+package org.trustedanalytics.modelcatalog.rest.client;
 
-import org.trustedanalytics.modelcatalog.security.UsernameExtractor;
+public class ModelCatalogClientFailedException extends RuntimeException {
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+  private static final long serialVersionUID = 7700319295578948380L;
 
-@Configuration
-@Profile("integration-test")
-public class ITSecurityConfig {
+  public ModelCatalogClientFailedException(String message) {
+    super(message);
+  }
 
-  public static final String USERNAME = "Aga";
+  public ModelCatalogClientFailedException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-  @Bean
-  protected UsernameExtractor usernameExtractor() {
-    return () -> USERNAME;
+  public ModelCatalogClientFailedException(Throwable cause) {
+    super(cause);
   }
 
 }

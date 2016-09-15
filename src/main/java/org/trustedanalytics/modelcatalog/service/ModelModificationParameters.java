@@ -13,11 +13,11 @@
  */
 package org.trustedanalytics.modelcatalog.service;
 
-import java.util.Set;
-import java.util.UUID;
-
 import lombok.Getter;
 import lombok.experimental.Builder;
+
+import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Builder

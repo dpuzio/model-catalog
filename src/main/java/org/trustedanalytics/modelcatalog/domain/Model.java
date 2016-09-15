@@ -13,12 +13,12 @@
  */
 package org.trustedanalytics.modelcatalog.domain;
 
+import lombok.Getter;
+import lombok.experimental.Builder;
+
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
-
-import lombok.Getter;
-import lombok.experimental.Builder;
 
 @Getter
 @Builder
@@ -34,6 +34,6 @@ public class Model {
   private final Instant addedOn;
   private final String modifiedBy;
   private final Instant modifiedOn;
-  private final Set<UUID> artifactsIds;
+  private final Set<Artifact> artifacts;
 
 }

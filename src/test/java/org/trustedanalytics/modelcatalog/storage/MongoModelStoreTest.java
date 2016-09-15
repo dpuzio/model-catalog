@@ -22,9 +22,11 @@ import static org.mockito.Mockito.when;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.trustedanalytics.modelcatalog.storage.OperationStatus.SUCCESS;
 
+import org.trustedanalytics.modelcatalog.TestModelsBuilder;
+import org.trustedanalytics.modelcatalog.domain.Model;
+
 import com.mongodb.WriteConcernException;
 import com.mongodb.WriteResult;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -38,8 +40,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.trustedanalytics.modelcatalog.TestModelsBuilder;
-import org.trustedanalytics.modelcatalog.domain.Model;
 
 import java.util.HashMap;
 import java.util.Map;

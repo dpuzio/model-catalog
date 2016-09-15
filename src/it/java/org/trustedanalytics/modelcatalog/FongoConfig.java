@@ -13,20 +13,20 @@
  */
 package org.trustedanalytics.modelcatalog;
 
+import org.trustedanalytics.modelcatalog.storage.config
+    .AbstractMongoConfigurationWithInstantConverters;
+
 import com.github.fakemongo.Fongo;
 import com.mongodb.Mongo;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.trustedanalytics.modelcatalog.storage.config
-        .AbstractMongoConfigurationWithInstantConverters;
 
 @Configuration
 @Profile("integration-test")
 public class FongoConfig extends AbstractMongoConfigurationWithInstantConverters {
 
-  public static final String DB = "fongoDB";
+  private static final String DB = "fongoDB";
 
   @Override
   protected String getDatabaseName() {

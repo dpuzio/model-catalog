@@ -29,14 +29,14 @@ public abstract class AbstractMongoConfigurationWithInstantConverters extends
             LongToInstantConverter()));
   }
 
-  static class InstantToLongConverter implements Converter<Instant, Long> {
+  private static class InstantToLongConverter implements Converter<Instant, Long> {
     @Override
     public Long convert(Instant instant) {
       return instant.toEpochMilli();
     }
   }
 
-  static class LongToInstantConverter implements Converter<Long, Instant> {
+  private static class LongToInstantConverter implements Converter<Long, Instant> {
     @Override
     public Instant convert(Long source) {
       return Instant.ofEpochMilli(source);

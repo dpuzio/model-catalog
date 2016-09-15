@@ -11,23 +11,12 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog;
+package org.trustedanalytics.modelcatalog.rest;
 
-import org.trustedanalytics.modelcatalog.security.UsernameExtractor;
+public class RequestParams {
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+  public static final String ARTIFACT_ACTIONS = "artifactActions";
+  public static final String ARTIFACT_FILE = "artifactFile";
 
-@Configuration
-@Profile("integration-test")
-public class ITSecurityConfig {
-
-  public static final String USERNAME = "Aga";
-
-  @Bean
-  protected UsernameExtractor usernameExtractor() {
-    return () -> USERNAME;
-  }
-
+  public static final String CONTENT_TYPE_APP_JSON_UTF = "application/json; charset=UTF-8";
 }

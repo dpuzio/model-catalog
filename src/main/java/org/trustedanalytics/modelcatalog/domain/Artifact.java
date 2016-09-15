@@ -11,31 +11,39 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog.rest.entities;
+package org.trustedanalytics.modelcatalog.domain;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.experimental.Builder;
 
 import java.util.Set;
 import java.util.UUID;
 
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public class ModelModificationParametersDTO {
+public class Artifact {
 
-  private String name;
-  private String revision;
-  private String algorithm;
-  private String creationTool;
-  private String description;
-  private Set<UUID> artifactsIds;
+  private final UUID id;
+  private final UUID modelId;
+  private final String filename;
+  private final String location;
+  private final Set<ArtifactAction> actions;
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Artifact artifact = (Artifact) o;
+    return id.equals(artifact.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return id.hashCode();
+  }
 
 }

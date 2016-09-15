@@ -19,8 +19,15 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Sets;
+import org.trustedanalytics.modelcatalog.ModelParamsChecker;
+import org.trustedanalytics.modelcatalog.TestModelParamsBuilder;
+import org.trustedanalytics.modelcatalog.TestModelsBuilder;
+import org.trustedanalytics.modelcatalog.domain.Model;
+import org.trustedanalytics.modelcatalog.security.UsernameExtractor;
+import org.trustedanalytics.modelcatalog.storage.ModelStore;
+import org.trustedanalytics.modelcatalog.storage.OperationStatus;
 
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,13 +36,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.trustedanalytics.modelcatalog.ModelParamsChecker;
-import org.trustedanalytics.modelcatalog.TestModelParamsBuilder;
-import org.trustedanalytics.modelcatalog.TestModelsBuilder;
-import org.trustedanalytics.modelcatalog.domain.Model;
-import org.trustedanalytics.modelcatalog.security.UsernameExtractor;
-import org.trustedanalytics.modelcatalog.storage.ModelStore;
-import org.trustedanalytics.modelcatalog.storage.OperationStatus;
 
 import java.time.Instant;
 import java.util.Collection;

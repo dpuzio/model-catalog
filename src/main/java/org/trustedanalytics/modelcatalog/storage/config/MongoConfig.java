@@ -13,16 +13,16 @@
  */
 package org.trustedanalytics.modelcatalog.storage.config;
 
+import org.trustedanalytics.modelcatalog.storage.MongoProperties;
+
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.trustedanalytics.modelcatalog.storage.MongoProperties;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;

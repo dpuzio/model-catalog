@@ -27,7 +27,7 @@ class ModelMapper implements Function<Model, ModelDTO> {
             .addedBy(model.getAddedBy())
             .addedOn(format(model.getAddedOn()))
             .algorithm(model.getAlgorithm())
-            .artifactsIds(model.getArtifactsIds())
+//              .artifactsIds(model.getArtifactsIds()) TODO mapArtifacts -> DPNG-10149
             .creationTool(model.getCreationTool())
             .description(model.getDescription())
             .id(model.getId())

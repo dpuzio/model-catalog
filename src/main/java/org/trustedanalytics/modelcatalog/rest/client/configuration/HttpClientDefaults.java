@@ -11,23 +11,23 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog;
+package org.trustedanalytics.modelcatalog.rest.client.configuration;
 
-import org.trustedanalytics.modelcatalog.security.UsernameExtractor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import java.util.concurrent.TimeUnit;
 
-@Configuration
-@Profile("integration-test")
-public class ITSecurityConfig {
+class HttpClientDefaults {
 
-  public static final String USERNAME = "Aga";
+  private final static ObjectMapper objectMapper =
+          new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-  @Bean
-  protected UsernameExtractor usernameExtractor() {
-    return () -> USERNAME;
+  static final int CONNECT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(30);
+  static final int READ_TIMEOUT = (int) TimeUnit.MINUTES.toMillis(5);
+
+  static ObjectMapper objectMapper() {
+    return objectMapper;
   }
 
 }

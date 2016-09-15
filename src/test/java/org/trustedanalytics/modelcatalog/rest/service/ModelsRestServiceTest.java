@@ -18,11 +18,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.trustedanalytics.modelcatalog.TestModelParamsBuilder;
 import org.trustedanalytics.modelcatalog.TestModelsBuilder;
 import org.trustedanalytics.modelcatalog.domain.Model;
@@ -31,18 +26,24 @@ import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParamete
 import org.trustedanalytics.modelcatalog.service.ModelModificationParameters;
 import org.trustedanalytics.modelcatalog.service.ModelService;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RestServiceTest {
+public class ModelsRestServiceTest {
 
   @Mock
   private ModelService modelService;
 
   @InjectMocks
-  RestService service;
+  ModelsRestService service;
 
   private final UUID orgId = UUID.randomUUID();
   private final UUID modelId = UUID.randomUUID();
