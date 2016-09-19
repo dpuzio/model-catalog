@@ -4,7 +4,7 @@ security:
   ignored: /v2/api-docs
 
 spring.oauth2.resource:
-  id: cloud_controller
+  id: tap
   jwt:
     keyUri: ${sso.tokenKey}
 
