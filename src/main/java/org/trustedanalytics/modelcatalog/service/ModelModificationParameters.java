@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.modelcatalog.rest;
+package org.trustedanalytics.modelcatalog.service;
 
+import java.util.Set;
 import java.util.UUID;
 
-public class ModelCatalogPaths {
+import lombok.Getter;
+import lombok.experimental.Builder;
 
-  static final String BEGINNING = "/api";
-  static final String API_VERSION = "/v1";
+@Getter
+@Builder
+public class ModelModificationParameters {
 
-  public static final String MODELS = BEGINNING + API_VERSION + "/models";
-  public static final String MODEL = BEGINNING + API_VERSION + "/models/{modelId}";
-
-  public static String pathToSpecificModel(UUID modelId) {
-    return MODEL.replace("{modelId}", modelId.toString());
-  }
+  private final String name;
+  private final String revision;
+  private final String algorithm;
+  private final String creationTool;
+  private final String description;
+  private final Set<UUID> artifactsIds;
 
 }

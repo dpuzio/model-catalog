@@ -15,7 +15,7 @@
  */
 package org.trustedanalytics.modelcatalog.rest.client;
 
-import org.trustedanalytics.modelcatalog.domain.Model;
+import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -50,11 +50,11 @@ public class ModelCatalogReaderClient {
     modelResource = ClientOrchestrator.prepareModelResource(url, customizations);
   }
 
-  public Collection<Model> listModels(UUID orgId) {
+  public Collection<ModelDTO> listModels(UUID orgId) {
     return modelResource.listModels(orgId);
   }
 
-  public Model retrieveModel(UUID modelId) {
+  public ModelDTO retrieveModel(UUID modelId) {
     return modelResource.fetchModel(modelId);
   }
 

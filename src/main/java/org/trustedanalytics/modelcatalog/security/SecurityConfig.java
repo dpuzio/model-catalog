@@ -13,8 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.modelcatalog.service;
+package org.trustedanalytics.modelcatalog.security;
 
-public class MismatchedIdsException extends RuntimeException {
-        private static final long serialVersionUID = 4005115324812901328L;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+
+@Configuration
+@Profile("default")
+public class SecurityConfig {
+
+  @Bean
+  public UsernameExtractor userNameExtractor() {
+    return new AuthTokenExtractor();
+  }
+
 }

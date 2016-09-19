@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.modelcatalog.storage;
+package org.trustedanalytics.modelcatalog.storage.config;
 
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
@@ -23,14 +23,16 @@ import com.mongodb.ServerAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+import org.springframework.context.annotation.Profile;
+import org.trustedanalytics.modelcatalog.storage.MongoProperties;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
-public class MongoConfig extends AbstractMongoConfiguration {
+@Profile("default")
+public class MongoConfig extends AbstractMongoConfigurationWithInstantConverters {
 
   @Autowired
   private MongoProperties mongoProperties;
@@ -44,15 +46,15 @@ public class MongoConfig extends AbstractMongoConfiguration {
   @Override
   public Mongo mongo() throws UnknownHostException {
     ServerAddress serverAddress = new ServerAddress(mongoProperties.getServerName(), mongoProperties.getServerPort());
-    List<MongoCredential> credendialList = new ArrayList<>();
+    List<MongoCredential> credentialList = new ArrayList<>();
 
     String user = mongoProperties.getUser();
     if (user != null && !user.isEmpty()) {
-      credendialList.add(MongoCredential.createMongoCRCredential(
+      credentialList.add(MongoCredential.createMongoCRCredential(
               user, mongoProperties.getDbName(), mongoProperties.getPassword().toCharArray()));
     }
 
-    return new MongoClient(serverAddress, credendialList);
+    return new MongoClient(serverAddress, credentialList);
   }
 
 }

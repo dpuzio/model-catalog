@@ -13,20 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.trustedanalytics.modelcatalog.rest;
+package org.trustedanalytics.modelcatalog.security;
 
-import java.util.UUID;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-public class ModelCatalogPaths {
+public class AuthTokenExtractor implements UsernameExtractor {
 
-  static final String BEGINNING = "/api";
-  static final String API_VERSION = "/v1";
-
-  public static final String MODELS = BEGINNING + API_VERSION + "/models";
-  public static final String MODEL = BEGINNING + API_VERSION + "/models/{modelId}";
-
-  public static String pathToSpecificModel(UUID modelId) {
-    return MODEL.replace("{modelId}", modelId.toString());
+  @Override
+  public String obtainUsername() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    return auth.getName();
   }
 
 }

@@ -19,7 +19,7 @@ import com.google.common.collect.Sets;
 
 import org.trustedanalytics.modelcatalog.domain.Model;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -27,34 +27,34 @@ public class TestModelsBuilder {
 
   public static final UUID ID = UUID.randomUUID();
   public static final String ADDED_BY = "Grzegorz Brzeczyszczykiewicz";
-  public static final Date ADDED_ON = new Date();
+  public static final Instant ADDED_ON = Instant.now();
   public static final String ALGORITHM = "The Algorithm";
+  public static final String CREATION_TOOL = "Other";
   public static final HashSet<UUID> ARTIFACTS_IDS = Sets.newHashSet(UUID.randomUUID(), UUID.randomUUID());
   public static final String DESCRIPTION = "Description";
   public static final String MODIFIED_BY = "ModifiedBy";
-  public static final Date MODIFIED_ON = new Date();
-  public static final String NAME = "Bored";
+  public static final Instant MODIFIED_ON = Instant.now();
+  public static final String NAME = "Model Name";
   public static final String REVISION = "Revision";
 
-  public static Model prepareExemplaryModel() {
-    Model model = new Model();
-    model.setId(ID);
-    model.setAddedBy(ADDED_BY);
-    model.setAddedOn(ADDED_ON);
-    model.setAlgorithm(ALGORITHM);
-    model.setArtifactsIds(ARTIFACTS_IDS);
-    model.setDescription(DESCRIPTION);
-    model.setModifiedBy(MODIFIED_BY);
-    model.setModifiedOn(MODIFIED_ON);
-    model.setName(NAME);
-    model.setRevision(REVISION);
-    return model;
+  public static Model exemplaryModel() {
+    return Model.builder()
+            .id(ID)
+            .addedBy(ADDED_BY)
+            .addedOn(ADDED_ON)
+            .algorithm(ALGORITHM)
+            .creationTool(CREATION_TOOL)
+            .artifactsIds(ARTIFACTS_IDS)
+            .description(DESCRIPTION)
+            .modifiedBy(MODIFIED_BY)
+            .modifiedOn(MODIFIED_ON)
+            .name(NAME)
+            .revision(REVISION)
+            .build();
   }
 
-  public static Model prepareExemplaryModel(UUID modelId) {
-    Model model = prepareExemplaryModel();
-    model.setId(modelId);
-    return model;
+  public static Model emptyModel() {
+    return Model.builder().build();
   }
 
 }

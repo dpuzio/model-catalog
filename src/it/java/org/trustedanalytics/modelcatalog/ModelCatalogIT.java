@@ -30,10 +30,14 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.trustedanalytics.modelcatalog.domain.Model;
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogReaderClient;
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogWriterClient;
+import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
+import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
+import org.trustedanalytics.modelcatalog.rest.service.InstantFormatter;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -43,19 +47,20 @@ import feign.FeignException;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {Application.class, FongoConfig.class})
 @WebAppConfiguration
-@IntegrationTest
+@IntegrationTest("server.port:0")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ActiveProfiles({"integration-test"})
+@ActiveProfiles("integration-test")
 public class ModelCatalogIT {
 
-  @Value("http://localhost:${server.port}")
+  @Value("http://localhost:${local.server.port}")
   private String url;
 
   private ModelCatalogReaderClient modelCatalogReader;
   private ModelCatalogWriterClient modelCatalogWriter;
 
   private final UUID ORG_ID = UUID.randomUUID();
-  private Model addedModel;
+  private final ModelModificationParametersDTO params = TestModelParamsBuilder.exemplaryParamsDTO();
+  private ModelDTO addedModel;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -69,7 +74,7 @@ public class ModelCatalogIT {
   @Test
   public void shouldListAddRetrieveAndDeleteModels() {
     checkThatThereAreNoModelsInDb();
-    addExemplaryModel();
+    addModelAndCheckThatItWasProperlyInitialized();
     checkThatThereIsOneModelInDb();
     retrieveModelFromDbAndCompareWithTheAddedOne();
     deleteAddedModel();
@@ -85,67 +90,74 @@ public class ModelCatalogIT {
   @Test
   public void shouldUpdateModel() {
     // given
-    addExemplaryModel();
+    addEmptyModel();
     final UUID modelId = addedModel.getId();
     // when
-    Model updatedModel = modelCatalogWriter.updateModel(modelId, new Model());
+    Instant before = currentTimeWithPrecisionToMinutes();
+    ModelDTO updatedModel = modelCatalogWriter.updateModel(modelId, params);
+    Instant after = Instant.now();
     // then
-    Model expected = newModelWithId(modelId);
-    assertThat(updatedModel).isEqualToComparingFieldByFieldRecursively(expected);
+    ModelParamsChecker.checkThatModelDTOContainsParamsDTO(updatedModel, params);
+    assertThat(updatedModel.getId()).isEqualTo(modelId);
+    assertThat(updatedModel.getAddedBy()).isEqualTo(addedModel.getAddedBy());
+    assertThat(updatedModel.getAddedOn()).isEqualTo(addedModel.getAddedOn());
+    assertThat(updatedModel.getModifiedBy()).isEqualTo(ITSecurityConfig.USERNAME);
+    checkThatIsBetween(updatedModel.getModifiedOn(), before, after);
   }
 
   @Test
   public void updateModel_shouldReturn404WhenModelNotFound() {
     expectFeignExceptionWithStatusAndReason(HttpStatus.NOT_FOUND);
-    modelCatalogWriter.updateModel(UUID.randomUUID(), new Model());
-  }
-
-  @Test
-  public void updateModel_shouldReturn422WhenIdsMismatch() {
-    addExemplaryModel();
-    expectFeignExceptionWithStatusAndReason(HttpStatus.UNPROCESSABLE_ENTITY);
-    modelCatalogWriter.updateModel(UUID.randomUUID(), newModelWithId(UUID.randomUUID()));
+    modelCatalogWriter.updateModel(UUID.randomUUID(), params);
   }
 
   @Test
   public void shouldPatchModel() {
     // given
-    addExemplaryModel();
-    Model modelPatch = new Model();
-    final String newDescription = "New description.";
-    modelPatch.setDescription(newDescription);
+    addEmptyModel();
+    final UUID modelId = addedModel.getId();
     // when
-    Model updatedModel = modelCatalogWriter.patchModel(addedModel.getId(), modelPatch);
+    Instant before = currentTimeWithPrecisionToMinutes();
+    ModelDTO updatedModel = modelCatalogWriter.patchModel(modelId, params);
+    Instant after = Instant.now();
     // then
-    Model expected = addedModel;
-    expected.setDescription(newDescription);
-    assertThat(updatedModel).isEqualToComparingFieldByFieldRecursively(expected);
+    ModelParamsChecker.checkThatModelDTOContainsParamsDTO(updatedModel, params);
+    assertThat(updatedModel.getId()).isEqualTo(modelId);
+    assertThat(updatedModel.getAddedBy()).isEqualTo(addedModel.getAddedBy());
+    assertThat(updatedModel.getAddedOn()).isEqualTo(addedModel.getAddedOn());
+    assertThat(updatedModel.getModifiedBy()).isEqualTo(ITSecurityConfig.USERNAME);
+    checkThatIsBetween(addedModel.getModifiedOn(), before, after);
   }
 
   @Test
   public void patchModel_shouldReturn304WhenNothingToUpdate() {
     addExemplaryModel();
     expectFeignExceptionWithStatus(HttpStatus.NOT_MODIFIED);
-    modelCatalogWriter.patchModel(addedModel.getId(), new Model());
+    modelCatalogWriter.patchModel(addedModel.getId(), TestModelParamsBuilder.emptyParamsDTO());
   }
 
   @Test
   public void patchModel_shouldReturn404WhenModelNotFound() {
     expectFeignExceptionWithStatusAndReason(HttpStatus.NOT_FOUND);
-    modelCatalogWriter.patchModel(UUID.randomUUID(), new Model());
-  }
-
-  @Test
-  public void patchModel_shouldReturn422WhenIdsMismatch() {
-    addExemplaryModel();
-    expectFeignExceptionWithStatusAndReason(HttpStatus.UNPROCESSABLE_ENTITY);
-    modelCatalogWriter.patchModel(UUID.randomUUID(), newModelWithId(UUID.randomUUID()));
+    modelCatalogWriter.patchModel(UUID.randomUUID(), params);
   }
 
   @Test
   public void deleteModel_shouldReturn404WhenModelNotFound() {
     expectFeignExceptionWithStatusAndReason(HttpStatus.NOT_FOUND);
     modelCatalogWriter.deleteModel(UUID.randomUUID());
+  }
+
+  private void addModelAndCheckThatItWasProperlyInitialized() {
+    Instant before = currentTimeWithPrecisionToMinutes();
+    addExemplaryModel();
+    Instant after = Instant.now();
+    ModelParamsChecker.checkThatModelDTOContainsParamsDTO(addedModel, params);
+    assertThat(addedModel.getId()).isNotNull();
+    assertThat(addedModel.getAddedBy()).isEqualTo(ITSecurityConfig.USERNAME);
+    checkThatIsBetween(addedModel.getAddedOn(), before, after);
+    assertThat(addedModel.getModifiedBy()).isEqualTo(ITSecurityConfig.USERNAME);
+    checkThatIsBetween(addedModel.getModifiedOn(), before, after);
   }
 
   private void checkThatThereAreNoModelsInDb() {
@@ -157,12 +169,16 @@ public class ModelCatalogIT {
   }
 
   private void addExemplaryModel() {
-    Model exemplaryModel = TestModelsBuilder.prepareExemplaryModel();
-    addedModel = modelCatalogWriter.addModel(exemplaryModel, ORG_ID);
+    addedModel = modelCatalogWriter.addModel(params, ORG_ID);
+  }
+
+  private void addEmptyModel() {
+    ModelModificationParametersDTO emptyParams = TestModelParamsBuilder.emptyParamsDTO();
+    addedModel = modelCatalogWriter.addModel(emptyParams, ORG_ID);
   }
 
   private void retrieveModelFromDbAndCompareWithTheAddedOne() {
-    Model retrievedModel = modelCatalogReader.retrieveModel(addedModel.getId());
+    ModelDTO retrievedModel = modelCatalogReader.retrieveModel(addedModel.getId());
     assertThat(retrievedModel).isEqualToComparingFieldByFieldRecursively(addedModel);
   }
 
@@ -180,10 +196,16 @@ public class ModelCatalogIT {
     thrown.expectMessage(containsString(status.toString()));
   }
 
-  private Model newModelWithId(UUID uuid) {
-    Model model = new Model();
-    model.setId(uuid);
-    return model;
+  //because of Dates in ModelDTO being formetted with InstantFormatter.DATE_FORMAT
+  private Instant currentTimeWithPrecisionToMinutes() {
+    Instant now = Instant.now();
+    return now.truncatedTo(ChronoUnit.MINUTES);
+  }
+
+  private void checkThatIsBetween(String formattedTime, Instant start, Instant end) {
+    Instant instant = InstantFormatter.parse(formattedTime);
+    assertThat(instant).isGreaterThanOrEqualTo(start);
+    assertThat(instant).isLessThanOrEqualTo(end);
   }
 
 }

@@ -15,7 +15,8 @@
  */
 package org.trustedanalytics.modelcatalog.rest.client;
 
-import org.trustedanalytics.modelcatalog.domain.Model;
+import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
+import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
 
 import java.util.UUID;
 import java.util.function.Function;
@@ -49,19 +50,19 @@ public class ModelCatalogWriterClient {
     modelResource = ClientOrchestrator.prepareModelResource(url, customizations);
   }
 
-  public Model addModel(Model model, UUID orgId) {
-    return modelResource.addModel(model, orgId);
+  public ModelDTO addModel(ModelModificationParametersDTO params, UUID orgId) {
+    return modelResource.addModel(params, orgId);
   }
 
-  public Model updateModel(UUID modelId, Model model) {
-    return modelResource.updateModel(modelId, model);
+  public ModelDTO updateModel(UUID modelId, ModelModificationParametersDTO params) {
+    return modelResource.updateModel(modelId, params);
   }
 
-  public Model patchModel(UUID modelId, Model model) {
-    return modelResource.patchModel(modelId, model);
+  public ModelDTO patchModel(UUID modelId, ModelModificationParametersDTO params) {
+    return modelResource.patchModel(modelId, params);
   }
 
-  public Model deleteModel(UUID modelId) {
+  public ModelDTO deleteModel(UUID modelId) {
     return modelResource.deleteModel(modelId);
   }
 

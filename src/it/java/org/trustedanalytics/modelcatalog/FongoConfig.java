@@ -21,11 +21,11 @@ import com.mongodb.Mongo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+import org.trustedanalytics.modelcatalog.storage.config.AbstractMongoConfigurationWithInstantConverters;
 
 @Configuration
 @Profile("integration-test")
-public class FongoConfig extends AbstractMongoConfiguration {
+public class FongoConfig extends AbstractMongoConfigurationWithInstantConverters {
 
   public static final String DB = "fongoDB";
 
