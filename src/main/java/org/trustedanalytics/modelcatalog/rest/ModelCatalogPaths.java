@@ -19,7 +19,6 @@ import java.util.UUID;
 
 public class ModelCatalogPaths {
 
-  private ModelCatalogPaths() {}
 
   static final String BEGINNING = "/api";
   static final String API_VERSION = "/v1";
@@ -27,6 +26,8 @@ public class ModelCatalogPaths {
   public static final String MODELS = BEGINNING + API_VERSION + "/models";
   public static final String MODEL = BEGINNING + API_VERSION + "/models/{modelId}";
 
+  private ModelCatalogPaths() {}
+  
   public static String pathToSpecificModel(UUID modelId) {
     return MODEL.replace("{modelId}", modelId.toString());
   }
