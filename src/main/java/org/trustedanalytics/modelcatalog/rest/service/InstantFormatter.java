@@ -23,7 +23,9 @@ public class InstantFormatter {
 
   private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm z";
   private static final DateTimeFormatter formatter =
-          DateTimeFormatter.ofPattern(DATE_FORMAT).withZone(ZoneId.of("GMT"));
+      DateTimeFormatter.ofPattern(DATE_FORMAT).withZone(ZoneId.of("GMT"));
+
+  private InstantFormatter() {}
 
   public static String format(Instant instant) {
     if (null == instant) {

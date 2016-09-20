@@ -34,18 +34,18 @@ class ClientOrchestrator {
   private static final int CONNECT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(30);
   private static final int READ_TIMEOUT = (int) TimeUnit.MINUTES.toMillis(5);
 
-  static ModelResource prepareModelResource(String url, Function<Feign.Builder, Feign.Builder> customizations) {
+  private ClientOrchestrator() {}
+
+  static ModelResource prepareModelResource(String url,
+      Function<Feign.Builder, Feign.Builder> customizations) {
     Objects.requireNonNull(url, "url");
     Objects.requireNonNull(customizations, "customizations");
     ObjectMapper objectMapper = prepareObjectMapper();
     final Feign.Builder builder = customizations.apply(Feign.builder()
-                    .encoder(new JacksonEncoder(objectMapper))
-                    .decoder(new JacksonDecoder(objectMapper))
-                    .options(new Request.Options(CONNECT_TIMEOUT, READ_TIMEOUT))
-                    .logger(new Slf4jLogger(ModelResource.class))
-                    .logLevel(feign.Logger.Level.BASIC)
-                    .client(new OkHttpClient())
-    );
+        .encoder(new JacksonEncoder(objectMapper)).decoder(new JacksonDecoder(objectMapper))
+        .options(new Request.Options(CONNECT_TIMEOUT, READ_TIMEOUT))
+        .logger(new Slf4jLogger(ModelResource.class)).logLevel(feign.Logger.Level.BASIC)
+        .client(new OkHttpClient()));
     return builder.target(ModelResource.class, url);
   }
 

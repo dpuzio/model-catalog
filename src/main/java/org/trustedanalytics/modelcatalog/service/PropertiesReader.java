@@ -28,8 +28,11 @@ class PropertiesReader {
 
   private static final String IGNORED_CLASS_PROPERTY = "class";
 
-  public static Map<String, Object> preparePropertiesToUpdateMap(Object source, boolean skipNullProperties)
-          throws IntrospectionException, InvocationTargetException, IllegalAccessException {
+  private PropertiesReader() {}
+
+  public static Map<String, Object> preparePropertiesToUpdateMap(Object source,
+      boolean skipNullProperties)
+      throws IntrospectionException, InvocationTargetException, IllegalAccessException {
     Map<String, Object> propertiesAndValues = new HashMap<>();
     BeanInfo beanInfo = Introspector.getBeanInfo(source.getClass());
     for (PropertyDescriptor property : beanInfo.getPropertyDescriptors()) {
@@ -38,9 +41,9 @@ class PropertiesReader {
     return propertiesAndValues;
   }
 
-  private static void addPropertyToMapIfApplicable(
-          PropertyDescriptor property, Map<String, Object> propertiesAndValues, Object source, boolean skipNullProperties)
-          throws IllegalAccessException, InvocationTargetException {
+  private static void addPropertyToMapIfApplicable(PropertyDescriptor property,
+      Map<String, Object> propertiesAndValues, Object source, boolean skipNullProperties)
+      throws IllegalAccessException, InvocationTargetException {
     String propertyName = property.getName();
     if (IGNORED_CLASS_PROPERTY.equals(propertyName)) {
       return;

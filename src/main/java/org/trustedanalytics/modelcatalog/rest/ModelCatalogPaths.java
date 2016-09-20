@@ -19,6 +19,8 @@ import java.util.UUID;
 
 public class ModelCatalogPaths {
 
+  private ModelCatalogPaths() {}
+
   static final String BEGINNING = "/api";
   static final String API_VERSION = "/v1";
 
