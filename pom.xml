@@ -6,7 +6,7 @@
 
     <groupId>org.trustedanalytics.modelcatalog</groupId>
     <artifactId>model-catalog</artifactId>
-    <version>0.3.9</version>
+    <version>0.3.10</version>
 
     <parent>
         <groupId>org.trustedanalytics</groupId>

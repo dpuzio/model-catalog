@@ -1,17 +1,15 @@
 /**
  * Copyright (c) 2016 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.trustedanalytics.modelcatalog.rest;
 
@@ -60,7 +58,8 @@ public class Controller {
   )
   @ApiResponses(value = {
           @ApiResponse(code = 200, message = "SUCCESS"),
-          @ApiResponse(code = 500, message = "Internal server error, e.g. error getting model metadata")
+          @ApiResponse(code = 500, message = "Internal server error, e.g. error getting model " +
+                  "metadata")
   })
   @RequestMapping(
           value = ModelCatalogPaths.MODELS,
@@ -79,7 +78,8 @@ public class Controller {
   @ApiResponses(value = {
           @ApiResponse(code = 200, message = "SUCCESS"),
           @ApiResponse(code = 404, message = "Not Found"),
-          @ApiResponse(code = 500, message = "Internal server error, e.g. error getting model metadata"),
+          @ApiResponse(code = 500, message = "Internal server error, e.g. error getting model " +
+                  "metadata"),
   })
   @RequestMapping(
           value = ModelCatalogPaths.MODEL,
@@ -97,15 +97,17 @@ public class Controller {
   )
   @ApiResponses(value = {
           @ApiResponse(code = 201, message = "Created"),
-          @ApiResponse(code = 500, message = "Internal server error, e.g. error saving model metadata"),
+          @ApiResponse(code = 500, message = "Internal server error, e.g. error saving model " +
+                  "metadata"),
   })
   @RequestMapping(
           value = ModelCatalogPaths.MODELS,
           method = RequestMethod.POST,
           produces = "application/json; charset=UTF-8")
   @ResponseStatus(HttpStatus.CREATED)
-  public ResponseEntity<ModelDTO> addModelAndReturnWithLocationHeader (
-          @ApiParam(value = "Model entity containing only modifiable fields", required = true) @RequestBody ModelModificationParametersDTO model,
+  public ResponseEntity<ModelDTO> addModelAndReturnWithLocationHeader(
+          @ApiParam(value = "Model entity containing only modifiable fields", required = true)
+          @RequestBody ModelModificationParametersDTO model,
           @ApiParam(value = "Organization id", required = true) @RequestParam UUID orgId) {
     ModelDTO addedModel = service.addModel(model, orgId);
     HttpHeaders httpHeaders = new HttpHeaders();
@@ -120,7 +122,8 @@ public class Controller {
   @ApiResponses(value = {
           @ApiResponse(code = 200, message = "Model updated"),
           @ApiResponse(code = 404, message = "Model not Found"),
-          @ApiResponse(code = 500, message = "Internal server error, e.g. error updating model metadata"),
+          @ApiResponse(code = 500, message = "Internal server error, e.g. error updating model " +
+                  "metadata"),
   })
   @RequestMapping(
           value = ModelCatalogPaths.MODEL,
@@ -128,7 +131,8 @@ public class Controller {
           produces = "application/json; charset=UTF-8")
   public ModelDTO updateModel(
           @ApiParam(value = "Model id", required = true) @PathVariable UUID modelId,
-          @ApiParam(value = "Model entity containing only modifiable fields", required = true) @RequestBody ModelModificationParametersDTO model) {
+          @ApiParam(value = "Model entity containing only modifiable fields", required = true)
+          @RequestBody ModelModificationParametersDTO model) {
     return service.updateModel(modelId, model);
   }
 
@@ -140,7 +144,8 @@ public class Controller {
           @ApiResponse(code = 200, message = "Model updated"),
           @ApiResponse(code = 304, message = "Nothing to update"),
           @ApiResponse(code = 404, message = "Model not Found"),
-          @ApiResponse(code = 500, message = "Internal server error, e.g. error updating model metadata"),
+          @ApiResponse(code = 500, message = "Internal server error, e.g. error updating model " +
+                  "metadata"),
   })
   @RequestMapping(
           value = ModelCatalogPaths.MODEL,
@@ -148,7 +153,8 @@ public class Controller {
           produces = "application/json; charset=UTF-8")
   public ModelDTO patchModel(
           @ApiParam(value = "Model id", required = true) @PathVariable UUID modelId,
-          @ApiParam(value = "Model entity containing only modifiable fields", required = true) @RequestBody ModelModificationParametersDTO model) {
+          @ApiParam(value = "Model entity containing only modifiable fields", required = true)
+          @RequestBody ModelModificationParametersDTO model) {
     return service.patchModel(modelId, model);
   }
 
@@ -159,7 +165,8 @@ public class Controller {
   @ApiResponses(value = {
           @ApiResponse(code = 200, message = "Deleted"),
           @ApiResponse(code = 404, message = "Model not Found"),
-          @ApiResponse(code = 500, message = "Internal server error, e.g. error saving model metadata"),
+          @ApiResponse(code = 500, message = "Internal server error, e.g. error saving model " +
+                  "metadata"),
   })
   @RequestMapping(
           value = ModelCatalogPaths.MODEL,
@@ -194,7 +201,7 @@ public class Controller {
 
   @SuppressWarnings("EmptyMethod")
   @ExceptionHandler(NothingToUpdateException.class)
-  @ResponseStatus(value= HttpStatus.NOT_MODIFIED, reason = "Nothing to update")
+  @ResponseStatus(value = HttpStatus.NOT_MODIFIED, reason = "Nothing to update")
   void handleNothingToUpdateException() {
   }
 

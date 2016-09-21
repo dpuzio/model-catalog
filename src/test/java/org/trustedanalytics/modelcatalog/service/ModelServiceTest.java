@@ -1,17 +1,15 @@
 /**
  * Copyright (c) 2016 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.trustedanalytics.modelcatalog.service;
 
@@ -75,7 +73,8 @@ public class ModelServiceTest {
   @Test
   public void shouldListModels() {
     // given
-    Set<Model> models = Sets.newHashSet(TestModelsBuilder.exemplaryModel(), TestModelsBuilder.exemplaryModel());
+    Set<Model> models = Sets.newHashSet(TestModelsBuilder.exemplaryModel(), TestModelsBuilder
+            .exemplaryModel());
     when(modelStore.listModels(any(UUID.class))).thenReturn(models);
     // when
     Collection<Model> returnedModels = modelService.listModels(UUID.randomUUID());
@@ -102,7 +101,8 @@ public class ModelServiceTest {
   @Test
   public void shouldInitiateAddAndReturnModel_withGivenProperties() {
     // given
-    when(modelStore.addModel(any(Model.class), any(UUID.class))).thenReturn(OperationStatus.SUCCESS);
+    when(modelStore.addModel(any(Model.class), any(UUID.class))).thenReturn(OperationStatus
+            .SUCCESS);
     // when
     Instant before = Instant.now();
     Model addedModel = modelService.addModel(params, UUID.randomUUID());
@@ -119,7 +119,8 @@ public class ModelServiceTest {
   @Test(expected = FailedUpdateException.class)
   public void addModel_shouldThrowFailedUpdateException_whenStatusFailure() {
     // given
-    when(modelStore.addModel(any(Model.class), any(UUID.class))).thenReturn(OperationStatus.FAILURE);
+    when(modelStore.addModel(any(Model.class), any(UUID.class))).thenReturn(OperationStatus
+            .FAILURE);
     // when
     modelService.addModel(params, UUID.randomUUID());
   }
@@ -178,7 +179,8 @@ public class ModelServiceTest {
   public void updateModel_shouldThrowFailedUpdateException_whenUpdateWasNotSuccessful() {
     // given
     when(modelStore.retrieveModel(any(UUID.class))).thenReturn(model);
-    when(modelStore.updateModel(any(UUID.class), any(Map.class))).thenReturn(OperationStatus.FAILURE);
+    when(modelStore.updateModel(any(UUID.class), any(Map.class))).thenReturn(OperationStatus
+            .FAILURE);
     // when
     modelService.updateModel(UUID.randomUUID(), params);
   }
@@ -236,7 +238,8 @@ public class ModelServiceTest {
   public void patchModel_shouldThrowFailedUpdateException_whenUpdateWasNotSuccessful() {
     // given
     when(modelStore.retrieveModel(any(UUID.class))).thenReturn(model);
-    when(modelStore.updateModel(any(UUID.class), any(Map.class))).thenReturn(OperationStatus.FAILURE);
+    when(modelStore.updateModel(any(UUID.class), any(Map.class))).thenReturn(OperationStatus
+            .FAILURE);
     // when
     modelService.patchModel(UUID.randomUUID(), params);
   }
