@@ -1,17 +1,15 @@
 /**
  * Copyright (c) 2016 Intel Corporation
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  */
 package org.trustedanalytics.modelcatalog.storage;
 
@@ -90,7 +88,8 @@ public class MongoModelStoreTest {
   @Test
   public void shouldAddModelAndReturnSuccessStatus_whenNoExceptionThrown() {
     // when
-    OperationStatus status = mongoModelStore.addModel(TestModelsBuilder.emptyModel(), UUID.randomUUID());
+    OperationStatus status = mongoModelStore.addModel(TestModelsBuilder.emptyModel(), UUID
+            .randomUUID());
     // then
     assertThat(status == SUCCESS);
   }
@@ -124,10 +123,12 @@ public class MongoModelStoreTest {
   public void updateModel_shouldReturnSuccess_whenAtLeastOneDocumentUpdated() {
     // given
     WriteResult writeResultMock = mock(WriteResult.class);
-    when(mongoOperations.updateFirst(any(), any(), modelClassMatcher())).thenReturn(writeResultMock);
+    when(mongoOperations.updateFirst(any(), any(), modelClassMatcher())).thenReturn
+            (writeResultMock);
     when(writeResultMock.getN()).thenReturn(5);
     // when
-    OperationStatus operationStatus = mongoModelStore.updateModel(UUID.randomUUID(), preparePropertiesToUpdateMap());
+    OperationStatus operationStatus = mongoModelStore.updateModel(UUID.randomUUID(),
+            preparePropertiesToUpdateMap());
     // then
     assertThat(operationStatus).isEqualTo(OperationStatus.SUCCESS);
   }
@@ -136,10 +137,12 @@ public class MongoModelStoreTest {
   public void updateModel_shouldReturnFailure_whenNoDocumentsUpdated() {
     // given
     WriteResult writeResultMock = mock(WriteResult.class);
-    when(mongoOperations.updateFirst(any(), any(), modelClassMatcher())).thenReturn(writeResultMock);
+    when(mongoOperations.updateFirst(any(), any(), modelClassMatcher())).thenReturn
+            (writeResultMock);
     when(writeResultMock.getN()).thenReturn(0);
     // when
-    OperationStatus operationStatus = mongoModelStore.updateModel(UUID.randomUUID(), preparePropertiesToUpdateMap());
+    OperationStatus operationStatus = mongoModelStore.updateModel(UUID.randomUUID(),
+            preparePropertiesToUpdateMap());
     // then
     assertThat(operationStatus).isEqualTo(OperationStatus.FAILURE);
   }
