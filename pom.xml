@@ -6,7 +6,7 @@
 
     <groupId>org.trustedanalytics.modelcatalog</groupId>
     <artifactId>model-catalog</artifactId>
-    <version>0.3.10</version>
+    <version>0.3.11</version>
 
     <parent>
         <groupId>org.trustedanalytics</groupId>
@@ -209,7 +209,7 @@
                 <configuration>
                     <imageName>${docker.imageName}</imageName>
                     <baseImage>${docker.registry}/tap-base-java:java8-jessie</baseImage>
-                    <cmd>["java", "-jar", "/${project.build.finalName}.jar"]</cmd>
+                    <cmd>java $JAVA_OPTS -jar ${project.build.finalName}.jar</cmd>
                     <useConfigFile>true</useConfigFile>
                     <resources>
                         <resource>
@@ -220,7 +220,7 @@
                     </resources>
                     <env>
                         <PORT>80</PORT>
-                        <JAVA_OPTS>-Xmx500m</JAVA_OPTS>
+                        <JAVA_OPTS>-Xss228k -Xmx512m -XX:MetaspaceSize=64m</JAVA_OPTS>
                     </env>
                 </configuration>
             </plugin>
