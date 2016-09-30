@@ -14,19 +14,20 @@
 package org.trustedanalytics.modelcatalog.storage;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.trustedanalytics.modelcatalog.storage.OperationStatus.SUCCESS;
 
 import org.trustedanalytics.modelcatalog.TestModelsBuilder;
 import org.trustedanalytics.modelcatalog.domain.Model;
 
 import com.mongodb.WriteConcernException;
 import com.mongodb.WriteResult;
+import org.assertj.core.api.Assertions;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -67,7 +68,7 @@ public class MongoModelStoreTest {
   private ArgumentCaptor<Update> updateStmtCaptor;
 
   @Test
-  public void shouldListModels() {
+  public void shouldListModels() throws ModelStoreException {
     // when
     mongoModelStore.listModels(UUID.randomUUID());
     // then
@@ -75,7 +76,7 @@ public class MongoModelStoreTest {
   }
 
   @Test
-  public void shouldRetrieveModelWithGivenId() {
+  public void shouldRetrieveModelWithGivenId() throws ModelStoreException {
     // given
     final UUID modelId = UUID.randomUUID();
     // when
@@ -86,12 +87,8 @@ public class MongoModelStoreTest {
   }
 
   @Test
-  public void shouldAddModelAndReturnSuccessStatus_whenNoExceptionThrown() {
-    // when
-    OperationStatus status = mongoModelStore.addModel(TestModelsBuilder.emptyModel(), UUID
-            .randomUUID());
-    // then
-    assertThat(status == SUCCESS);
+  public void shouldAddModel_withNoExceptions() throws ModelStoreException {
+    mongoModelStore.addModel(TestModelsBuilder.emptyModel(), UUID.randomUUID());
   }
 
   @Test
@@ -99,17 +96,20 @@ public class MongoModelStoreTest {
     // given
     doThrow(mock(WriteConcernException.class)).when(mongoOperations).insert(any(Model.class));
     // when, then
-    thrown.expect(WriteConcernException.class);
-    mongoModelStore.addModel(TestModelsBuilder.emptyModel(), UUID.randomUUID());
+    assertThatExceptionOfType(ModelStoreException.class)
+            .isThrownBy(() -> mongoModelStore.addModel(
+                    TestModelsBuilder.emptyModel(), UUID.randomUUID()));
   }
 
   @Test
-  public void shouldUpdateModel() {
+  public void shouldUpdateModel() throws ModelStoreException {
     // given
     UUID modelId = UUID.randomUUID();
     Map<String, Object> propertiesToUpdate = preparePropertiesToUpdateMap();
+    WriteResult writeResult = mock(WriteResult.class);
+    when(writeResult.getN()).thenReturn(1);
     when(mongoOperations.updateFirst(any(), any(), modelClassMatcher()))
-            .thenReturn(mock(WriteResult.class));
+            .thenReturn(writeResult);
     // when
     mongoModelStore.updateModel(modelId, propertiesToUpdate);
     // then
@@ -126,33 +126,34 @@ public class MongoModelStoreTest {
     when(mongoOperations.updateFirst(any(), any(), modelClassMatcher())).thenReturn
             (writeResultMock);
     when(writeResultMock.getN()).thenReturn(5);
-    // when
-    OperationStatus operationStatus = mongoModelStore.updateModel(UUID.randomUUID(),
-            preparePropertiesToUpdateMap());
-    // then
-    assertThat(operationStatus).isEqualTo(OperationStatus.SUCCESS);
+    // when/then
+    try {
+      mongoModelStore.updateModel(UUID.randomUUID(), preparePropertiesToUpdateMap());
+    } catch (ModelStoreException e) {
+      Assertions.fail("Unexpected exception", e);
+    }
   }
 
-  @Test
-  public void updateModel_shouldReturnFailure_whenNoDocumentsUpdated() {
+  @Test(expected = ModelStoreException.class)
+  public void updateModel_shouldReturnFailure_whenNoDocumentsUpdated() throws ModelStoreException {
     // given
     WriteResult writeResultMock = mock(WriteResult.class);
     when(mongoOperations.updateFirst(any(), any(), modelClassMatcher())).thenReturn
             (writeResultMock);
     when(writeResultMock.getN()).thenReturn(0);
     // when
-    OperationStatus operationStatus = mongoModelStore.updateModel(UUID.randomUUID(),
-            preparePropertiesToUpdateMap());
-    // then
-    assertThat(operationStatus).isEqualTo(OperationStatus.FAILURE);
+    mongoModelStore.updateModel(UUID.randomUUID(), preparePropertiesToUpdateMap());
+    Assertions.fail("Expected exception");
   }
 
   @Test
-  public void shouldDeleteModel() {
+  public void shouldDeleteModel() throws ModelStoreException {
     // given
     UUID modelId = UUID.randomUUID();
+    WriteResult writeResult = mock(WriteResult.class);
+    when(writeResult.getN()).thenReturn(1);
     when(mongoOperations.remove(any(), modelClassMatcher()))
-            .thenReturn(mock(WriteResult.class));
+            .thenReturn(writeResult);
     // when
     mongoModelStore.deleteModel(modelId);
     // then
@@ -161,27 +162,24 @@ public class MongoModelStoreTest {
   }
 
   @Test
-  public void deleteModel_shouldReturnSuccess_whenAtLeastOneDocumentDeleted() {
+  public void deleteModel_shouldReturnSuccess_whenAtLeastOneDocumentDeleted()
+          throws ModelStoreException {
     // given
     WriteResult writeResultMock = mock(WriteResult.class);
     when(mongoOperations.remove(any(), modelClassMatcher())).thenReturn(writeResultMock);
     when(writeResultMock.getN()).thenReturn(5);
-    // when
-    OperationStatus operationStatus = mongoModelStore.deleteModel(UUID.randomUUID());
-    // then
-    assertThat(operationStatus).isEqualTo(OperationStatus.SUCCESS);
+    // when / then
+    mongoModelStore.deleteModel(UUID.randomUUID());
   }
 
-  @Test
-  public void deleteModel_shouldReturnFailure_whenNoDocumentsDeleted() {
+  @Test(expected = ModelStoreException.class)
+  public void deleteModel_shouldReturnFailure_whenNoDocumentsDeleted() throws ModelStoreException {
     // given
     WriteResult writeResultMock = mock(WriteResult.class);
     when(mongoOperations.remove(any(), modelClassMatcher())).thenReturn(writeResultMock);
     when(writeResultMock.getN()).thenReturn(0);
-    // when
-    OperationStatus operationStatus = mongoModelStore.deleteModel(UUID.randomUUID());
-    // then
-    assertThat(operationStatus).isEqualTo(OperationStatus.FAILURE);
+    // when / then
+    mongoModelStore.deleteModel(UUID.randomUUID());
   }
 
   private Class<Model> modelClassMatcher() {

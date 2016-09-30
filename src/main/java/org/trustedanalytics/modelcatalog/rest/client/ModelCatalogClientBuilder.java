@@ -21,7 +21,7 @@ import java.util.Optional;
 
 public class ModelCatalogClientBuilder {
 
-  private String url;
+  private final String url;
   private OAuthTokenProvider tokenProvider;
   private int connectionTimeoutMillis;
   private int readTimeoutMillis;

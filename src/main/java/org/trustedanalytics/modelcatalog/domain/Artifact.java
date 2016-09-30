@@ -24,7 +24,6 @@ import java.util.UUID;
 public class Artifact {
 
   private final UUID id;
-  private final UUID modelId;
   private final String filename;
   private final String location;
   private final Set<ArtifactAction> actions;

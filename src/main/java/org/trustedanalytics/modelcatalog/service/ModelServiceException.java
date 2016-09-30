@@ -13,6 +13,23 @@
  */
 package org.trustedanalytics.modelcatalog.service;
 
-public class FailedUpdateException extends RuntimeException {
-  private static final long serialVersionUID = 5579870461822898352L;
+public class ModelServiceException extends RuntimeException {
+  private static final long serialVersionUID = -6807965059218140383L;
+
+  private final ModelServiceExceptionCode code;
+
+  public ModelServiceException(ModelServiceExceptionCode code, String message) {
+    super(message);
+    this.code = code;
+  }
+
+  public ModelServiceException(ModelServiceExceptionCode code, String message, Throwable
+          throwable) {
+    super(message, throwable);
+    this.code = code;
+  }
+
+  public ModelServiceExceptionCode getCode() {
+    return code;
+  }
 }

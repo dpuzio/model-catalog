@@ -16,6 +16,7 @@ package org.trustedanalytics.modelcatalog.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,7 +26,7 @@ import org.trustedanalytics.modelcatalog.TestModelsBuilder;
 import org.trustedanalytics.modelcatalog.domain.Model;
 import org.trustedanalytics.modelcatalog.security.UsernameExtractor;
 import org.trustedanalytics.modelcatalog.storage.ModelStore;
-import org.trustedanalytics.modelcatalog.storage.OperationStatus;
+import org.trustedanalytics.modelcatalog.storage.ModelStoreException;
 
 import com.google.common.collect.Sets;
 import org.junit.Before;
@@ -71,7 +72,7 @@ public class ModelServiceTest {
   }
 
   @Test
-  public void shouldListModels() {
+  public void shouldListModels() throws ModelStoreException {
     // given
     Set<Model> models = Sets.newHashSet(TestModelsBuilder.exemplaryModel(), TestModelsBuilder
             .exemplaryModel());
@@ -83,7 +84,7 @@ public class ModelServiceTest {
   }
 
   @Test
-  public void shouldRetrieveExistingModel() {
+  public void shouldRetrieveExistingModel() throws ModelStoreException {
     // given
     when(modelStore.retrieveModel(modelId)).thenReturn(model);
     // when
@@ -92,17 +93,14 @@ public class ModelServiceTest {
     assertThat(retrievedModel).isEqualToComparingFieldByField(model);
   }
 
-  @Test(expected = ModelNotFoundException.class)
-  public void retrieveModel_shouldThrowException_whenNoModelFound() {
+  @Test(expected = ModelServiceException.class)
+  public void retrieveModel_shouldThrowException_whenNoModelFound() throws ModelStoreException {
     when(modelStore.retrieveModel(any(UUID.class))).thenReturn(null);
     modelService.retrieveModel(UUID.randomUUID());
   }
 
   @Test
   public void shouldInitiateAddAndReturnModel_withGivenProperties() {
-    // given
-    when(modelStore.addModel(any(Model.class), any(UUID.class))).thenReturn(OperationStatus
-            .SUCCESS);
     // when
     Instant before = Instant.now();
     Model addedModel = modelService.addModel(params, UUID.randomUUID());
@@ -116,28 +114,28 @@ public class ModelServiceTest {
     checkThatIsBetween(addedModel.getModifiedOn(), before, after);
   }
 
-  @Test(expected = FailedUpdateException.class)
-  public void addModel_shouldThrowFailedUpdateException_whenStatusFailure() {
+  @Test(expected = ModelServiceException.class)
+  public void addModel_shouldThrowFailedUpdateException_whenStatusFailure()
+          throws ModelStoreException {
     // given
-    when(modelStore.addModel(any(Model.class), any(UUID.class))).thenReturn(OperationStatus
-            .FAILURE);
+    doThrow(new ModelStoreException(""))
+            .when(modelStore).addModel(any(Model.class), any(UUID.class));
     // when
     modelService.addModel(params, UUID.randomUUID());
   }
 
   @Test
-  public void shouldUpdateAndReturnRetrievedModel() {
+  public void shouldUpdateAndReturnRetrievedModel() throws ModelStoreException {
     // given
     when(modelStore.retrieveModel(modelId)).thenReturn(model);
-    when(modelStore.updateModel(eq(modelId), any(Map.class))).thenReturn(OperationStatus.SUCCESS);
     // when
     Model updatedModel = modelService.updateModel(modelId, params);
     // then
     assertThat(updatedModel).isSameAs(model);
   }
 
-  @Test(expected = ModelNotFoundException.class)
-  public void updateModel_shouldThrowException_whenModelNotFound() {
+  @Test(expected = ModelServiceException.class)
+  public void updateModel_shouldThrowException_whenModelNotFound() throws ModelStoreException {
     // given
     when(modelStore.retrieveModel(modelId)).thenReturn(null);
     // when
@@ -145,7 +143,8 @@ public class ModelServiceTest {
   }
 
   @Test
-  public void updateModel_shouldPassPropertiesMapContainingNullProperties() {
+  public void updateModel_shouldPassPropertiesMapContainingNullProperties()
+          throws ModelStoreException {
     // given
     when(modelStore.retrieveModel(modelId)).thenReturn(model);
     ModelModificationParameters params = TestModelParamsBuilder.paramsWithNullNameProperty();
@@ -159,7 +158,7 @@ public class ModelServiceTest {
   }
 
   @Test
-  public void updateModel_shouldUpdateModifiedOnAndByProperties() {
+  public void updateModel_shouldUpdateModifiedOnAndByProperties() throws ModelStoreException {
     // given
     when(modelStore.retrieveModel(modelId)).thenReturn(model);
     // when
@@ -175,29 +174,29 @@ public class ModelServiceTest {
     checkThatIsBetween((Instant) propertiesMap.get(MODIFIED_ON_PROPERTY_NAME), before, after);
   }
 
-  @Test(expected = FailedUpdateException.class)
-  public void updateModel_shouldThrowFailedUpdateException_whenUpdateWasNotSuccessful() {
+  @Test(expected = ModelServiceException.class)
+  public void updateModel_shouldThrowFailedUpdateException_whenUpdateWasNotSuccessful()
+          throws ModelStoreException {
     // given
     when(modelStore.retrieveModel(any(UUID.class))).thenReturn(model);
-    when(modelStore.updateModel(any(UUID.class), any(Map.class))).thenReturn(OperationStatus
-            .FAILURE);
+    doThrow(new ModelStoreException("")).when(modelStore)
+            .updateModel(any(UUID.class), any(Map.class));
     // when
     modelService.updateModel(UUID.randomUUID(), params);
   }
 
   @Test
-  public void shouldPatchAndReturnRetrievedModel() {
+  public void shouldPatchAndReturnRetrievedModel() throws ModelStoreException {
     // given
     when(modelStore.retrieveModel(modelId)).thenReturn(model);
-    when(modelStore.updateModel(eq(modelId), any(Map.class))).thenReturn(OperationStatus.SUCCESS);
     // when
     Model patchedModel = modelService.patchModel(modelId, params);
     // then
     assertThat(patchedModel).isSameAs(model);
   }
 
-  @Test(expected = ModelNotFoundException.class)
-  public void patchModel_shouldThrowException_whenModelNotFound() {
+  @Test(expected = ModelServiceException.class)
+  public void patchModel_shouldThrowException_whenModelNotFound() throws ModelStoreException {
     // given
     when(modelStore.retrieveModel(modelId)).thenReturn(null);
     // when
@@ -205,7 +204,8 @@ public class ModelServiceTest {
   }
 
   @Test
-  public void patchModel_shouldPassPropertiesMapOmittingNullProperties() {
+  public void patchModel_shouldPassPropertiesMapOmittingNullProperties()
+          throws ModelStoreException {
     // given
     when(modelStore.retrieveModel(modelId)).thenReturn(model);
     ModelModificationParameters params = TestModelParamsBuilder.paramsWithNullNameProperty();
@@ -218,7 +218,7 @@ public class ModelServiceTest {
   }
 
   @Test
-  public void patchModel_shouldUpdateModifiedOnAndByProperties() {
+  public void patchModel_shouldUpdateModifiedOnAndByProperties() throws ModelStoreException {
     // given
     when(modelStore.retrieveModel(modelId)).thenReturn(model);
     // when
@@ -234,18 +234,19 @@ public class ModelServiceTest {
     checkThatIsBetween((Instant) propertiesMap.get(MODIFIED_ON_PROPERTY_NAME), before, after);
   }
 
-  @Test(expected = FailedUpdateException.class)
-  public void patchModel_shouldThrowFailedUpdateException_whenUpdateWasNotSuccessful() {
+  @Test(expected = ModelServiceException.class)
+  public void patchModel_shouldThrowFailedUpdateException_whenUpdateWasNotSuccessful()
+          throws ModelStoreException {
     // given
     when(modelStore.retrieveModel(any(UUID.class))).thenReturn(model);
-    when(modelStore.updateModel(any(UUID.class), any(Map.class))).thenReturn(OperationStatus
-            .FAILURE);
+    doThrow(new ModelStoreException("")).when(modelStore)
+            .updateModel(any(UUID.class), any(Map.class));
     // when
     modelService.patchModel(UUID.randomUUID(), params);
   }
 
-  @Test(expected = NothingToUpdateException.class)
-  public void patchModel_shouldThrowExceptionIfNothingToUpdate() {
+  @Test(expected = ModelServiceException.class)
+  public void patchModel_shouldThrowExceptionIfNothingToUpdate() throws ModelStoreException {
     // given
     when(modelStore.retrieveModel(any(UUID.class))).thenReturn(model);
     // when
@@ -253,7 +254,7 @@ public class ModelServiceTest {
   }
 
   @Test
-  public void shouldDeleteAndReturnModel() {
+  public void shouldDeleteAndReturnModel() throws ModelStoreException {
     // given
     when(modelStore.retrieveModel(modelId)).thenReturn(model);
     // when
@@ -263,19 +264,20 @@ public class ModelServiceTest {
     verify(modelStore).deleteModel(modelId);
   }
 
-  @Test(expected = ModelNotFoundException.class)
-  public void testDeleteModel_shouldThrowException_whenModelNotFound() {
+  @Test(expected = ModelServiceException.class)
+  public void testDeleteModel_shouldThrowException_whenModelNotFound() throws ModelStoreException {
     // given
     when(modelStore.retrieveModel(modelId)).thenReturn(null);
     // when
     modelService.deleteModel(modelId);
   }
 
-  @Test(expected = FailedUpdateException.class)
-  public void deleteModel_shouldThrowFailedUpdateException_whenUpdateWasNotSuccessful() {
+  @Test(expected = ModelServiceException.class)
+  public void deleteModel_shouldThrowFailedUpdateException_whenUpdateWasNotSuccessful()
+          throws ModelStoreException {
     // given
     when(modelStore.retrieveModel(any(UUID.class))).thenReturn(model);
-    when(modelStore.deleteModel(any(UUID.class))).thenReturn(OperationStatus.FAILURE);
+    doThrow(new ModelStoreException("")).when(modelStore).deleteModel(any(UUID.class));
     // when
     modelService.deleteModel(UUID.randomUUID());
   }

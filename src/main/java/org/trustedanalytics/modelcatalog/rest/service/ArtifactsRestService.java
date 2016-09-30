@@ -13,33 +13,45 @@
  */
 package org.trustedanalytics.modelcatalog.rest.service;
 
-import org.trustedanalytics.modelcatalog.rest.entities.ArtifactActionDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ArtifactDTO;
+import org.trustedanalytics.modelcatalog.service.ArtifactService;
 
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class ArtifactsRestService {
 
-  public ArtifactDTO addArtifact(UUID modelId, Set<ArtifactActionDTO> actions, MultipartFile file) {
-    throw new UnsupportedOperationException(); //TODO -> DPNG-10149
+  private final ArtifactService artifactService;
+
+  @Autowired
+  public ArtifactsRestService(ArtifactService artifactService) {
+    this.artifactService = artifactService;
+  }
+
+  public ArtifactDTO addArtifact(UUID modelId, Set<String> actions, MultipartFile file) {
+    return ArtifactMapper.toArtifactDTO(
+            artifactService.addArtifact(
+                    modelId, ArtifactMapper.toArtifactActionSet(actions), file));
   }
 
   public ArtifactDTO retrieveArtifact(UUID modelId, UUID artifactId) {
-    throw new UnsupportedOperationException(); //TODO -> DPNG-10149
+    return ArtifactMapper.toArtifactDTO(
+            artifactService.retrieveArtifact(modelId, artifactId));
   }
 
-  public FileSystemResource retrieveArtifactFile(UUID modelId, UUID artifactId) {
-    throw new UnsupportedOperationException(); //TODO -> DPNG-10149
+  public InputStream retrieveArtifactFile(UUID modelId, UUID artifactId) {
+    return artifactService.retrieveArtifactFile(modelId, artifactId);
   }
 
   public ArtifactDTO deleteArtifact(UUID modelId, UUID artifactId) {
-    throw new UnsupportedOperationException(); //TODO -> DPNG-10149
+    return ArtifactMapper.toArtifactDTO(
+            artifactService.deleteArtifact(modelId, artifactId));
   }
 
 }

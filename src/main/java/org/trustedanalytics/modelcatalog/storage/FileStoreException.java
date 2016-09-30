@@ -11,8 +11,16 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog.service;
+package org.trustedanalytics.modelcatalog.storage;
 
-public class NothingToUpdateException extends RuntimeException {
-  private static final long serialVersionUID = -5787982407378515244L;
+public class FileStoreException extends Exception {
+  private static final long serialVersionUID = -2119357943693423922L;
+
+  public FileStoreException(String message) {
+    super(message);
+  }
+
+  public FileStoreException(String message, Throwable throwable) {
+    super(message, throwable);
+  }
 }

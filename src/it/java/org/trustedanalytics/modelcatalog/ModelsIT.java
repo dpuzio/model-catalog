@@ -14,10 +14,12 @@
 package org.trustedanalytics.modelcatalog;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper
+        .expectModelCatalogExceptionWithStatus;
+import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper
+        .expectModelCatalogExceptionWithStatusAndReason;
 
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogClientBuilder;
-import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogClientFailedException;
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogReaderClient;
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogWriterClient;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
@@ -48,7 +50,7 @@ import javax.annotation.PostConstruct;
 @IntegrationTest("server.port:0")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ActiveProfiles("integration-test")
-public class ModelCatalogIT {
+public class ModelsIT {
 
   @Value("http://localhost:${local.server.port}")
   private String url;
@@ -81,7 +83,7 @@ public class ModelCatalogIT {
 
   @Test
   public void retrieveModel_shouldReturn404WhenModelNotFound() {
-    expectModelCatalogExceptionWithStatusAndReason(HttpStatus.NOT_FOUND);
+    expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.NOT_FOUND);
     modelCatalogReader.retrieveModel(UUID.randomUUID());
   }
 
@@ -105,7 +107,7 @@ public class ModelCatalogIT {
 
   @Test
   public void updateModel_shouldReturn404WhenModelNotFound() {
-    expectModelCatalogExceptionWithStatusAndReason(HttpStatus.NOT_FOUND);
+    expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.NOT_FOUND);
     modelCatalogWriter.updateModel(UUID.randomUUID(), params);
   }
 
@@ -130,19 +132,19 @@ public class ModelCatalogIT {
   @Test
   public void patchModel_shouldReturn304WhenNothingToUpdate() {
     addExemplaryModel();
-    expectModelCatalogExceptionWithStatus(HttpStatus.NOT_MODIFIED);
+    expectModelCatalogExceptionWithStatus(thrown, HttpStatus.NOT_MODIFIED);
     modelCatalogWriter.patchModel(addedModel.getId(), TestModelParamsBuilder.emptyParamsDTO());
   }
 
   @Test
   public void patchModel_shouldReturn404WhenModelNotFound() {
-    expectModelCatalogExceptionWithStatusAndReason(HttpStatus.NOT_FOUND);
+    expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.NOT_FOUND);
     modelCatalogWriter.patchModel(UUID.randomUUID(), params);
   }
 
   @Test
   public void deleteModel_shouldReturn404WhenModelNotFound() {
-    expectModelCatalogExceptionWithStatusAndReason(HttpStatus.NOT_FOUND);
+    expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.NOT_FOUND);
     modelCatalogWriter.deleteModel(UUID.randomUUID());
   }
 
@@ -182,16 +184,6 @@ public class ModelCatalogIT {
 
   private void deleteAddedModel() {
     modelCatalogWriter.deleteModel(addedModel.getId());
-  }
-
-  private void expectModelCatalogExceptionWithStatusAndReason(HttpStatus status) {
-    expectModelCatalogExceptionWithStatus(status);
-    thrown.expectMessage(containsString(status.getReasonPhrase()));
-  }
-
-  private void expectModelCatalogExceptionWithStatus(HttpStatus status) {
-    thrown.expect(ModelCatalogClientFailedException.class);
-    thrown.expectMessage(containsString(status.toString()));
   }
 
   //because of Dates in ModelDTO being formetted with InstantFormatter.DATE_FORMAT

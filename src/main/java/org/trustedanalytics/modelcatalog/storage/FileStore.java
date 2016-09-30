@@ -11,8 +11,14 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog.service;
+package org.trustedanalytics.modelcatalog.storage;
 
-public class CannotMapPropertiesException extends RuntimeException {
-  private static final long serialVersionUID = -866450099991586660L;
+import java.io.InputStream;
+
+public interface FileStore {
+  InputStream retrieveFile(String location) throws FileStoreException;
+
+  void addFile(String location, InputStream data) throws FileStoreException;
+
+  void deleteFile(String location) throws FileStoreException;
 }

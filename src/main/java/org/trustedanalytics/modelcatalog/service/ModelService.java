@@ -16,7 +16,7 @@ package org.trustedanalytics.modelcatalog.service;
 import org.trustedanalytics.modelcatalog.domain.Model;
 import org.trustedanalytics.modelcatalog.security.UsernameExtractor;
 import org.trustedanalytics.modelcatalog.storage.ModelStore;
-import org.trustedanalytics.modelcatalog.storage.OperationStatus;
+import org.trustedanalytics.modelcatalog.storage.ModelStoreException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,20 +51,37 @@ public class ModelService {
   }
 
   public Collection<Model> listModels(UUID orgId) {
-    return modelStore.listModels(orgId);
+    try {
+      return modelStore.listModels(orgId);
+    } catch (ModelStoreException e) {
+      throw new ModelServiceException(
+              ModelServiceExceptionCode.MODEL_LIST_FAILED, "Model list failed.", e);
+    }
   }
 
   public Model retrieveModel(UUID modelId) {
-    Model model = modelStore.retrieveModel(modelId);
-    throwExceptionIfNotFound(model);
-    return model; //TODO retrieve artifacts -> DPNG-10149
+    try {
+      Model model = modelStore.retrieveModel(modelId);
+      if (Objects.isNull(model)) {
+        throw new ModelServiceException(
+                ModelServiceExceptionCode.MODEL_NOT_FOUND, "Model with given ID not found.");
+      }
+      return model;
+    } catch (ModelStoreException e) {
+      throw new ModelServiceException(
+              ModelServiceExceptionCode.MODEL_RETRIEVE_FAILED, "Model retrieve failed.", e);
+    }
   }
 
   public Model addModel(ModelModificationParameters params, UUID orgId) {
-    Model model = initiateNewModel(params);
-    OperationStatus additionStatus = modelStore.addModel(model, orgId);
-    throwExceptionIfUpdateWasNotSuccessful(additionStatus);
-    return model;
+    try {
+      Model model = initiateNewModel(params);
+      modelStore.addModel(model, orgId);
+      return model;
+    } catch (ModelStoreException e) {
+      throw new ModelServiceException(
+              ModelServiceExceptionCode.MODEL_ADD_FAILED, "Model add failed.", e);
+    }
   }
 
   public Model updateModel(UUID modelId, ModelModificationParameters params) {
@@ -76,12 +93,15 @@ public class ModelService {
   }
 
   public Model deleteModel(UUID modelId) {
-    Model model = modelStore.retrieveModel(modelId);
-    throwExceptionIfNotFound(model);
-    //TODO handle artifacts - check if they exist and delete them also
-    OperationStatus deleteStatus = modelStore.deleteModel(modelId);
-    throwExceptionIfUpdateWasNotSuccessful(deleteStatus);
-    return model;
+    //TODO delete artifact files: DPNG-10563
+    try {
+      Model model = retrieveModel(modelId);
+      modelStore.deleteModel(modelId);
+      return model;
+    } catch (ModelStoreException e) {
+      throw new ModelServiceException(
+              ModelServiceExceptionCode.MODEL_DELETE_FAILED, "Model delete failed.", e);
+    }
   }
 
   private Model initiateNewModel(ModelModificationParameters params) {
@@ -90,7 +110,6 @@ public class ModelService {
             .addedBy(user)
             .addedOn(Instant.now())
             .algorithm(params.getAlgorithm())
-//            .artifactsIds(params.getArtifactsIds()) TODO artifacts -> DPNG-10149
             .creationTool(params.getCreationTool())
             .description(params.getDescription())
             .id(UUID.randomUUID())
@@ -106,45 +125,35 @@ public class ModelService {
   }
 
   private Model update(UUID modelId, ModelModificationParameters params, UpdateMode updateMode) {
-    //TODO handle artifacts -> DPNG-10149 (check if they exist, add, delete)
-    retrieveModel(modelId);
-    Map<String, Object> propertiesToUpdate;
     try {
-      propertiesToUpdate = PropertiesReader.preparePropertiesToUpdateMap(
-              params,
-              updateMode != UpdateMode.OVERWRITE);
-    } catch (IllegalAccessException | IntrospectionException | InvocationTargetException e) {
-      LOGGER.error("Exception while preparing properties map: " + e);
-      throw new CannotMapPropertiesException();
+      retrieveModel(modelId);
+      Map<String, Object> propertiesToUpdate;
+      try {
+        propertiesToUpdate = PropertiesReader.preparePropertiesToUpdateMap(
+                params, updateMode != UpdateMode.OVERWRITE);
+      } catch (IllegalAccessException | IntrospectionException | InvocationTargetException e) {
+        throw new ModelServiceException(
+                ModelServiceExceptionCode.CANNOT_MAP_PROPERTIES,
+                "Model update failed (cannot map properties).",
+                e);
+      }
+      if (propertiesToUpdate.isEmpty()) {
+        throw new ModelServiceException(
+                ModelServiceExceptionCode.MODEL_NOTHING_TO_UPDATE,
+                "Model update failed (nothing to update).");
+      }
+
+      addModifiedOnAndByProperties(propertiesToUpdate);
+      modelStore.updateModel(modelId, propertiesToUpdate);
+      return retrieveModel(modelId);
+    } catch (ModelStoreException e) {
+      throw new ModelServiceException(
+              ModelServiceExceptionCode.MODEL_UPDATE_FAILED, "Model update failed.", e);
     }
-    throwExceptionIfNothingToUpdate(propertiesToUpdate);
-    addModifiedOnAndByProperties(propertiesToUpdate);
-    OperationStatus operationStatus = modelStore.updateModel(modelId, propertiesToUpdate);
-    throwExceptionIfUpdateWasNotSuccessful(operationStatus);
-    return retrieveModel(modelId);
   }
 
   private void addModifiedOnAndByProperties(Map<String, Object> propertiesToUpdate) {
     propertiesToUpdate.put("modifiedBy", obtainUserName());
     propertiesToUpdate.put("modifiedOn", Instant.now());
   }
-
-  private void throwExceptionIfNotFound(Model model) {
-    if (Objects.isNull(model)) {
-      throw new ModelNotFoundException();
-    }
-  }
-
-  private void throwExceptionIfUpdateWasNotSuccessful(OperationStatus operationStatus) {
-    if (operationStatus == OperationStatus.FAILURE) {
-      throw new FailedUpdateException();
-    }
-  }
-
-  private void throwExceptionIfNothingToUpdate(Map<String, Object> propertiesToUpdate) {
-    if (propertiesToUpdate.isEmpty()) {
-      throw new NothingToUpdateException();
-    }
-  }
-
 }

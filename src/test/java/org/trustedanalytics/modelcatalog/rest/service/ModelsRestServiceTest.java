@@ -48,9 +48,9 @@ public class ModelsRestServiceTest {
   private final UUID orgId = UUID.randomUUID();
   private final UUID modelId = UUID.randomUUID();
   private final Model model = TestModelsBuilder.exemplaryModel();
-  private final ModelDTO modelDTO = new ModelMapper().apply(model);
-  private final ModelModificationParametersDTO paramsDTO = TestModelParamsBuilder
-          .exemplaryParamsDTO();
+  private final ModelDTO modelDTO = ModelMapper.toModelDTO(model);
+  private final ModelModificationParametersDTO paramsDTO =
+          TestModelParamsBuilder.exemplaryParamsDTO();
 
   @Test
   public void shouldListAndMapModels() {
@@ -70,7 +70,7 @@ public class ModelsRestServiceTest {
     // when
     ModelDTO retrievedModel = service.retrieveModel(modelId);
     // then
-    assertThat(retrievedModel).isEqualToComparingFieldByField(modelDTO);
+    assertThat(retrievedModel).isEqualToComparingFieldByFieldRecursively(modelDTO);
   }
 
   @Test
@@ -81,7 +81,7 @@ public class ModelsRestServiceTest {
     // when
     ModelDTO addedModel = service.addModel(paramsDTO, orgId);
     // then
-    assertThat(addedModel).isEqualToComparingFieldByField(modelDTO);
+    assertThat(addedModel).isEqualToComparingFieldByFieldRecursively(modelDTO);
   }
 
   @Test
@@ -92,7 +92,7 @@ public class ModelsRestServiceTest {
     // when
     ModelDTO updatedModel = service.updateModel(modelId, paramsDTO);
     // then
-    assertThat(updatedModel).isEqualToComparingFieldByField(modelDTO);
+    assertThat(updatedModel).isEqualToComparingFieldByFieldRecursively(modelDTO);
   }
 
   @Test
@@ -103,7 +103,7 @@ public class ModelsRestServiceTest {
     // when
     ModelDTO patchedModel = service.patchModel(modelId, paramsDTO);
     // then
-    assertThat(patchedModel).isEqualToComparingFieldByField(modelDTO);
+    assertThat(patchedModel).isEqualToComparingFieldByFieldRecursively(modelDTO);
   }
 
   @Test
@@ -113,7 +113,7 @@ public class ModelsRestServiceTest {
     // when
     ModelDTO deletedModel = service.deleteModel(modelId);
     // then
-    assertThat(deletedModel).isEqualToComparingFieldByField(modelDTO);
+    assertThat(deletedModel).isEqualToComparingFieldByFieldRecursively(modelDTO);
   }
 
 }

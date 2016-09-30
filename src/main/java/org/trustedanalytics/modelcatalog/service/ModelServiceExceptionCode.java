@@ -13,6 +13,17 @@
  */
 package org.trustedanalytics.modelcatalog.service;
 
-public class ModelNotFoundException extends RuntimeException {
-  private static final long serialVersionUID = 7953826669981305877L;
+public enum ModelServiceExceptionCode {
+  CANNOT_MAP_PROPERTIES,
+  MODEL_NOT_FOUND,
+  MODEL_LIST_FAILED,
+  MODEL_RETRIEVE_FAILED,
+  MODEL_ADD_FAILED,
+  MODEL_DELETE_FAILED,
+  MODEL_NOTHING_TO_UPDATE,
+  MODEL_UPDATE_FAILED,
+  ARTIFACT_NOT_FOUND,
+  ARTIFACT_FILE_RETRIEVE_FAILED,
+  ARTIFACT_ADD_FAILED,
+  ARTIFACT_DELETE_FAILED,
 }

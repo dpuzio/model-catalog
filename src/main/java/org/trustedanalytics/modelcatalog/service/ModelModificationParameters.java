@@ -16,9 +16,6 @@ package org.trustedanalytics.modelcatalog.service;
 import lombok.Getter;
 import lombok.experimental.Builder;
 
-import java.util.Set;
-import java.util.UUID;
-
 @Getter
 @Builder
 public class ModelModificationParameters {
@@ -28,6 +25,5 @@ public class ModelModificationParameters {
   private final String algorithm;
   private final String creationTool;
   private final String description;
-  private final Set<UUID> artifactsIds;
 
 }

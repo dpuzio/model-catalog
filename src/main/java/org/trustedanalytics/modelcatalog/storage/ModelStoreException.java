@@ -13,6 +13,14 @@
  */
 package org.trustedanalytics.modelcatalog.storage;
 
-public enum OperationStatus {
-  SUCCESS, FAILURE
+public class ModelStoreException extends Exception {
+  private static final long serialVersionUID = -6709805613026791499L;
+
+  public ModelStoreException(String message) {
+    super(message);
+  }
+
+  public ModelStoreException(String message, Throwable throwable) {
+    super(message, throwable);
+  }
 }

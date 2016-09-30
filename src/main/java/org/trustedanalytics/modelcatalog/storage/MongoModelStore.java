@@ -15,8 +15,10 @@ package org.trustedanalytics.modelcatalog.storage;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
+import org.trustedanalytics.modelcatalog.domain.Artifact;
 import org.trustedanalytics.modelcatalog.domain.Model;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.WriteResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -32,6 +34,7 @@ import java.util.UUID;
 public class MongoModelStore implements ModelStore {
 
   private static final String ID = "_id";
+  private static final String ARTIFACTS = "artifacts";
 
   private final MongoOperations mongoOperations;
 
@@ -41,47 +44,92 @@ public class MongoModelStore implements ModelStore {
   }
 
   @Override
-  public Collection<Model> listModels(UUID orgId) {
-    return mongoOperations.findAll(Model.class);
-  }
-
-  @Override
-  public Model retrieveModel(UUID modelId) {
-    return mongoOperations.findOne(matchId(modelId), Model.class);
-  }
-
-  @Override
-  public OperationStatus addModel(Model model, UUID orgId) {
-    mongoOperations.insert(model);
-    return OperationStatus.SUCCESS;
-  }
-
-  @Override
-  public OperationStatus updateModel(UUID modelId, Map<String, Object> propertiesToUpdate) {
-    Update updateStatement = new Update();
-    for (Map.Entry<String, Object> property : propertiesToUpdate.entrySet()) {
-      updateStatement.set(property.getKey(), property.getValue());
-    }
-    WriteResult updateResult = mongoOperations.updateFirst(
-            new Query(where(ID).is(modelId)), updateStatement, Model.class);
-    return writeResultToOperationStatus(updateResult);
-  }
-
-  @Override
-  public OperationStatus deleteModel(UUID modelId) {
-    WriteResult removeResult = mongoOperations.remove(matchId(modelId), Model.class);
-    return writeResultToOperationStatus(removeResult);
-  }
-
-  private OperationStatus writeResultToOperationStatus(WriteResult writeResult) {
-    if (writeResult.getN() > 0) {
-      return OperationStatus.SUCCESS;
-    } else {
-      return OperationStatus.FAILURE;
+  public Collection<Model> listModels(UUID orgId) throws ModelStoreException {
+    try {
+      return mongoOperations.findAll(Model.class);
+    } catch (Exception e) {
+      throw new ModelStoreException("Unable to list models.", e);
     }
   }
 
-  private Query matchId(UUID modelId) {
+  @Override
+  public Model retrieveModel(UUID modelId) throws ModelStoreException {
+    try {
+      return mongoOperations.findOne(matchModel(modelId), Model.class);
+    } catch (Exception e) {
+      throw new ModelStoreException("Unable to retrieve model.", e);
+    }
+  }
+
+  @Override
+  public void addModel(Model model, UUID orgId) throws ModelStoreException {
+    try {
+      mongoOperations.insert(model);
+    } catch (Exception e) {
+      throw new ModelStoreException("Unable to add model.", e);
+    }
+  }
+
+  @Override
+  public void updateModel(UUID modelId, Map<String, Object> propertiesToUpdate)
+          throws ModelStoreException {
+    try {
+      Update updateStatement = new Update();
+      for (Map.Entry<String, Object> property : propertiesToUpdate.entrySet()) {
+        updateStatement.set(property.getKey(), property.getValue());
+      }
+      WriteResult updateResult = mongoOperations.updateFirst(
+              new Query(where(ID).is(modelId)), updateStatement, Model.class);
+      verifyWriteResult(updateResult, "No record was updated.");
+    } catch (Exception e) {
+      throw new ModelStoreException("Unable to update model.", e);
+    }
+  }
+
+  @Override
+  public void deleteModel(UUID modelId) throws ModelStoreException {
+    try {
+      WriteResult removeResult = mongoOperations.remove(matchModel(modelId), Model.class);
+      verifyWriteResult(removeResult, "No model record was removed.");
+    } catch (Exception e) {
+      throw new ModelStoreException("Unable to delete model.", e);
+    }
+  }
+
+  @Override
+  public void addArtifact(UUID modelId, Artifact artifact) throws ModelStoreException {
+    try {
+      WriteResult updateResult = mongoOperations.updateFirst(
+              matchModel(modelId),
+              new Update().addToSet(ARTIFACTS, artifact),
+              Model.class);
+      verifyWriteResult(updateResult, "No artifact was added.");
+    } catch (Exception e) {
+      throw new ModelStoreException("Unable to add artifact.", e);
+    }
+  }
+
+  @Override
+  public void deleteArtifact(UUID modelId, UUID artifactId) throws ModelStoreException {
+    try {
+      WriteResult updateResult = mongoOperations.updateFirst(
+              matchModel(modelId),
+              new Update().pull(ARTIFACTS, new BasicDBObject(ID, artifactId)),
+              Model.class);
+      verifyWriteResult(updateResult, "No artifact record was removed.");
+    } catch (Exception e) {
+      throw new ModelStoreException("Unable to delete artifact.", e);
+    }
+  }
+
+  private void verifyWriteResult(WriteResult writeResult, String message)
+          throws ModelStoreException {
+    if (writeResult.getN() <= 0) {
+      throw new ModelStoreException(message);
+    }
+  }
+
+  private Query matchModel(UUID modelId) {
     return new Query(where(ID).is(modelId));
   }
 

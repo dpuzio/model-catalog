@@ -19,7 +19,7 @@ import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
 
 import java.io.File;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class ModelCatalogWriterClient {
@@ -53,7 +53,7 @@ public class ModelCatalogWriterClient {
   }
 
   public ArtifactDTO addArtifact(UUID modelId,
-                                 List<ArtifactActionDTO> artifactActions,
+                                 Set<ArtifactActionDTO> artifactActions,
                                  File artifactFile) {
     return multipartRequestsSender.postArtifact(modelId, artifactActions, artifactFile);
   }

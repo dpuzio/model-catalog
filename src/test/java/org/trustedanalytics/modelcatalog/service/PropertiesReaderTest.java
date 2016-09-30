@@ -77,7 +77,6 @@ public class PropertiesReaderTest {
     assertThat(properties.get("algorithm")).isEqualTo(TestModelParamsBuilder.ALGORITHM);
     assertThat(properties.get("creationTool")).isEqualTo(TestModelParamsBuilder.CREATION_TOOL);
     assertThat(properties.get("description")).isEqualTo(TestModelParamsBuilder.DESCRIPTION);
-    assertThat(properties.get("artifactsIds")).isEqualTo(TestModelParamsBuilder.ARTIFACTS_IDS);
   }
 
 }

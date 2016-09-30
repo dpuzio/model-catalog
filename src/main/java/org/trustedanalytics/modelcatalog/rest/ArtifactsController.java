@@ -13,7 +13,6 @@
  */
 package org.trustedanalytics.modelcatalog.rest;
 
-import org.trustedanalytics.modelcatalog.rest.entities.ArtifactActionDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ArtifactDTO;
 import org.trustedanalytics.modelcatalog.rest.service.ArtifactsRestService;
 
@@ -21,8 +20,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,9 +33,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Set;
 import java.util.UUID;
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 public class ArtifactsController {
@@ -54,23 +56,25 @@ public class ArtifactsController {
   )
   @ApiResponses(value = {
           @ApiResponse(code = 201, message = "Created"),
-          @ApiResponse(code = 500, message = "Internal server error, e.g. error saving artifact " +
-                  "file"),
+          @ApiResponse(code = 404, message = "Model not found"),
+          @ApiResponse(code = 500, message =
+                  "Internal server error, e.g. error saving artifact file"),
   })
   @RequestMapping(
           value = ModelCatalogPaths.ARTIFACTS,
           method = RequestMethod.POST,
+          consumes = "multipart/*",
           produces = RequestParams.CONTENT_TYPE_APP_JSON_UTF)
   @ResponseStatus(HttpStatus.CREATED)
   public ResponseEntity<ArtifactDTO> addArtifactAndReturnWithLocationHeader(
           @ApiParam(value = "Model id", required = true) @PathVariable UUID modelId,
           @ApiParam(value = "Artifact actions", required = true)
-            @RequestPart(RequestParams.ARTIFACT_ACTIONS) Set<ArtifactActionDTO> artifactActions,
+          @RequestPart(RequestParams.ARTIFACT_ACTIONS) Set<String> artifactActions,
           @ApiParam(value = "Artifact file", required = true)
-            @RequestPart(RequestParams.ARTIFACT_FILE) MultipartFile artifactFile) {
+          @RequestPart(RequestParams.ARTIFACT_FILE) MultipartFile artifactFile) {
     ArtifactDTO addedArtifact = service.addArtifact(modelId, artifactActions, artifactFile);
     HttpHeaders httpHeaders = new HttpHeaders();
-    addArtifactLocation(addedArtifact, httpHeaders);
+    addArtifactLocation(modelId, addedArtifact, httpHeaders);
     return new ResponseEntity<>(addedArtifact, httpHeaders, HttpStatus.CREATED);
   }
 
@@ -81,8 +85,8 @@ public class ArtifactsController {
   @ApiResponses(value = {
           @ApiResponse(code = 200, message = "SUCCESS"),
           @ApiResponse(code = 404, message = "Model or artifact not Found"),
-          @ApiResponse(code = 500, message = "Internal server error, e.g. error getting artifact " +
-                  "metadata"),
+          @ApiResponse(code = 500, message =
+                  "Internal server error, e.g. error getting artifact metadata"),
   })
   @RequestMapping(
           value = ModelCatalogPaths.ARTIFACT,
@@ -102,18 +106,28 @@ public class ArtifactsController {
   @ApiResponses(value = {
           @ApiResponse(code = 200, message = "SUCCESS"),
           @ApiResponse(code = 404, message = "Model or artifact not Found"),
-          @ApiResponse(code = 500, message = "Internal server error, e.g. error getting artifact " +
-                  "file"),
+          @ApiResponse(code = 500, message =
+                  "Internal server error, e.g. error getting artifact file"),
   })
   @RequestMapping(
           value = ModelCatalogPaths.ARTIFACT_FILE,
-          method = RequestMethod.GET,
-          produces = RequestParams.CONTENT_TYPE_APP_JSON_UTF
+          method = RequestMethod.GET
   )
-  public FileSystemResource retrieveArtifactFile(
+  public void retrieveArtifactFile(
           @ApiParam(value = "Model id", required = true) @PathVariable UUID modelId,
-          @ApiParam(value = "Artifact id", required = true) @PathVariable UUID artifactId) {
-    return service.retrieveArtifactFile(modelId, artifactId);
+          @ApiParam(value = "Artifact id", required = true) @PathVariable UUID artifactId,
+          HttpServletResponse response) throws IOException {
+    // Get file's input stream
+    InputStream istream = service.retrieveArtifactFile(modelId, artifactId);
+
+    // Set response headers
+    //TODO DPNG-10563: always "myfilename.txt" ?
+    response.addHeader("Content-disposition", "attachment;filename=myfilename.txt");
+    response.setContentType("application/octet-stream");
+
+    // Copy the stream to the response's output stream.
+    IOUtils.copy(istream, response.getOutputStream());
+    response.flushBuffer();
   }
 
   @ApiOperation(
@@ -123,8 +137,8 @@ public class ArtifactsController {
   @ApiResponses(value = {
           @ApiResponse(code = 200, message = "Deleted"),
           @ApiResponse(code = 404, message = "Model or artifact not Found"),
-          @ApiResponse(code = 500, message = "Internal server error, e.g. error saving model " +
-                  "metadata"),
+          @ApiResponse(code = 500, message =
+                  "Internal server error, e.g. error saving model metadata"),
   })
   @RequestMapping(
           value = ModelCatalogPaths.ARTIFACT,
@@ -136,9 +150,8 @@ public class ArtifactsController {
     return service.deleteArtifact(modelId, artifactId);
   }
 
-  private void addArtifactLocation(ArtifactDTO artifact, HttpHeaders httpHeaders) {
-    String locationString = ModelCatalogPaths.pathToModelArtifact(
-            artifact.getModelId(), artifact.getId());
+  private void addArtifactLocation(UUID modelId, ArtifactDTO artifact, HttpHeaders httpHeaders) {
+    String locationString = ModelCatalogPaths.pathToModelArtifact(modelId, artifact.getId());
     URI location = URI.create(locationString);
     httpHeaders.setLocation(location);
   }

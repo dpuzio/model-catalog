@@ -20,8 +20,8 @@ import java.util.concurrent.TimeUnit;
 
 class HttpClientDefaults {
 
-  private final static ObjectMapper objectMapper =
-          new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+  private final static ObjectMapper objectMapper = new ObjectMapper()
+          .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
   static final int CONNECT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(30);
   static final int READ_TIMEOUT = (int) TimeUnit.MINUTES.toMillis(5);

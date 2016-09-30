@@ -34,7 +34,7 @@ import org.springframework.http.HttpStatus;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 
@@ -51,7 +51,7 @@ public class MultipartRequestsSender {
   }
 
   public ArtifactDTO postArtifact(UUID modelId,
-                                  List<ArtifactActionDTO> artifactActions,
+                                  Set<ArtifactActionDTO> artifactActions,
                                   File artifactFile) {
     HttpPost httpPost = prepareRequest(modelId);
     HttpEntity entity = prepareEntity(artifactActions, artifactFile);
@@ -66,7 +66,7 @@ public class MultipartRequestsSender {
     return new HttpPost(path);
   }
 
-  private HttpEntity prepareEntity(List<ArtifactActionDTO> artifactActions,
+  private HttpEntity prepareEntity(Set<ArtifactActionDTO> artifactActions,
                                    File artifactFile) {
     StringBody json;
     try {

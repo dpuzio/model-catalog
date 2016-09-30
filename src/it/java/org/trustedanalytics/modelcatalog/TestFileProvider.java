@@ -11,10 +11,23 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog.rest.entities;
+package org.trustedanalytics.modelcatalog;
 
-public enum ArtifactActionDTO {
-  DOWNLOAD,
-  PUBLISH_TO_TAP_SCORING_ENGINE,
-  PUBLISH_TO_MARKETPLACE,
+import org.springframework.core.io.ClassPathResource;
+
+import java.io.File;
+import java.io.IOException;
+
+class TestFileProvider {
+
+  private final static String ARTIFACT_FILENAME = "artifactTestFile";
+
+  static File testFile() {
+    try {
+      return new ClassPathResource(ARTIFACT_FILENAME).getFile();
+    } catch (IOException e) {
+      throw new RuntimeException("Cannot obtain test file.");
+    }
+  }
+
 }

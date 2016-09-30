@@ -20,9 +20,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Builder;
 
-import java.util.Set;
-import java.util.UUID;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -36,6 +33,5 @@ public class ModelModificationParametersDTO {
   private String algorithm;
   private String creationTool;
   private String description;
-  private Set<UUID> artifactsIds;
 
 }

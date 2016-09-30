@@ -13,6 +13,7 @@
  */
 package org.trustedanalytics.modelcatalog.storage;
 
+import org.trustedanalytics.modelcatalog.domain.Artifact;
 import org.trustedanalytics.modelcatalog.domain.Model;
 
 import java.util.Collection;
@@ -21,14 +22,17 @@ import java.util.UUID;
 
 public interface ModelStore {
 
-  Collection<Model> listModels(UUID orgId);
+  Collection<Model> listModels(UUID orgId) throws ModelStoreException;
 
-  Model retrieveModel(UUID modelId);
+  Model retrieveModel(UUID modelId) throws ModelStoreException;
 
-  OperationStatus addModel(Model model, UUID orgId);
+  void addModel(Model model, UUID orgId) throws ModelStoreException;
 
-  OperationStatus updateModel(UUID modelId, Map<String, Object> propertiesToUpdate);
+  void updateModel(UUID modelId, Map<String, Object> propertiesToUpdate) throws ModelStoreException;
 
-  OperationStatus deleteModel(UUID modelId);
+  void deleteModel(UUID modelId) throws ModelStoreException;
 
+  void addArtifact(UUID modelId, Artifact artifact) throws ModelStoreException;
+
+  void deleteArtifact(UUID modelId, UUID artifactId) throws ModelStoreException;
 }

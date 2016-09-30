@@ -16,10 +16,6 @@ package org.trustedanalytics.modelcatalog.rest;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
 import org.trustedanalytics.modelcatalog.rest.service.ModelsRestService;
-import org.trustedanalytics.modelcatalog.service.CannotMapPropertiesException;
-import org.trustedanalytics.modelcatalog.service.FailedUpdateException;
-import org.trustedanalytics.modelcatalog.service.ModelNotFoundException;
-import org.trustedanalytics.modelcatalog.service.NothingToUpdateException;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -29,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -175,34 +170,6 @@ public class ModelsController {
   public ModelDTO deleteModel(
           @ApiParam(value = "Model id", required = true) @PathVariable UUID modelId) {
     return service.deleteModel(modelId);
-  }
-
-  @SuppressWarnings("EmptyMethod")
-  @ExceptionHandler(CannotMapPropertiesException.class)
-  @ResponseStatus(
-          value = HttpStatus.INTERNAL_SERVER_ERROR,
-          reason = "Cannot process entity properties.")
-  void handleCannotMapPropertiesException() {
-  }
-
-  @SuppressWarnings("EmptyMethod")
-  @ExceptionHandler(FailedUpdateException.class)
-  @ResponseStatus(
-          value = HttpStatus.INTERNAL_SERVER_ERROR,
-          reason = "Database update failed.")
-  void handleFailedUpdateException() {
-  }
-
-  @SuppressWarnings("EmptyMethod")
-  @ExceptionHandler(ModelNotFoundException.class)
-  @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Model with given id not found")
-  void handleModelNotFoundException() {
-  }
-
-  @SuppressWarnings("EmptyMethod")
-  @ExceptionHandler(NothingToUpdateException.class)
-  @ResponseStatus(value = HttpStatus.NOT_MODIFIED, reason = "Nothing to update")
-  void handleNothingToUpdateException() {
   }
 
   private void addModelLocation(ModelDTO addedModel, HttpHeaders httpHeaders) {

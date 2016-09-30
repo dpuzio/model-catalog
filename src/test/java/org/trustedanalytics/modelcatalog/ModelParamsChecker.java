@@ -22,20 +22,18 @@ import org.trustedanalytics.modelcatalog.service.ModelModificationParameters;
 
 public class ModelParamsChecker {
 
-  public static void checkThatModelDTOContainsParamsDTO(Model model, ModelModificationParameters
-          params) {
+  public static void checkThatModelDTOContainsParamsDTO(
+          Model model, ModelModificationParameters params) {
     assertThat(model.getAlgorithm()).isEqualTo(params.getAlgorithm());
-//    assertThat(model.getArtifactsIds()).isEqualTo(params.getArtifactsIds()); TODO DPNG-10149
     assertThat(model.getCreationTool()).isEqualTo(params.getCreationTool());
     assertThat(model.getDescription()).isEqualTo(params.getDescription());
     assertThat(model.getName()).isEqualTo(params.getName());
     assertThat(model.getRevision()).isEqualTo(params.getRevision());
   }
 
-  public static void checkThatModelDTOContainsParamsDTO(ModelDTO model,
-                                                        ModelModificationParametersDTO params) {
+  public static void checkThatModelDTOContainsParamsDTO(
+          ModelDTO model, ModelModificationParametersDTO params) {
     assertThat(model.getAlgorithm()).isEqualTo(params.getAlgorithm());
-//    assertThat(model.getArtifactsIds()).isEqualTo(params.getArtifactsIds()); TODO DPNG-10149
     assertThat(model.getCreationTool()).isEqualTo(params.getCreationTool());
     assertThat(model.getDescription()).isEqualTo(params.getDescription());
     assertThat(model.getName()).isEqualTo(params.getName());

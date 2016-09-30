@@ -41,8 +41,10 @@ public class ApacheClientOrchestrator {
                                               Optional<Integer> readTimeoutMillis) {
     HttpClientBuilder builder = HttpClientBuilder.create()
             .setDefaultRequestConfig(RequestConfig.custom()
-                    .setConnectTimeout(connectionTimeoutMillis.orElse(HttpClientDefaults.CONNECT_TIMEOUT))
-                    .setConnectionRequestTimeout(readTimeoutMillis.orElse(HttpClientDefaults.READ_TIMEOUT))
+                    .setConnectTimeout(connectionTimeoutMillis.orElse(
+                            HttpClientDefaults.CONNECT_TIMEOUT))
+                    .setConnectionRequestTimeout(readTimeoutMillis.orElse(
+                            HttpClientDefaults.READ_TIMEOUT))
                     .build());
     if (tokenProvider.isPresent()) {
       addOAuthTokenInterceptor(builder, tokenProvider.get());

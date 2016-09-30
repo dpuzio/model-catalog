@@ -16,16 +16,15 @@ package org.trustedanalytics.modelcatalog.rest.service;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
 import org.trustedanalytics.modelcatalog.service.ModelModificationParameters;
 
-import java.util.function.Function;
+class ParamsMapper {
 
-class ParamsMapper implements Function<ModelModificationParametersDTO,
-        ModelModificationParameters> {
+  private ParamsMapper() {
+  }
 
-  @Override
-  public ModelModificationParameters apply(ModelModificationParametersDTO modelModParamsDTO) {
+  static ModelModificationParameters toParameters(
+          ModelModificationParametersDTO modelModParamsDTO) {
     return ModelModificationParameters.builder()
             .algorithm(modelModParamsDTO.getAlgorithm())
-            .artifactsIds(modelModParamsDTO.getArtifactsIds())
             .creationTool(modelModParamsDTO.getCreationTool())
             .description(modelModParamsDTO.getDescription())
             .name(modelModParamsDTO.getName())

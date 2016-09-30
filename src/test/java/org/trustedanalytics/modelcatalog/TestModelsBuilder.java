@@ -13,12 +13,12 @@
  */
 package org.trustedanalytics.modelcatalog;
 
+import org.trustedanalytics.modelcatalog.domain.Artifact;
 import org.trustedanalytics.modelcatalog.domain.Model;
-
-import com.google.common.collect.Sets;
 
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 public class TestModelsBuilder {
@@ -28,8 +28,6 @@ public class TestModelsBuilder {
   public static final Instant ADDED_ON = Instant.now();
   public static final String ALGORITHM = "The Algorithm";
   public static final String CREATION_TOOL = "Other";
-  public static final HashSet<UUID> ARTIFACTS_IDS = Sets.newHashSet(UUID.randomUUID(), UUID
-          .randomUUID());
   public static final String DESCRIPTION = "Description";
   public static final String MODIFIED_BY = "ModifiedBy";
   public static final Instant MODIFIED_ON = Instant.now();
@@ -37,13 +35,15 @@ public class TestModelsBuilder {
   public static final String REVISION = "Revision";
 
   public static Model exemplaryModel() {
+    Set<Artifact> artifacts = new HashSet<>();
+    artifacts.add(TestArtifactsBuilder.exemplaryArtifact());
     return Model.builder()
             .id(ID)
             .addedBy(ADDED_BY)
             .addedOn(ADDED_ON)
             .algorithm(ALGORITHM)
             .creationTool(CREATION_TOOL)
-//            .artifactsIds(ARTIFACTS_IDS) TODO DPNG-10149
+            .artifacts(artifacts)
             .description(DESCRIPTION)
             .modifiedBy(MODIFIED_BY)
             .modifiedOn(MODIFIED_ON)

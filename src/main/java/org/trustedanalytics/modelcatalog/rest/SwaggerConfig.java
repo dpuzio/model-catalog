@@ -40,7 +40,7 @@ public class SwaggerConfig {
   }
 
   private Predicate<String> orgsPaths() {
-    return or(regex(ModelCatalogPaths.BEGINNING + "/.*"));
+    return or(regex(ModelCatalogPaths.API_PREFIX + "/.*"));
   }
 
   private ApiInfo buildApiInfo() {

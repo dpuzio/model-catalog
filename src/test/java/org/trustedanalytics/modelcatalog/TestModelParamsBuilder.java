@@ -16,16 +16,10 @@ package org.trustedanalytics.modelcatalog;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
 import org.trustedanalytics.modelcatalog.service.ModelModificationParameters;
 
-import com.google.common.collect.Sets;
-
-import java.util.HashSet;
-import java.util.UUID;
-
 public class TestModelParamsBuilder {
 
   public static final String ALGORITHM = "New Algorithm";
   public static final String CREATION_TOOL = "New creation tool";
-  public static final HashSet<UUID> ARTIFACTS_IDS = Sets.newHashSet(UUID.randomUUID());
   public static final String DESCRIPTION = "New Description";
   public static final String NAME = "New Name";
   public static final String REVISION = "New Revision";
@@ -33,7 +27,6 @@ public class TestModelParamsBuilder {
   public static ModelModificationParameters exemplaryParams() {
     return ModelModificationParameters.builder()
             .algorithm(ALGORITHM)
-            .artifactsIds(ARTIFACTS_IDS)
             .creationTool(CREATION_TOOL)
             .description(DESCRIPTION)
             .name(NAME)
@@ -44,7 +37,6 @@ public class TestModelParamsBuilder {
   public static ModelModificationParametersDTO exemplaryParamsDTO() {
     return ModelModificationParametersDTO.builder()
             .algorithm(ALGORITHM)
-            .artifactsIds(ARTIFACTS_IDS)
             .creationTool(CREATION_TOOL)
             .description(DESCRIPTION)
             .name(NAME)
@@ -55,7 +47,6 @@ public class TestModelParamsBuilder {
   public static ModelModificationParameters paramsWithNullNameProperty() {
     return ModelModificationParameters.builder()
             .algorithm(ALGORITHM)
-            .artifactsIds(ARTIFACTS_IDS)
             .creationTool(CREATION_TOOL)
             .description(DESCRIPTION)
             .name(null)

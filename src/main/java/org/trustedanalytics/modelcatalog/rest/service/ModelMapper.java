@@ -13,21 +13,27 @@
  */
 package org.trustedanalytics.modelcatalog.rest.service;
 
+import org.trustedanalytics.modelcatalog.domain.Artifact;
 import org.trustedanalytics.modelcatalog.domain.Model;
+import org.trustedanalytics.modelcatalog.rest.entities.ArtifactDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
 
 import java.time.Instant;
-import java.util.function.Function;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-class ModelMapper implements Function<Model, ModelDTO> {
+class ModelMapper {
 
-  @Override
-  public ModelDTO apply(Model model) {
+  private ModelMapper() {
+  }
+
+  public static ModelDTO toModelDTO(Model model) {
     return ModelDTO.builder()
             .addedBy(model.getAddedBy())
             .addedOn(format(model.getAddedOn()))
             .algorithm(model.getAlgorithm())
-//              .artifactsIds(model.getArtifactsIds()) TODO mapArtifacts -> DPNG-10149
+            .artifacts(toArtifactDTOSet(model.getArtifacts()))
             .creationTool(model.getCreationTool())
             .description(model.getDescription())
             .id(model.getId())
@@ -38,8 +44,16 @@ class ModelMapper implements Function<Model, ModelDTO> {
             .build();
   }
 
-  private String format(Instant instant) {
+  private static String format(Instant instant) {
     return InstantFormatter.format(instant);
   }
 
+  private static Set<ArtifactDTO> toArtifactDTOSet(Set<Artifact> artifacts) {
+    if (Objects.nonNull(artifacts)) {
+      return artifacts.stream()
+              .map((ArtifactMapper::toArtifactDTO))
+              .collect(Collectors.toSet());
+    }
+    return null;
+  }
 }

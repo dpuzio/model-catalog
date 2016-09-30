@@ -13,10 +13,11 @@
  */
 package org.trustedanalytics.modelcatalog.rest.service;
 
-import org.trustedanalytics.modelcatalog.domain.Model;
+import static org.trustedanalytics.modelcatalog.rest.service.ModelMapper.toModelDTO;
+import static org.trustedanalytics.modelcatalog.rest.service.ParamsMapper.toParameters;
+
 import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
-import org.trustedanalytics.modelcatalog.service.ModelModificationParameters;
 import org.trustedanalytics.modelcatalog.service.ModelService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +31,6 @@ import java.util.stream.Collectors;
 public class ModelsRestService {
 
   private final ModelService modelService;
-  private final ModelMapper modelMapper = new ModelMapper();
-  private final ParamsMapper paramsMapper = new ParamsMapper();
 
   @Autowired
   public ModelsRestService(ModelService modelService) {
@@ -39,7 +38,9 @@ public class ModelsRestService {
   }
 
   public Collection<ModelDTO> listModels(UUID orgId) {
-    return modelService.listModels(orgId).stream().map(modelMapper).collect(Collectors.toSet());
+    return modelService.listModels(orgId).stream()
+            .map(ModelMapper::toModelDTO)
+            .collect(Collectors.toSet());
   }
 
   public ModelDTO retrieveModel(UUID modelId) {
@@ -47,27 +48,19 @@ public class ModelsRestService {
   }
 
   public ModelDTO addModel(ModelModificationParametersDTO paramsDTO, UUID orgId) {
-    return toModelDTO(modelService.addModel(toParams(paramsDTO), orgId));
+    return toModelDTO(modelService.addModel(toParameters(paramsDTO), orgId));
   }
 
   public ModelDTO updateModel(UUID modelId, ModelModificationParametersDTO paramsDTO) {
-    return toModelDTO(modelService.updateModel(modelId, toParams(paramsDTO)));
+    return toModelDTO(modelService.updateModel(modelId, toParameters(paramsDTO)));
   }
 
   public ModelDTO patchModel(UUID modelId, ModelModificationParametersDTO paramsDTO) {
-    return toModelDTO(modelService.patchModel(modelId, toParams(paramsDTO)));
+    return toModelDTO(modelService.patchModel(modelId, toParameters(paramsDTO)));
   }
 
   public ModelDTO deleteModel(UUID modelId) {
     return toModelDTO(modelService.deleteModel(modelId));
-  }
-
-  private ModelDTO toModelDTO(Model model) {
-    return modelMapper.apply(model);
-  }
-
-  private ModelModificationParameters toParams(ModelModificationParametersDTO paramsDTO) {
-    return paramsMapper.apply(paramsDTO);
   }
 
 }
