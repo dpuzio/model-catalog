@@ -50,6 +50,8 @@ public class ModelServiceTest {
   @Mock
   private ModelStore modelStore;
   @Mock
+  private ArtifactService artifactService;
+  @Mock
   private UsernameExtractor usernameExtractor;
   @InjectMocks
   private ModelService modelService;

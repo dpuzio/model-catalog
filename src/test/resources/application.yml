@@ -1,4 +1,4 @@
-server.port: 9912
+server.port: 0
 
 security:
   ignored: /**

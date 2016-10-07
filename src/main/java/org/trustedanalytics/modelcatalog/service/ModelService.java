@@ -13,6 +13,7 @@
  */
 package org.trustedanalytics.modelcatalog.service;
 
+import org.trustedanalytics.modelcatalog.domain.Artifact;
 import org.trustedanalytics.modelcatalog.domain.Model;
 import org.trustedanalytics.modelcatalog.security.UsernameExtractor;
 import org.trustedanalytics.modelcatalog.storage.ModelStore;
@@ -29,6 +30,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -42,11 +44,16 @@ public class ModelService {
   private static final Logger LOGGER = LoggerFactory.getLogger(ModelService.class);
 
   private final ModelStore modelStore;
+  private final ArtifactService artifactService;
   private final UsernameExtractor usernameExtractor;
 
   @Autowired
-  public ModelService(ModelStore modelStore, UsernameExtractor usernameExtractor) {
+  public ModelService(
+      ModelStore modelStore,
+      ArtifactService artifactService,
+      UsernameExtractor usernameExtractor) {
     this.modelStore = modelStore;
+    this.artifactService = artifactService;
     this.usernameExtractor = usernameExtractor;
   }
 
@@ -55,7 +62,7 @@ public class ModelService {
       return modelStore.listModels(orgId);
     } catch (ModelStoreException e) {
       throw new ModelServiceException(
-              ModelServiceExceptionCode.MODEL_LIST_FAILED, "Model list failed.", e);
+          ModelServiceExceptionCode.MODEL_LIST_FAILED, "Model list failed.", e);
     }
   }
 
@@ -64,12 +71,12 @@ public class ModelService {
       Model model = modelStore.retrieveModel(modelId);
       if (Objects.isNull(model)) {
         throw new ModelServiceException(
-                ModelServiceExceptionCode.MODEL_NOT_FOUND, "Model with given ID not found.");
+            ModelServiceExceptionCode.MODEL_NOT_FOUND, "Model with given ID not found.");
       }
       return model;
     } catch (ModelStoreException e) {
       throw new ModelServiceException(
-              ModelServiceExceptionCode.MODEL_RETRIEVE_FAILED, "Model retrieve failed.", e);
+          ModelServiceExceptionCode.MODEL_RETRIEVE_FAILED, "Model retrieve failed.", e);
     }
   }
 
@@ -80,7 +87,7 @@ public class ModelService {
       return model;
     } catch (ModelStoreException e) {
       throw new ModelServiceException(
-              ModelServiceExceptionCode.MODEL_ADD_FAILED, "Model add failed.", e);
+          ModelServiceExceptionCode.MODEL_ADD_FAILED, "Model add failed.", e);
     }
   }
 
@@ -93,14 +100,25 @@ public class ModelService {
   }
 
   public Model deleteModel(UUID modelId) {
-    //TODO delete artifact files: DPNG-10563
     try {
       Model model = retrieveModel(modelId);
+
+      // Delete dependant artifacts first
+      Set<Artifact> artifacts = model.getArtifacts();
+      if (artifacts != null) {
+        for (Artifact artifact : artifacts) {
+          artifactService.deleteArtifact(model.getId(), artifact.getId());
+        }
+      }
+
+      // Then delete model itself
       modelStore.deleteModel(modelId);
       return model;
+    } catch (ModelServiceException e) {
+      throw e;
     } catch (ModelStoreException e) {
       throw new ModelServiceException(
-              ModelServiceExceptionCode.MODEL_DELETE_FAILED, "Model delete failed.", e);
+          ModelServiceExceptionCode.MODEL_DELETE_FAILED, "Model delete failed.", e);
     }
   }
 
@@ -133,14 +151,14 @@ public class ModelService {
                 params, updateMode != UpdateMode.OVERWRITE);
       } catch (IllegalAccessException | IntrospectionException | InvocationTargetException e) {
         throw new ModelServiceException(
-                ModelServiceExceptionCode.CANNOT_MAP_PROPERTIES,
-                "Model update failed (cannot map properties).",
-                e);
+            ModelServiceExceptionCode.CANNOT_MAP_PROPERTIES,
+            "Model update failed (cannot map properties).",
+            e);
       }
       if (propertiesToUpdate.isEmpty()) {
         throw new ModelServiceException(
-                ModelServiceExceptionCode.MODEL_NOTHING_TO_UPDATE,
-                "Model update failed (nothing to update).");
+            ModelServiceExceptionCode.MODEL_NOTHING_TO_UPDATE,
+            "Model update failed (nothing to update).");
       }
 
       addModifiedOnAndByProperties(propertiesToUpdate);
@@ -148,7 +166,7 @@ public class ModelService {
       return retrieveModel(modelId);
     } catch (ModelStoreException e) {
       throw new ModelServiceException(
-              ModelServiceExceptionCode.MODEL_UPDATE_FAILED, "Model update failed.", e);
+          ModelServiceExceptionCode.MODEL_UPDATE_FAILED, "Model update failed.", e);
     }
   }
 

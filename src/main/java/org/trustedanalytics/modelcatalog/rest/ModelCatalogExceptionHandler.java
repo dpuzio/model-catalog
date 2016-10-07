@@ -14,7 +14,12 @@
 package org.trustedanalytics.modelcatalog.rest;
 
 import org.trustedanalytics.modelcatalog.service.ModelServiceException;
+import org.trustedanalytics.utils.errorhandling.ErrorLogger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,7 +28,10 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 
 @ControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class ModelCatalogExceptionHandler {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ModelCatalogExceptionHandler.class);
 
   @ExceptionHandler(ModelServiceException.class)
   void handleModelServiceException(ModelServiceException e, HttpServletResponse response)
@@ -35,6 +43,9 @@ public class ModelCatalogExceptionHandler {
       case MODEL_NOT_FOUND:
         status = HttpStatus.NOT_FOUND;
         break;
+      case MODEL_RETRIEVE_FAILED:
+        status = HttpStatus.NOT_FOUND;
+        break;
       case ARTIFACT_NOT_FOUND:
         status = HttpStatus.NOT_FOUND;
         break;
@@ -42,7 +53,8 @@ public class ModelCatalogExceptionHandler {
         status = HttpStatus.NOT_MODIFIED;
         break;
     }
-    response.sendError(status.value(), message);
+
+    ErrorLogger.logAndSendErrorResponse(LOGGER, response, status, message, e);
   }
 
 }

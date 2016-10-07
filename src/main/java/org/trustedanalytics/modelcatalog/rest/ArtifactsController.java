@@ -22,6 +22,8 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -113,7 +115,7 @@ public class ArtifactsController {
           value = ModelCatalogPaths.ARTIFACT_FILE,
           method = RequestMethod.GET
   )
-  public void retrieveArtifactFile(
+  public Resource retrieveArtifactFile(
           @ApiParam(value = "Model id", required = true) @PathVariable UUID modelId,
           @ApiParam(value = "Artifact id", required = true) @PathVariable UUID artifactId,
           HttpServletResponse response) throws IOException {
@@ -121,13 +123,10 @@ public class ArtifactsController {
     InputStream istream = service.retrieveArtifactFile(modelId, artifactId);
 
     // Set response headers
-    //TODO DPNG-10563: always "myfilename.txt" ?
-    response.addHeader("Content-disposition", "attachment;filename=myfilename.txt");
-    response.setContentType("application/octet-stream");
+    ArtifactDTO artifact = service.retrieveArtifact(modelId, artifactId);
+    response.addHeader("Content-disposition", "attachment;filename=" + artifact.getFilename());
 
-    // Copy the stream to the response's output stream.
-    IOUtils.copy(istream, response.getOutputStream());
-    response.flushBuffer();
+    return new InputStreamResource(istream);
   }
 
   @ApiOperation(

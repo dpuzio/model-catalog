@@ -47,9 +47,9 @@ import javax.annotation.PostConstruct;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {Application.class, FongoConfig.class})
 @WebAppConfiguration
-@IntegrationTest("server.port:0")
+@IntegrationTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ActiveProfiles("integration-test")
+@ActiveProfiles({"integration-test", "in-memory"})
 public class ModelsIT {
 
   @Value("http://localhost:${local.server.port}")

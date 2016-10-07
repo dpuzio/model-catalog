@@ -20,7 +20,7 @@ import java.io.IOException;
 
 class TestFileProvider {
 
-  private final static String ARTIFACT_FILENAME = "artifactTestFile";
+  public final static String ARTIFACT_FILENAME = "artifactTestFile";
 
   static File testFile() {
     try {
