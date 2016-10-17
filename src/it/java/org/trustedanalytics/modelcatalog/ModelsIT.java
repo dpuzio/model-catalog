@@ -93,7 +93,7 @@ public class ModelsIT {
     addEmptyModel();
     final UUID modelId = addedModel.getId();
     // when
-    Instant before = currentTimeWithPrecisionToMinutes();
+    Instant before = currentTimeWithPrecisionToSeconds();
     ModelDTO updatedModel = modelCatalogWriter.updateModel(modelId, params);
     Instant after = Instant.now();
     // then
@@ -117,7 +117,7 @@ public class ModelsIT {
     addEmptyModel();
     final UUID modelId = addedModel.getId();
     // when
-    Instant before = currentTimeWithPrecisionToMinutes();
+    Instant before = currentTimeWithPrecisionToSeconds();
     ModelDTO updatedModel = modelCatalogWriter.patchModel(modelId, params);
     Instant after = Instant.now();
     // then
@@ -149,7 +149,7 @@ public class ModelsIT {
   }
 
   private void addModelAndCheckThatItWasProperlyInitialized() {
-    Instant before = currentTimeWithPrecisionToMinutes();
+    Instant before = currentTimeWithPrecisionToSeconds();
     addExemplaryModel();
     Instant after = Instant.now();
     ModelParamsChecker.checkThatModelDTOContainsParamsDTO(addedModel, params);
@@ -187,9 +187,9 @@ public class ModelsIT {
   }
 
   //because of Dates in ModelDTO being formetted with InstantFormatter.DATE_FORMAT
-  private Instant currentTimeWithPrecisionToMinutes() {
+  private Instant currentTimeWithPrecisionToSeconds() {
     Instant now = Instant.now();
-    return now.truncatedTo(ChronoUnit.MINUTES);
+    return now.truncatedTo(ChronoUnit.SECONDS);
   }
 
   private void checkThatIsBetween(String formattedTime, Instant start, Instant end) {
