@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 
 public class InstantFormatter {
 
-  private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm z";
+  private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss z";
   private static final DateTimeFormatter formatter =
           DateTimeFormatter.ofPattern(DATE_FORMAT).withZone(ZoneId.of("GMT"));
 
