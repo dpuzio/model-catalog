@@ -17,6 +17,8 @@ import org.trustedanalytics.modelcatalog.domain.Artifact;
 import org.trustedanalytics.modelcatalog.domain.ArtifactAction;
 import org.trustedanalytics.modelcatalog.rest.entities.ArtifactDTO;
 
+import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,7 +37,11 @@ class ArtifactMapper {
   }
 
   public static Set<ArtifactAction> toArtifactActionSet(Set<String> artifactActions) {
-    return artifactActions.stream().map(ArtifactAction::valueOf).collect(Collectors.toSet());
+    return Optional.ofNullable(artifactActions)
+            .orElseGet(Collections::emptySet)
+            .stream()
+            .map(ArtifactAction::valueOf)
+            .collect(Collectors.toSet());
   }
 
   private static Set<String> toArtifactActionStrings(Set<ArtifactAction> artifactActions) {

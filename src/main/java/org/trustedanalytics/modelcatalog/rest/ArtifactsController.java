@@ -20,7 +20,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -70,8 +69,8 @@ public class ArtifactsController {
   @ResponseStatus(HttpStatus.CREATED)
   public ResponseEntity<ArtifactDTO> addArtifactAndReturnWithLocationHeader(
           @ApiParam(value = "Model id", required = true) @PathVariable UUID modelId,
-          @ApiParam(value = "Artifact actions", required = true)
-          @RequestPart(RequestParams.ARTIFACT_ACTIONS) Set<String> artifactActions,
+          @ApiParam(value = "Artifact actions", required = false)
+          @RequestPart(value = RequestParams.ARTIFACT_ACTIONS, required = false) Set<String> artifactActions,
           @ApiParam(value = "Artifact file", required = true)
           @RequestPart(RequestParams.ARTIFACT_FILE) MultipartFile artifactFile) {
     ArtifactDTO addedArtifact = service.addArtifact(modelId, artifactActions, artifactFile);
