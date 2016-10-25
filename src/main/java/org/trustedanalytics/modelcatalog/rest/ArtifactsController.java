@@ -112,7 +112,11 @@ public class ArtifactsController {
   })
   @RequestMapping(
           value = ModelCatalogPaths.ARTIFACT_FILE,
-          method = RequestMethod.GET
+          method = RequestMethod.GET,
+          produces = {
+              RequestParams.CONTENT_TYPE_APP_JSON_UTF,
+              RequestParams.CONTENT_TYPE_APP_OCTET_STREAM,
+          }
   )
   public Resource retrieveArtifactFile(
           @ApiParam(value = "Model id", required = true) @PathVariable UUID modelId,
@@ -123,7 +127,7 @@ public class ArtifactsController {
 
     // Set response headers
     ArtifactDTO artifact = service.retrieveArtifact(modelId, artifactId);
-    response.addHeader("Content-disposition", "attachment;filename=" + artifact.getFilename());
+    response.addHeader("Content-disposition", "attachment; filename=" + artifact.getFilename());
 
     return new InputStreamResource(istream);
   }

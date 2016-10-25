@@ -25,3 +25,9 @@ multipart:
   maxRequestSize: 100Mb
 
 spring.profiles.active: default,local
+
+logging:
+  level:
+    org.trustedanalytics: INFO
+    org.springframework.security: INFO
+    org.springframework.web: INFO

@@ -13,53 +13,92 @@
  */
 package org.trustedanalytics.modelcatalog.rest.client;
 
+import org.trustedanalytics.modelcatalog.rest.ModelCatalogPaths;
+import org.trustedanalytics.modelcatalog.rest.client.http.HttpClientWrapper;
+import org.trustedanalytics.modelcatalog.rest.client.http.HttpRequestFactory;
+import org.trustedanalytics.modelcatalog.rest.client.http.MultipartRequestsSender;
+import org.trustedanalytics.modelcatalog.rest.client.mapper.DtoJsonMapper;
 import org.trustedanalytics.modelcatalog.rest.entities.ArtifactActionDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ArtifactDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
 
-import java.io.File;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpPatch;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.springframework.http.HttpStatus;
+
+import java.io.InputStream;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 
 public class ModelCatalogWriterClient {
 
-  private final ModelResource modelResource;
-  private final ArtifactResource artifactResource;
+  private final HttpRequestFactory requestFactory;
+  private final HttpClientWrapper httpClientWrapper;
+  private final DtoJsonMapper dtoJsonMapper;
   private final MultipartRequestsSender multipartRequestsSender;
 
-  ModelCatalogWriterClient(ModelResource modelResource,
-                           ArtifactResource artifactResource,
+  ModelCatalogWriterClient(HttpRequestFactory requestFactory,
+                           HttpClientWrapper httpClientWrapper,
+                           DtoJsonMapper dtoJsonMapper,
                            MultipartRequestsSender multipartRequestsSender) {
-    this.modelResource = modelResource;
-    this.artifactResource = artifactResource;
+    this.requestFactory = requestFactory;
+    this.httpClientWrapper = httpClientWrapper;
+    this.dtoJsonMapper = dtoJsonMapper;
     this.multipartRequestsSender = multipartRequestsSender;
   }
 
   public ModelDTO addModel(ModelModificationParametersDTO params, UUID orgId) {
-    return modelResource.addModel(params, orgId);
+    HttpPost request = requestFactory.preparePost(ModelCatalogPaths.pathToModelsByOrg(orgId));
+    return executeWithParams(
+        request, HttpStatus.CREATED, params, dtoJsonMapper::toModelDTO);
   }
 
   public ModelDTO updateModel(UUID modelId, ModelModificationParametersDTO params) {
-    return modelResource.updateModel(modelId, params);
+    HttpPut request = requestFactory.preparePut(ModelCatalogPaths.pathToModel(modelId));
+    return executeWithParams(
+        request, HttpStatus.OK, params, dtoJsonMapper::toModelDTO);
   }
 
   public ModelDTO patchModel(UUID modelId, ModelModificationParametersDTO params) {
-    return modelResource.patchModel(modelId, params);
+    HttpPatch request = requestFactory.preparePatch(ModelCatalogPaths.pathToModel(modelId));
+    return executeWithParams(
+        request, HttpStatus.OK, params, dtoJsonMapper::toModelDTO);
   }
 
   public ModelDTO deleteModel(UUID modelId) {
-    return modelResource.deleteModel(modelId);
+    HttpDelete request = requestFactory.prepareDelete(ModelCatalogPaths.pathToModel(modelId));
+    return httpClientWrapper.executeAndMap(
+        request, HttpStatus.OK, dtoJsonMapper::toModelDTO);
   }
 
   public ArtifactDTO addArtifact(UUID modelId,
                                  Set<ArtifactActionDTO> artifactActions,
-                                 File artifactFile) {
-    return multipartRequestsSender.postArtifact(modelId, artifactActions, artifactFile);
+                                 InputStream artifactStream,
+                                 String artifactFilename) {
+    return multipartRequestsSender.postArtifact(
+        modelId, artifactActions, artifactStream, artifactFilename);
   }
 
   public ArtifactDTO deleteArtifact(UUID modelId, UUID artifactId) {
-    return artifactResource.deleteArtifact(modelId, artifactId);
+    HttpDelete request =
+        requestFactory.prepareDelete(ModelCatalogPaths.pathToModelArtifact(modelId, artifactId));
+    return httpClientWrapper.executeAndMap(
+        request, HttpStatus.OK, dtoJsonMapper::toArtifactDTO);
   }
 
+  private <T> T executeWithParams(
+      HttpEntityEnclosingRequestBase request,
+      HttpStatus expectedStatus,
+      Object params,
+      Function<String, T> mapperFunc) {
+    request.setEntity(new StringEntity(dtoJsonMapper.toJSON(params), ContentType.APPLICATION_JSON));
+    return httpClientWrapper.executeAndMap(request, expectedStatus, mapperFunc);
+  }
 }

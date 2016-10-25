@@ -13,39 +13,38 @@
  */
 package org.trustedanalytics.modelcatalog.rest.client.configuration;
 
-import org.trustedanalytics.modelcatalog.rest.client.MultipartRequestsSender;
+import org.trustedanalytics.modelcatalog.rest.client.http.AuthorizationHeader;
+import org.trustedanalytics.modelcatalog.rest.client.http.OAuthTokenProvider;
 
 import org.apache.http.HttpRequest;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.protocol.HttpContext;
 
 import java.util.Optional;
 
 public class ApacheClientOrchestrator {
 
-  public static MultipartRequestsSender prepareMultipartRequestSender(
-          String url,
-          Optional<OAuthTokenProvider> tokenProvider,
-          Optional<Integer> connectionTimeoutMillis,
-          Optional<Integer> readTimeoutMillis) {
+  private ApacheClientOrchestrator() {}
 
-    HttpClient client = prepareHttpClient(tokenProvider, connectionTimeoutMillis,
-            readTimeoutMillis);
-    return new MultipartRequestsSender(client, url, HttpClientDefaults.objectMapper());
-  }
+  public static CloseableHttpClient prepareHttpClient(Optional<OAuthTokenProvider> tokenProvider,
+                                                      Optional<Integer> connectionsMaxTotal,
+                                                      Optional<Integer> connectionsMaxPerRoute,
+                                                      Optional<Integer> connectionTimeoutMillis,
+                                                      Optional<Integer> readTimeoutMillis) {
+    PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
+    connManager.setMaxTotal(connectionsMaxTotal.orElse(HttpClientDefaults.CONNECTIONS_MAX_TOTAL));
+    connManager.setDefaultMaxPerRoute(
+        connectionsMaxPerRoute.orElse(HttpClientDefaults.CONNECTIONS_MAX_PER_ROUTE));
 
-  private static HttpClient prepareHttpClient(Optional<OAuthTokenProvider> tokenProvider,
-                                              Optional<Integer> connectionTimeoutMillis,
-                                              Optional<Integer> readTimeoutMillis) {
     HttpClientBuilder builder = HttpClientBuilder.create()
-            .setDefaultRequestConfig(RequestConfig.custom()
-                    .setConnectTimeout(connectionTimeoutMillis.orElse(
-                            HttpClientDefaults.CONNECT_TIMEOUT))
-                    .setConnectionRequestTimeout(readTimeoutMillis.orElse(
-                            HttpClientDefaults.READ_TIMEOUT))
-                    .build());
+        .setConnectionManager(connManager)
+        .setDefaultRequestConfig(RequestConfig.custom()
+        .setConnectTimeout(connectionTimeoutMillis.orElse(HttpClientDefaults.CONNECT_TIMEOUT))
+        .setConnectionRequestTimeout(readTimeoutMillis.orElse(HttpClientDefaults.READ_TIMEOUT))
+        .build());
     if (tokenProvider.isPresent()) {
       addOAuthTokenInterceptor(builder, tokenProvider.get());
     }
@@ -53,11 +52,11 @@ public class ApacheClientOrchestrator {
   }
 
   private static void addOAuthTokenInterceptor(
-          HttpClientBuilder builder, OAuthTokenProvider tokenProvider) {
-    builder.addInterceptorFirst((HttpRequest httpRequest, HttpContext httpContext) -> {
-      httpRequest.addHeader(AuthorizationHeader.NAME,
-              AuthorizationHeader.value(tokenProvider.provideToken()));
-    });
+      HttpClientBuilder builder, OAuthTokenProvider tokenProvider) {
+    builder.addInterceptorFirst(
+        (HttpRequest httpRequest, HttpContext httpContext) ->
+            httpRequest.addHeader(AuthorizationHeader.NAME,
+                AuthorizationHeader.value(tokenProvider.provideToken())));
   }
 
 }

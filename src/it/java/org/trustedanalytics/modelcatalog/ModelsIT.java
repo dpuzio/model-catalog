@@ -15,9 +15,9 @@ package org.trustedanalytics.modelcatalog;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper
-        .expectModelCatalogExceptionWithStatus;
+    .expectModelCatalogExceptionWithStatus;
 import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper
-        .expectModelCatalogExceptionWithStatusAndReason;
+    .expectModelCatalogExceptionWithStatusAndReason;
 
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogClientBuilder;
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogReaderClient;
@@ -72,7 +72,7 @@ public class ModelsIT {
   }
 
   @Test
-  public void shouldListAddRetrieveAndDeleteModels() {
+  public void client_shouldListAddRetrieveAndDeleteModels() {
     checkThatThereAreNoModelsInDb();
     addModelAndCheckThatItWasProperlyInitialized();
     checkThatThereIsOneModelInDb();
@@ -88,7 +88,7 @@ public class ModelsIT {
   }
 
   @Test
-  public void shouldUpdateModel() {
+  public void updateModel_shouldUpdateAllFields() {
     // given
     addEmptyModel();
     final UUID modelId = addedModel.getId();
@@ -112,7 +112,7 @@ public class ModelsIT {
   }
 
   @Test
-  public void shouldPatchModel() {
+  public void patchModel_shouldUpdateSelectedFields() {
     // given
     addEmptyModel();
     final UUID modelId = addedModel.getId();
@@ -197,5 +197,4 @@ public class ModelsIT {
     assertThat(instant).isGreaterThanOrEqualTo(start);
     assertThat(instant).isLessThanOrEqualTo(end);
   }
-
 }

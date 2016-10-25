@@ -13,38 +13,61 @@
  */
 package org.trustedanalytics.modelcatalog.rest.client;
 
+import org.trustedanalytics.modelcatalog.rest.ModelCatalogPaths;
+import org.trustedanalytics.modelcatalog.rest.client.http.HttpClientWrapper;
+import org.trustedanalytics.modelcatalog.rest.client.http.HttpFileResource;
+import org.trustedanalytics.modelcatalog.rest.client.http.HttpRequestFactory;
+import org.trustedanalytics.modelcatalog.rest.client.mapper.DtoJsonMapper;
 import org.trustedanalytics.modelcatalog.rest.entities.ArtifactDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
 
-import org.springframework.core.io.FileSystemResource;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.springframework.http.HttpStatus;
 
 import java.util.Collection;
 import java.util.UUID;
+import java.util.function.Function;
 
 public class ModelCatalogReaderClient {
 
-  private final ModelResource modelResource;
-  private final ArtifactResource artifactResource;
+  private final HttpRequestFactory requestFactory;
+  private final HttpClientWrapper httpClientWrapper;
+  private final DtoJsonMapper dtoJsonMapper;
 
-  ModelCatalogReaderClient(ModelResource modelResource, ArtifactResource artifactResource) {
-    this.modelResource = modelResource;
-    this.artifactResource = artifactResource;
+  ModelCatalogReaderClient(
+      HttpRequestFactory requestFactory,
+      HttpClientWrapper httpClientWrapper,
+      DtoJsonMapper dtoJsonMapper) {
+    this.requestFactory = requestFactory;
+    this.httpClientWrapper = httpClientWrapper;
+    this.dtoJsonMapper = dtoJsonMapper;
   }
 
   public Collection<ModelDTO> listModels(UUID orgId) {
-    return modelResource.listModels(orgId);
+    return executeGetAndMapResult(
+        ModelCatalogPaths.pathToModelsByOrg(orgId), dtoJsonMapper::toModelDTOCollection);
   }
 
   public ModelDTO retrieveModel(UUID modelId) {
-    return modelResource.fetchModel(modelId);
+    return executeGetAndMapResult(
+        ModelCatalogPaths.pathToModel(modelId), dtoJsonMapper::toModelDTO);
   }
 
   public ArtifactDTO retrieveArtifactMetadata(UUID modelId, UUID artifactId) {
-    return artifactResource.retrieveArtifactMetadata(modelId, artifactId);
+    return executeGetAndMapResult(
+        ModelCatalogPaths.pathToModelArtifact(modelId, artifactId), dtoJsonMapper::toArtifactDTO);
   }
 
-  public FileSystemResource retrieveArtifactFile(UUID modelId, UUID artifactId) {
-    return artifactResource.retrieveArtifactFile(modelId, artifactId);
+  public HttpFileResource retrieveArtifactFile(UUID modelId, UUID artifactId) {
+    HttpRequestBase request = requestFactory.prepareGet(
+        ModelCatalogPaths.pathToModelArtifactFile(modelId, artifactId));
+    CloseableHttpResponse response = httpClientWrapper.execute(request);
+    return new HttpFileResource(request, response, "artifact-" + artifactId);
   }
 
+  private <T> T executeGetAndMapResult(String relativeUri, Function<String, T> mapperFunc) {
+    HttpRequestBase request = requestFactory.prepareGet(relativeUri);
+    return httpClientWrapper.executeAndMap(request, HttpStatus.OK, mapperFunc);
+  }
 }

@@ -11,22 +11,15 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog.rest.client;
+package org.trustedanalytics.modelcatalog.rest.client.http;
 
-public class ModelCatalogClientFailedException extends RuntimeException {
+public class AuthorizationHeader {
 
-  private static final long serialVersionUID = 7700319295578948380L;
+  public static final String NAME = "Authorization";
 
-  public ModelCatalogClientFailedException(String message) {
-    super(message);
+  private AuthorizationHeader() {}
+
+  public static String value(String token) {
+    return "bearer " + token;
   }
-
-  public ModelCatalogClientFailedException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
-  public ModelCatalogClientFailedException(Throwable cause) {
-    super(cause);
-  }
-
 }

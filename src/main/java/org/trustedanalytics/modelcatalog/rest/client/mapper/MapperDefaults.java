@@ -11,10 +11,20 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog.rest.client.configuration;
+package org.trustedanalytics.modelcatalog.rest.client.mapper;
 
-public interface OAuthTokenProvider {
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-  String provideToken();
+public class MapperDefaults {
+
+  private static final ObjectMapper objectMapper = new ObjectMapper()
+      .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+  private MapperDefaults() {}
+
+  public static ObjectMapper objectMapper() {
+    return objectMapper;
+  }
 
 }

@@ -15,16 +15,17 @@ package org.trustedanalytics.modelcatalog;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper
-        .expectModelCatalogExceptionWithStatus;
+    .expectModelCatalogExceptionWithStatus;
 import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper
-        .expectModelCatalogExceptionWithStatusAndReason;
+    .expectModelCatalogExceptionWithStatusAndReason;
 import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper
-        .expectNotFoundExceptionThrownBy;
+    .expectNotFoundExceptionThrownBy;
 import static org.trustedanalytics.modelcatalog.TestFileProvider.testFile;
 
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogClientBuilder;
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogReaderClient;
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogWriterClient;
+import org.trustedanalytics.modelcatalog.rest.client.http.HttpFileResource;
 import org.trustedanalytics.modelcatalog.rest.entities.ArtifactActionDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ArtifactDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
@@ -42,6 +43,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
@@ -69,39 +77,46 @@ public class ArtifactsIT {
   }
 
   @Test
-  public void shouldAddRetrieveAndDeleteArtifactMetadataAndFile() {
+  public void client_shouldAddRetrieveAndDeleteArtifactMetadataAndFile() throws IOException {
     // add model
     ModelDTO model = modelCatalogWriter.addModel(
             TestModelParamsBuilder.exemplaryParamsDTO(), UUID.randomUUID());
     final UUID modelId = model.getId();
     // add artifact together with a file
+    File f = testFile();
     ArtifactDTO addedArtifact = modelCatalogWriter.addArtifact(
-            modelId,
-            Collections.singleton(ArtifactActionDTO.DOWNLOAD),
-            testFile());
+        modelId,
+        Collections.singleton(ArtifactActionDTO.DOWNLOAD),
+        new FileInputStream(f),
+        f.getName());
     final UUID artifactId = addedArtifact.getId();
     // retrieve metadata
     ArtifactDTO retrievedMetadata = modelCatalogReader.retrieveArtifactMetadata(
             modelId, artifactId);
     assertThat(retrievedMetadata).isEqualToComparingFieldByField(addedArtifact);
-    // retrieve file TODO DPNG-10563
-//    FileSystemResource retrievedFile = modelCatalogReader.retrieveArtifactFile(modelId,
-// artifactId);
-//    assertThat(retrievedFile.getFilename()).isEqualTo(ARTIFACT_FILENAME);
-//    assertThat(retrievedFile.contentLength()).isEqualTo(13);
+
+    // retrieve artifact file
+    HttpFileResource retrievedFile = modelCatalogReader.retrieveArtifactFile(modelId, artifactId);
+    assertThat(retrievedFile.getFilename()).isEqualTo(addedArtifact.getFilename());
+    byte[] retrievedBytes = readAllBytes(retrievedFile.getInputStream());
+    byte[] expectedBytes = Files.readAllBytes(testFile().toPath());
+    assertThat(retrievedBytes).isEqualTo(expectedBytes);
+
     // delete artifact
     ArtifactDTO deletedArtifact = modelCatalogWriter.deleteArtifact(modelId, artifactId);
     assertThat(deletedArtifact).isEqualToComparingFieldByField(addedArtifact);
     // try to retrieve metadata
     expectNotFoundExceptionThrownBy(
-            () -> modelCatalogReader.retrieveArtifactMetadata(modelId, artifactId));
-    // try to retrieve file -> TODO DPNG-10563
+        () -> modelCatalogReader.retrieveArtifactMetadata(modelId, artifactId));
+    expectNotFoundExceptionThrownBy(
+        () -> modelCatalogReader.retrieveArtifactFile(modelId, artifactId));
   }
 
   @Test
-  public void addArtifact_shouldReturn404WhenModelNotFound() {
+  public void addArtifact_shouldReturn404WhenModelNotFound() throws FileNotFoundException {
     expectModelCatalogExceptionWithStatus(thrown, HttpStatus.NOT_FOUND);
-    modelCatalogWriter.addArtifact(UUID.randomUUID(), Collections.EMPTY_SET, testFile());
+    File f = testFile();
+    modelCatalogWriter.addArtifact(UUID.randomUUID(), Collections.EMPTY_SET, new FileInputStream(f), f.getName());
   }
 
   @Test
@@ -118,24 +133,19 @@ public class ArtifactsIT {
     modelCatalogReader.retrieveArtifactMetadata(model.getId(), UUID.randomUUID());
   }
 
-//  @Test TODO DPNG-10563
-//  public void retrieveArtifactFileShould_shouldReturn404WhenModelNotFound() {
-//    expectModelCatalogExceptionWithStatusAndReason(HttpStatus.NOT_FOUND);
-//    modelCatalogReader.retrieveArtifactFile(UUID.randomUUID(), UUID.randomUUID());
-//  }
+  @Test
+  public void retrieveArtifactFile_shouldReturn404WhenModelNotFound() {
+    expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.NOT_FOUND);
+    modelCatalogReader.retrieveArtifactFile(UUID.randomUUID(), UUID.randomUUID());
+  }
 
-//  @Test TODO DPNG-10563
-//  public void retrieveArtifactFileShould_shouldReturn404WhenArtifactNotFound() {
-//    ModelDTO model = modelCatalogWriter.addModel(
-//            TestModelParamsBuilder.exemplaryParamsDTO(), UUID.randomUUID());
-//    expectModelCatalogExceptionWithStatusAndReason(HttpStatus.NOT_FOUND);
-//    modelCatalogReader.retrieveArtifactFile(model.getId(), UUID.randomUUID());
-//  }
-
-//  @Test TODO DPNG-10563
-//  public void deleteArtifactMetadata_shouldDeleteArtifactFile() {
-//
-//  }
+  @Test
+  public void retrieveArtifactFile_shouldReturn404WhenArtifactNotFound() {
+    ModelDTO model = modelCatalogWriter.addModel(
+        TestModelParamsBuilder.exemplaryParamsDTO(), UUID.randomUUID());
+    expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.NOT_FOUND);
+    modelCatalogReader.retrieveArtifactFile(model.getId(), UUID.randomUUID());
+  }
 
   @Test
   public void deleteArtifact_shouldReturn404WhenModelNotFound() {
@@ -151,4 +161,15 @@ public class ArtifactsIT {
     modelCatalogWriter.deleteArtifact(model.getId(), UUID.randomUUID());
   }
 
+  private byte[] readAllBytes(InputStream is) throws IOException {
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    byte[] buf = new byte[16384];
+    int count;
+    while ((count = is.read(buf, 0, buf.length)) != -1) {
+      bos.write(buf, 0, count);
+    }
+
+    bos.flush();
+    return bos.toByteArray();
+  }
 }

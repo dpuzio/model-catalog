@@ -14,7 +14,7 @@
 package org.trustedanalytics.modelcatalog;
 
 import org.trustedanalytics.modelcatalog.storage.config
-        .AbstractMongoConfigurationWithInstantConverters;
+    .AbstractMongoConfigurationWithInstantConverters;
 
 import com.github.fakemongo.Fongo;
 import com.mongodb.Mongo;

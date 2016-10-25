@@ -44,6 +44,7 @@ public class MemoryFileStore implements FileStore {
     return new ByteArrayInputStream(bytes);
   }
 
+  @Override
   public void addFile(String location, InputStream data) throws FileStoreException {
     ByteArrayOutputStream ostream = new ByteArrayOutputStream();
     try {
@@ -54,6 +55,7 @@ public class MemoryFileStore implements FileStore {
     }
   }
 
+  @Override
   public void deleteFile(String location) throws FileStoreException {
     if (!files.containsKey(location)) {
       LOGGER.warn("File does not exist.");

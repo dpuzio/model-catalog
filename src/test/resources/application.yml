@@ -8,3 +8,9 @@ services:
     serverName: localhost
     serverPort: 27017
     dbName: models
+
+logging:
+  level:
+    org.trustedanalytics: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG

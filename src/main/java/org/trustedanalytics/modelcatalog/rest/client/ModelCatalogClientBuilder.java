@@ -14,8 +14,14 @@
 package org.trustedanalytics.modelcatalog.rest.client;
 
 import org.trustedanalytics.modelcatalog.rest.client.configuration.ApacheClientOrchestrator;
-import org.trustedanalytics.modelcatalog.rest.client.configuration.FeignResourceOrchestrator;
-import org.trustedanalytics.modelcatalog.rest.client.configuration.OAuthTokenProvider;
+import org.trustedanalytics.modelcatalog.rest.client.http.HttpClientWrapper;
+import org.trustedanalytics.modelcatalog.rest.client.http.HttpRequestFactory;
+import org.trustedanalytics.modelcatalog.rest.client.http.MultipartRequestsSender;
+import org.trustedanalytics.modelcatalog.rest.client.http.OAuthTokenProvider;
+import org.trustedanalytics.modelcatalog.rest.client.mapper.DtoJsonMapper;
+import org.trustedanalytics.modelcatalog.rest.client.mapper.MapperDefaults;
+
+import org.apache.http.impl.client.CloseableHttpClient;
 
 import java.util.Optional;
 
@@ -23,10 +29,10 @@ public class ModelCatalogClientBuilder {
 
   private final String url;
   private OAuthTokenProvider tokenProvider;
-  private int connectionTimeoutMillis;
-  private int readTimeoutMillis;
-
-  private FeignResourceOrchestrator feignResourceOrchestrator;
+  private Integer connectionsMaxTotal;
+  private Integer connectionsMaxPerRoute;
+  private Integer connectionTimeoutMillis;
+  private Integer readTimeoutMillis;
 
   public ModelCatalogClientBuilder(String url) {
     this.url = url;
@@ -34,6 +40,16 @@ public class ModelCatalogClientBuilder {
 
   public ModelCatalogClientBuilder oAuthTokenProvider(OAuthTokenProvider tokenProvider) {
     this.tokenProvider = tokenProvider;
+    return this;
+  }
+
+  public ModelCatalogClientBuilder connectionsMaxTotal(int connectionsMaxTotal) {
+    this.connectionsMaxTotal = connectionsMaxTotal;
+    return this;
+  }
+
+  public ModelCatalogClientBuilder connectionsMaxPerRoute(int connectionsMaxPerRoute) {
+    this.connectionsMaxPerRoute = connectionsMaxPerRoute;
     return this;
   }
 
@@ -48,30 +64,34 @@ public class ModelCatalogClientBuilder {
   }
 
   public ModelCatalogReaderClient buildReader() {
-    feignResourceOrchestrator = prepareFeignResourceOrchestrator();
+    CloseableHttpClient httpClient = ApacheClientOrchestrator.prepareHttpClient(
+        Optional.ofNullable(tokenProvider),
+        Optional.ofNullable(connectionsMaxTotal),
+        Optional.ofNullable(connectionsMaxPerRoute),
+        Optional.ofNullable(connectionTimeoutMillis),
+        Optional.ofNullable(readTimeoutMillis));
     return new ModelCatalogReaderClient(
-            feignResourceOrchestrator.prepareModelResource(url),
-            feignResourceOrchestrator.prepareArtifactResource(url));
+        new HttpRequestFactory(url),
+        new HttpClientWrapper(httpClient),
+        new DtoJsonMapper(MapperDefaults.objectMapper()));
   }
 
   public ModelCatalogWriterClient buildWriter() {
-    feignResourceOrchestrator = prepareFeignResourceOrchestrator();
-    MultipartRequestsSender multipartRequestsSender = ApacheClientOrchestrator
-            .prepareMultipartRequestSender(url,
-                    Optional.ofNullable(tokenProvider),
-                    Optional.ofNullable(connectionTimeoutMillis),
-                    Optional.ofNullable(readTimeoutMillis));
+    CloseableHttpClient httpClient = ApacheClientOrchestrator.prepareHttpClient(
+        Optional.ofNullable(tokenProvider),
+        Optional.ofNullable(connectionsMaxTotal),
+        Optional.ofNullable(connectionsMaxPerRoute),
+        Optional.ofNullable(connectionTimeoutMillis),
+        Optional.ofNullable(readTimeoutMillis));
+    HttpRequestFactory requestFactory = new HttpRequestFactory(url);
+    MultipartRequestsSender multipartRequestsSender = new MultipartRequestsSender(
+        requestFactory,
+        new HttpClientWrapper(httpClient),
+        new DtoJsonMapper(MapperDefaults.objectMapper()));
     return new ModelCatalogWriterClient(
-            feignResourceOrchestrator.prepareModelResource(url),
-            feignResourceOrchestrator.prepareArtifactResource(url),
-            multipartRequestsSender);
+        requestFactory,
+        new HttpClientWrapper(httpClient),
+        new DtoJsonMapper(MapperDefaults.objectMapper()),
+        multipartRequestsSender);
   }
-
-  private FeignResourceOrchestrator prepareFeignResourceOrchestrator() {
-    return new FeignResourceOrchestrator(
-            Optional.ofNullable(tokenProvider),
-            Optional.ofNullable(connectionTimeoutMillis),
-            Optional.ofNullable(readTimeoutMillis));
-  }
-
 }

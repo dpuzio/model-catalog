@@ -19,4 +19,7 @@ public class RequestParams {
   public static final String ARTIFACT_FILE = "artifactFile";
 
   public static final String CONTENT_TYPE_APP_JSON_UTF = "application/json; charset=UTF-8";
+  public static final String CONTENT_TYPE_APP_OCTET_STREAM = "application/octet-stream";
+
+  private RequestParams() {}
 }

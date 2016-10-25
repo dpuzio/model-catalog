@@ -36,9 +36,8 @@ public class ModelCatalogExceptionHandler {
   @ExceptionHandler(ModelServiceException.class)
   void handleModelServiceException(ModelServiceException e, HttpServletResponse response)
           throws IOException {
-    // Set default values for error returned (generic, so no internal state leaks to user)
-    HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
     String message = e.getMessage();
+    HttpStatus status;
     switch (e.getCode()) {
       case MODEL_NOT_FOUND:
         status = HttpStatus.NOT_FOUND;
@@ -51,6 +50,9 @@ public class ModelCatalogExceptionHandler {
         break;
       case MODEL_NOTHING_TO_UPDATE:
         status = HttpStatus.NOT_MODIFIED;
+        break;
+      default:
+        status = HttpStatus.INTERNAL_SERVER_ERROR;
         break;
     }
 

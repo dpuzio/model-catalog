@@ -26,17 +26,29 @@ public class ModelCatalogPaths {
 
   private static final String MODEL_ID    = "{modelId}";
   private static final String ARTIFACT_ID = "{artifactId}";
+  private static final String ORG_ID = "{orgId}";
 
   public static final String MODELS        = PREFIX + "/models";
+  public static final String MODELS_ORG    = PREFIX + "/models?orgId=" + ORG_ID;
   public static final String MODEL         = PREFIX + "/models/" + MODEL_ID;
   public static final String ARTIFACTS     = PREFIX + "/models/" + MODEL_ID + "/artifacts";
   public static final String ARTIFACT      = PREFIX + "/models/" + MODEL_ID + "/artifacts/" + ARTIFACT_ID;
   public static final String ARTIFACT_FILE = PREFIX + "/models/" + MODEL_ID + "/artifacts/" + ARTIFACT_ID + "/file";
 
+  private ModelCatalogPaths() {}
+
   // @formatter:on
+
+  public static String pathToModelsByOrg(UUID orgId) {
+    return MODELS_ORG.replace(ORG_ID, orgId.toString());
+  }
 
   public static String pathToModel(UUID modelId) {
     return MODEL.replace(MODEL_ID, modelId.toString());
+  }
+
+  public static String pathToModelArtifacts(UUID modelId) {
+    return ARTIFACTS.replace(MODEL_ID, modelId.toString());
   }
 
   public static String pathToModelArtifact(UUID modelId, UUID artifactId) {
@@ -44,7 +56,8 @@ public class ModelCatalogPaths {
             .replace(ARTIFACT_ID, artifactId.toString());
   }
 
-  public static String pathToModelArtifacts(UUID modelId) {
-    return ARTIFACTS.replace(MODEL_ID, modelId.toString());
+  public static String pathToModelArtifactFile(UUID modelId, UUID artifactId) {
+    return ARTIFACT_FILE.replace(MODEL_ID, modelId.toString())
+        .replace(ARTIFACT_ID, artifactId.toString());
   }
 }

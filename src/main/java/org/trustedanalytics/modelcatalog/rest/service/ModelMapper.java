@@ -19,6 +19,7 @@ import org.trustedanalytics.modelcatalog.rest.entities.ArtifactDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -51,9 +52,9 @@ class ModelMapper {
   private static Set<ArtifactDTO> toArtifactDTOSet(Set<Artifact> artifacts) {
     if (Objects.nonNull(artifacts)) {
       return artifacts.stream()
-              .map((ArtifactMapper::toArtifactDTO))
+              .map(ArtifactMapper::toArtifactDTO)
               .collect(Collectors.toSet());
     }
-    return null;
+    return new HashSet<>();
   }
 }

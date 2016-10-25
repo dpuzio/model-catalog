@@ -15,7 +15,7 @@ package org.trustedanalytics.modelcatalog;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper
-        .expectNotFoundExceptionThrownBy;
+    .expectNotFoundExceptionThrownBy;
 import static org.trustedanalytics.modelcatalog.TestFileProvider.testFile;
 
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogClientBuilder;
@@ -37,6 +37,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Collections;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
@@ -72,7 +75,8 @@ public class ModelsWithArtifactsIT {
   }
 
   @Test
-  public void addingArtifacts_shouldAddArtifactsToModelArtifactsList() {
+  public void addingArtifacts_shouldAddArtifactsToModelArtifactsList()
+      throws FileNotFoundException {
     addArtifacts();
     ModelDTO retrievedModel = modelCatalogReader.retrieveModel(modelId);
     assertThat(retrievedModel.getArtifacts())
@@ -81,7 +85,8 @@ public class ModelsWithArtifactsIT {
   }
 
   @Test
-  public void deletingArtifacts_shouldDeleteArtifactsFromModelArtifactsList() {
+  public void deletingArtifacts_shouldDeleteArtifactsFromModelArtifactsList()
+      throws FileNotFoundException {
     addArtifacts();
     modelCatalogWriter.deleteArtifact(modelId, artifact2.getId());
     ModelDTO retrievedModel = modelCatalogReader.retrieveModel(modelId);
@@ -95,7 +100,7 @@ public class ModelsWithArtifactsIT {
   }
 
   @Test
-  public void deletingModel_shouldDeleteArtifactsMetadataAndFiles() {
+  public void deletingModel_shouldDeleteArtifactsMetadataAndFiles() throws FileNotFoundException {
     addArtifacts();
     modelCatalogWriter.deleteModel(modelId);
     expectNotFoundExceptionThrownBy(
@@ -104,15 +109,21 @@ public class ModelsWithArtifactsIT {
             () -> modelCatalogReader.retrieveArtifactMetadata(modelId, artifact2.getId()));
     expectNotFoundExceptionThrownBy(
             () -> modelCatalogReader.retrieveArtifactMetadata(modelId, artifact3.getId()));
-    //TODO files: DPNG-10563
+    expectNotFoundExceptionThrownBy(
+        () -> modelCatalogReader.retrieveArtifactFile(modelId, artifact1.getId()));
+    expectNotFoundExceptionThrownBy(
+        () -> modelCatalogReader.retrieveArtifactFile(modelId, artifact2.getId()));
+    expectNotFoundExceptionThrownBy(
+        () -> modelCatalogReader.retrieveArtifactFile(modelId, artifact3.getId()));
   }
 
-  private void addArtifacts() {
-    artifact1 = modelCatalogWriter.addArtifact(modelId, Collections.emptySet(), testFile());
+  private void addArtifacts() throws FileNotFoundException {
+    File f = testFile();
+    artifact1 = modelCatalogWriter.addArtifact(
+        modelId, Collections.emptySet(), new FileInputStream(f), f.getName());
     artifact2 = modelCatalogWriter.addArtifact(modelId,
-            Collections.singleton(ArtifactActionDTO.PUBLISH_TO_MARKETPLACE), testFile());
+            Collections.singleton(ArtifactActionDTO.PUBLISH_TO_MARKETPLACE), new FileInputStream(f), f.getName());
     artifact3 = modelCatalogWriter.addArtifact(modelId,
-            Collections.singleton(ArtifactActionDTO.PUBLISH_TO_TAP_SCORING_ENGINE), testFile());
+            Collections.singleton(ArtifactActionDTO.PUBLISH_TO_TAP_SCORING_ENGINE), new FileInputStream(f), f.getName());
   }
-
 }

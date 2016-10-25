@@ -19,8 +19,6 @@ import org.trustedanalytics.modelcatalog.security.UsernameExtractor;
 import org.trustedanalytics.modelcatalog.storage.ModelStore;
 import org.trustedanalytics.modelcatalog.storage.ModelStoreException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,8 +38,6 @@ public class ModelService {
     PATCH,
     OVERWRITE,
   }
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(ModelService.class);
 
   private final ModelStore modelStore;
   private final ArtifactService artifactService;
@@ -143,25 +139,25 @@ public class ModelService {
   }
 
   private Model update(UUID modelId, ModelModificationParameters params, UpdateMode updateMode) {
+    retrieveModel(modelId);
+    Map<String, Object> propertiesToUpdate;
     try {
-      retrieveModel(modelId);
-      Map<String, Object> propertiesToUpdate;
-      try {
-        propertiesToUpdate = PropertiesReader.preparePropertiesToUpdateMap(
-                params, updateMode != UpdateMode.OVERWRITE);
-      } catch (IllegalAccessException | IntrospectionException | InvocationTargetException e) {
-        throw new ModelServiceException(
-            ModelServiceExceptionCode.CANNOT_MAP_PROPERTIES,
-            "Model update failed (cannot map properties).",
-            e);
-      }
-      if (propertiesToUpdate.isEmpty()) {
-        throw new ModelServiceException(
-            ModelServiceExceptionCode.MODEL_NOTHING_TO_UPDATE,
-            "Model update failed (nothing to update).");
-      }
+      propertiesToUpdate = PropertiesReader.preparePropertiesToUpdateMap(
+              params, updateMode != UpdateMode.OVERWRITE);
+    } catch (IllegalAccessException | IntrospectionException | InvocationTargetException e) {
+      throw new ModelServiceException(
+          ModelServiceExceptionCode.CANNOT_MAP_PROPERTIES,
+          "Model update failed (cannot map properties).",
+          e);
+    }
+    if (propertiesToUpdate.isEmpty()) {
+      throw new ModelServiceException(
+          ModelServiceExceptionCode.MODEL_NOTHING_TO_UPDATE,
+          "Model update failed (nothing to update).");
+    }
 
-      addModifiedOnAndByProperties(propertiesToUpdate);
+    addModifiedOnAndByProperties(propertiesToUpdate);
+    try {
       modelStore.updateModel(modelId, propertiesToUpdate);
       return retrieveModel(modelId);
     } catch (ModelStoreException e) {

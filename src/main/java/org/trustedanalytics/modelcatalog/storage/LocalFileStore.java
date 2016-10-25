@@ -13,16 +13,16 @@
  */
 package org.trustedanalytics.modelcatalog.storage;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Path;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Path;
 
 @Repository
 @Profile("local")
@@ -53,6 +53,7 @@ public class LocalFileStore implements FileStore {
     }
   }
 
+  @Override
   public void addFile(String location, InputStream data) throws FileStoreException {
     Path path = fileHelpers.resolvePath(basePath, location);
     try {
@@ -65,6 +66,7 @@ public class LocalFileStore implements FileStore {
     }
   }
 
+  @Override
   public void deleteFile(String location) throws FileStoreException {
     Path path = fileHelpers.resolvePath(basePath, location);
     if (!fileHelpers.exists(path)) {
@@ -77,5 +79,4 @@ public class LocalFileStore implements FileStore {
       throw new FileStoreException("Unable to delete file: " + location, e);
     }
   }
-
 }

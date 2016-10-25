@@ -13,21 +13,14 @@
  */
 package org.trustedanalytics.modelcatalog.rest.client.configuration;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.concurrent.TimeUnit;
 
 class HttpClientDefaults {
 
-  private final static ObjectMapper objectMapper = new ObjectMapper()
-          .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-
+  static final int CONNECTIONS_MAX_TOTAL = 100;
+  static final int CONNECTIONS_MAX_PER_ROUTE = 20;
   static final int CONNECT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(30);
-  static final int READ_TIMEOUT = (int) TimeUnit.MINUTES.toMillis(5);
+  static final int READ_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(30);
 
-  static ObjectMapper objectMapper() {
-    return objectMapper;
-  }
-
+  private HttpClientDefaults() {}
 }

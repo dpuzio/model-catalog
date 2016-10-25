@@ -11,20 +11,10 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog.rest.client.configuration;
+package org.trustedanalytics.modelcatalog.rest.client.http;
 
-import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogClientFailedException;
+public interface OAuthTokenProvider {
 
-import feign.FeignException;
-import feign.Response;
-import feign.codec.ErrorDecoder;
-
-class ModelCatalogFeignErrorDecoder implements ErrorDecoder {
-
-  @Override
-  public Exception decode(String method, Response response) {
-    FeignException feignException = FeignException.errorStatus(method, response);
-    return new ModelCatalogClientFailedException(feignException);
-  }
+  String provideToken();
 
 }

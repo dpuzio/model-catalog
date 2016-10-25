@@ -13,17 +13,16 @@
  */
 package org.trustedanalytics.modelcatalog.storage;
 
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-
-import org.apache.tomcat.util.http.fileupload.IOUtils;
-
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 
 public class FileHelpers {
   

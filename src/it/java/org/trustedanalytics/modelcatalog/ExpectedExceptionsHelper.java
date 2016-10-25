@@ -16,7 +16,7 @@ package org.trustedanalytics.modelcatalog;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.hamcrest.CoreMatchers.containsString;
 
-import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogClientFailedException;
+import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogClientException;
 
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.rules.ExpectedException;
@@ -32,12 +32,12 @@ class ExpectedExceptionsHelper {
 
   static void expectModelCatalogExceptionWithStatus(
           ExpectedException thrown, HttpStatus status) {
-    thrown.expect(ModelCatalogClientFailedException.class);
+    thrown.expect(ModelCatalogClientException.class);
     thrown.expectMessage(containsString(status.toString()));
   }
 
   static void expectNotFoundExceptionThrownBy(ThrowableAssert.ThrowingCallable throwingCallable) {
-    assertThatExceptionOfType(ModelCatalogClientFailedException.class)
+    assertThatExceptionOfType(ModelCatalogClientException.class)
             .isThrownBy(throwingCallable)
             .withMessageContaining(HttpStatus.NOT_FOUND.toString());
   }
