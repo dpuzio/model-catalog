@@ -13,6 +13,9 @@
  */
 package org.trustedanalytics.modelcatalog.rest;
 
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.trustedanalytics.modelcatalog.service.ModelServiceException;
 import org.trustedanalytics.utils.errorhandling.ErrorLogger;
 
@@ -59,4 +62,21 @@ public class ModelCatalogExceptionHandler {
     ErrorLogger.logAndSendErrorResponse(LOGGER, response, status, message, e);
   }
 
+  @ExceptionHandler(MissingServletRequestParameterException.class)
+  void handleMissingServletRequestParameterException(MissingServletRequestParameterException e,
+                                                     HttpServletResponse response) throws IOException {
+    ErrorLogger.logAndSendErrorResponse(LOGGER, response, HttpStatus.BAD_REQUEST, e.getMessage(), e);
+  }
+
+  @ExceptionHandler(MissingServletRequestPartException.class)
+  void handleMissingServletRequestPartException(MissingServletRequestPartException e,
+                                                     HttpServletResponse response) throws IOException {
+    ErrorLogger.logAndSendErrorResponse(LOGGER, response, HttpStatus.BAD_REQUEST, e.getMessage(), e);
+  }
+
+  @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+  void handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e,
+                                                    HttpServletResponse response) throws IOException {
+    ErrorLogger.logAndSendErrorResponse(LOGGER, response, HttpStatus.NOT_FOUND, e.getMessage(), e);
+  }
 }

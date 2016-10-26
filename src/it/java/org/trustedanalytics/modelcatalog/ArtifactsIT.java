@@ -14,14 +14,19 @@
 package org.trustedanalytics.modelcatalog;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper
-    .expectModelCatalogExceptionWithStatus;
-import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper
-    .expectModelCatalogExceptionWithStatusAndReason;
-import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper
-    .expectNotFoundExceptionThrownBy;
+import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper.*;
 import static org.trustedanalytics.modelcatalog.TestFileProvider.testFile;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import org.trustedanalytics.modelcatalog.rest.ModelCatalogPaths;
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogClientBuilder;
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogReaderClient;
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogWriterClient;
@@ -37,7 +42,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -117,6 +121,18 @@ public class ArtifactsIT {
     expectModelCatalogExceptionWithStatus(thrown, HttpStatus.NOT_FOUND);
     File f = testFile();
     modelCatalogWriter.addArtifact(UUID.randomUUID(), Collections.EMPTY_SET, new FileInputStream(f), f.getName());
+  }
+
+  @Test public void addArtifact_shouldReturn400WhenArtifactFileNotSent() {
+    UUID modelId = UUID.randomUUID();
+    MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.ALL.MULTIPART_FORM_DATA);
+    RestTemplate restTemplate = new RestTemplate();
+    String addArtifactWithoutFileAttached = this.url + ModelCatalogPaths.pathToModelArtifacts(modelId);
+    expectHttpClientErrorException(thrown, HttpStatus.BAD_REQUEST);
+    ResponseEntity<ArtifactDTO> response = restTemplate.exchange(addArtifactWithoutFileAttached, HttpMethod.POST,
+            new HttpEntity(formData, headers), ArtifactDTO.class);
   }
 
   @Test
