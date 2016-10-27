@@ -1,0 +1,651 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "Api endpoints for exposing data models.",
+    "version" : "v1",
+    "title" : "Model Catalog API",
+    "license" : {
+      "name" : "Apache License Version 2.0",
+      "url" : "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  },
+  "host" : "localhost",
+  "basePath" : "/",
+  "tags" : [ {
+    "name" : "models-controller",
+    "description" : "Models Controller"
+  }, {
+    "name" : "artifacts-controller",
+    "description" : "Artifacts Controller"
+  } ],
+  "paths" : {
+    "/api/v1/models" : {
+      "get" : {
+        "tags" : [ "models-controller" ],
+        "summary" : "Returns all models in given organization.",
+        "description" : "Privilege level: Consumer of this endpoint must have a valid access token",
+        "operationId" : "listModelsUsingGET",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "orgId",
+          "in" : "query",
+          "description" : "Organization id",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "SUCCESS",
+            "schema" : {
+              "$ref" : "#/definitions/Collection«ModelDTO»"
+            }
+          },
+          "500" : {
+            "description" : "Internal server error, e.g. error getting model metadata"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "models-controller" ],
+        "summary" : "Inserts new model entity with given parameters in given organization.",
+        "description" : "Privilege level: Consumer of this endpoint must have a valid access token",
+        "operationId" : "addModelAndReturnWithLocationHeaderUsingPOST",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json;charset=UTF-8" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "model",
+          "description" : "Model entity containing only modifiable fields",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/ModelModificationParametersDTO"
+          }
+        }, {
+          "name" : "orgId",
+          "in" : "query",
+          "description" : "Organization id",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Created",
+            "schema" : {
+              "$ref" : "#/definitions/ModelDTO"
+            }
+          },
+          "500" : {
+            "description" : "Internal server error, e.g. error saving model metadata"
+          }
+        }
+      }
+    },
+    "/api/v1/models/{modelId}" : {
+      "get" : {
+        "tags" : [ "models-controller" ],
+        "summary" : "Returns model metadata",
+        "description" : "Privilege level: Consumer of this endpoint must have a valid access token",
+        "operationId" : "retrieveModelUsingGET",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "modelId",
+          "in" : "path",
+          "description" : "Model id",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "SUCCESS",
+            "schema" : {
+              "$ref" : "#/definitions/ModelDTO"
+            }
+          },
+          "500" : {
+            "description" : "Internal server error, e.g. error getting model metadata"
+          },
+          "404" : {
+            "description" : "Not Found"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "models-controller" ],
+        "summary" : "Updates model",
+        "description" : "Privilege level: Consumer of this endpoint must have a valid access token",
+        "operationId" : "updateModelUsingPUT",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "modelId",
+          "in" : "path",
+          "description" : "Model id",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "model",
+          "description" : "Model entity containing only modifiable fields",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/ModelModificationParametersDTO"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Model updated",
+            "schema" : {
+              "$ref" : "#/definitions/ModelDTO"
+            }
+          },
+          "500" : {
+            "description" : "Internal server error, e.g. error updating model metadata"
+          },
+          "404" : {
+            "description" : "Model not Found"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "models-controller" ],
+        "summary" : "Deletes model",
+        "description" : "Privilege level: Consumer of this endpoint must have a valid access token",
+        "operationId" : "deleteModelUsingDELETE",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "modelId",
+          "in" : "path",
+          "description" : "Model id",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Deleted",
+            "schema" : {
+              "$ref" : "#/definitions/ModelDTO"
+            }
+          },
+          "500" : {
+            "description" : "Internal server error, e.g. error saving model metadata"
+          },
+          "404" : {
+            "description" : "Model not Found"
+          }
+        }
+      },
+      "patch" : {
+        "tags" : [ "models-controller" ],
+        "summary" : "Updates given model properties",
+        "description" : "Privilege level: Consumer of this endpoint must have a valid access token",
+        "operationId" : "patchModelUsingPATCH",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "modelId",
+          "in" : "path",
+          "description" : "Model id",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "model",
+          "description" : "Model entity containing only modifiable fields",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/ModelModificationParametersDTO"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Model updated",
+            "schema" : {
+              "$ref" : "#/definitions/ModelDTO"
+            }
+          },
+          "500" : {
+            "description" : "Internal server error, e.g. error updating model metadata"
+          },
+          "304" : {
+            "description" : "Nothing to update"
+          },
+          "404" : {
+            "description" : "Model not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/models/{modelId}/artifacts" : {
+      "post" : {
+        "tags" : [ "artifacts-controller" ],
+        "summary" : "Uploads model artifact metadata and file",
+        "description" : "Privilege level: Consumer of this endpoint must have a valid access token",
+        "operationId" : "addArtifactAndReturnWithLocationHeaderUsingPOST",
+        "consumes" : [ "multipart/form-data" ],
+        "produces" : [ "application/json;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "modelId",
+          "in" : "path",
+          "description" : "Model id",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "artifactActions",
+          "in" : "formData",
+          "description" : "Artifact actions",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          },
+          "collectionFormat" : "multi"
+        }, {
+          "name" : "artifactFile",
+          "in" : "formData",
+          "description" : "Artifact file",
+          "required" : true,
+          "type" : "file"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Created",
+            "schema" : {
+              "$ref" : "#/definitions/ArtifactDTO"
+            }
+          },
+          "500" : {
+            "description" : "Internal server error, e.g. error saving artifact file"
+          },
+          "404" : {
+            "description" : "Model not found"
+          }
+        }
+      }
+    },
+    "/api/v1/models/{modelId}/artifacts/{artifactId}" : {
+      "get" : {
+        "tags" : [ "artifacts-controller" ],
+        "summary" : "Returns artifact metadata",
+        "description" : "Privilege level: Consumer of this endpoint must have a valid access token",
+        "operationId" : "retrieveArtifactUsingGET",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "modelId",
+          "in" : "path",
+          "description" : "Model id",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "artifactId",
+          "in" : "path",
+          "description" : "Artifact id",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "SUCCESS",
+            "schema" : {
+              "$ref" : "#/definitions/ArtifactDTO"
+            }
+          },
+          "500" : {
+            "description" : "Internal server error, e.g. error getting artifact metadata"
+          },
+          "404" : {
+            "description" : "Model or artifact not Found"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "artifacts-controller" ],
+        "summary" : "Deletes artifact",
+        "description" : "Privilege level: Consumer of this endpoint must have a valid access token",
+        "operationId" : "deleteArtifactUsingDELETE",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "modelId",
+          "in" : "path",
+          "description" : "Model id",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "artifactId",
+          "in" : "path",
+          "description" : "Artifact id",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Deleted",
+            "schema" : {
+              "$ref" : "#/definitions/ArtifactDTO"
+            }
+          },
+          "500" : {
+            "description" : "Internal server error, e.g. error saving model metadata"
+          },
+          "404" : {
+            "description" : "Model or artifact not Found"
+          }
+        }
+      }
+    },
+    "/api/v1/models/{modelId}/artifacts/{artifactId}/file" : {
+      "get" : {
+        "tags" : [ "artifacts-controller" ],
+        "summary" : "Downloads artifact file",
+        "description" : "Privilege level: Consumer of this endpoint must have a valid access token",
+        "operationId" : "retrieveArtifactFileUsingGET",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/octet-stream", "application/json;charset=UTF-8" ],
+        "parameters" : [ {
+          "name" : "modelId",
+          "in" : "path",
+          "description" : "Model id",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "artifactId",
+          "in" : "path",
+          "description" : "Artifact id",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "SUCCESS",
+            "schema" : {
+              "$ref" : "#/definitions/Resource"
+            }
+          },
+          "500" : {
+            "description" : "Internal server error, e.g. error getting artifact file"
+          },
+          "404" : {
+            "description" : "Model or artifact not Found"
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "ModelDTO" : {
+      "type" : "object",
+      "properties" : {
+        "addedBy" : {
+          "type" : "string"
+        },
+        "addedOn" : {
+          "type" : "string"
+        },
+        "algorithm" : {
+          "type" : "string"
+        },
+        "artifacts" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ArtifactDTO"
+          }
+        },
+        "creationTool" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "modifiedBy" : {
+          "type" : "string"
+        },
+        "modifiedOn" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "revision" : {
+          "type" : "string"
+        }
+      }
+    },
+    "ArtifactDTO" : {
+      "type" : "object",
+      "properties" : {
+        "actions" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "filename" : {
+          "type" : "string"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "location" : {
+          "type" : "string"
+        }
+      }
+    },
+    "InputStream" : {
+      "type" : "object"
+    },
+    "Resource" : {
+      "type" : "object",
+      "properties" : {
+        "description" : {
+          "type" : "string"
+        },
+        "file" : {
+          "type" : "file"
+        },
+        "filename" : {
+          "type" : "string"
+        },
+        "inputStream" : {
+          "$ref" : "#/definitions/InputStream"
+        },
+        "open" : {
+          "type" : "boolean"
+        },
+        "readable" : {
+          "type" : "boolean"
+        },
+        "uri" : {
+          "$ref" : "#/definitions/URI"
+        },
+        "url" : {
+          "$ref" : "#/definitions/URL"
+        }
+      }
+    },
+    "Collection«ModelDTO»" : {
+      "type" : "object",
+      "properties" : {
+        "empty" : {
+          "type" : "boolean"
+        }
+      }
+    },
+    "ModelModificationParametersDTO" : {
+      "type" : "object",
+      "properties" : {
+        "algorithm" : {
+          "type" : "string"
+        },
+        "creationTool" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "revision" : {
+          "type" : "string"
+        }
+      }
+    },
+    "File" : {
+      "type" : "object",
+      "properties" : {
+        "absolute" : {
+          "type" : "boolean"
+        },
+        "absoluteFile" : {
+          "type" : "file"
+        },
+        "absolutePath" : {
+          "type" : "string"
+        },
+        "canonicalFile" : {
+          "type" : "file"
+        },
+        "canonicalPath" : {
+          "type" : "string"
+        },
+        "directory" : {
+          "type" : "boolean"
+        },
+        "file" : {
+          "type" : "boolean"
+        },
+        "freeSpace" : {
+          "type" : "integer",
+          "format" : "int64"
+        },
+        "hidden" : {
+          "type" : "boolean"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "parent" : {
+          "type" : "string"
+        },
+        "parentFile" : {
+          "type" : "file"
+        },
+        "path" : {
+          "type" : "string"
+        },
+        "totalSpace" : {
+          "type" : "integer",
+          "format" : "int64"
+        },
+        "usableSpace" : {
+          "type" : "integer",
+          "format" : "int64"
+        }
+      }
+    },
+    "URI" : {
+      "type" : "object",
+      "properties" : {
+        "absolute" : {
+          "type" : "boolean"
+        },
+        "authority" : {
+          "type" : "string"
+        },
+        "fragment" : {
+          "type" : "string"
+        },
+        "host" : {
+          "type" : "string"
+        },
+        "opaque" : {
+          "type" : "boolean"
+        },
+        "path" : {
+          "type" : "string"
+        },
+        "port" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "query" : {
+          "type" : "string"
+        },
+        "rawAuthority" : {
+          "type" : "string"
+        },
+        "rawFragment" : {
+          "type" : "string"
+        },
+        "rawPath" : {
+          "type" : "string"
+        },
+        "rawQuery" : {
+          "type" : "string"
+        },
+        "rawSchemeSpecificPart" : {
+          "type" : "string"
+        },
+        "rawUserInfo" : {
+          "type" : "string"
+        },
+        "scheme" : {
+          "type" : "string"
+        },
+        "schemeSpecificPart" : {
+          "type" : "string"
+        },
+        "userInfo" : {
+          "type" : "string"
+        }
+      }
+    },
+    "URL" : {
+      "type" : "object",
+      "properties" : {
+        "authority" : {
+          "type" : "string"
+        },
+        "content" : {
+          "type" : "object"
+        },
+        "defaultPort" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "file" : {
+          "type" : "string"
+        },
+        "host" : {
+          "type" : "string"
+        },
+        "path" : {
+          "type" : "string"
+        },
+        "port" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "protocol" : {
+          "type" : "string"
+        },
+        "query" : {
+          "type" : "string"
+        },
+        "ref" : {
+          "type" : "string"
+        },
+        "userInfo" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}
