@@ -14,11 +14,15 @@
 package org.trustedanalytics.modelcatalog;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper.expectHttpClientErrorException;
 import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper
     .expectModelCatalogExceptionWithStatus;
 import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper
     .expectModelCatalogExceptionWithStatusAndReason;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+import org.trustedanalytics.modelcatalog.rest.ModelCatalogPaths;
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogClientBuilder;
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogReaderClient;
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogWriterClient;
@@ -85,6 +89,21 @@ public class ModelsIT {
   public void retrieveModel_shouldReturn404WhenModelNotFound() {
     expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.NOT_FOUND);
     modelCatalogReader.retrieveModel(UUID.randomUUID());
+  }
+
+  @Test public void retrieveModelsList_shouldReturn400WhenOrgIdParameterNotSet() {
+    RestTemplate restTemplate = new RestTemplate();
+    String tryToGetModelsWithoutOrgIdParamUrl = this.url + ModelCatalogPaths.MODELS;
+    expectHttpClientErrorException(thrown, HttpStatus.BAD_REQUEST);
+    ResponseEntity<ModelDTO> response = restTemplate.getForEntity(tryToGetModelsWithoutOrgIdParamUrl,
+            ModelDTO.class);
+  }
+
+  @Test public void retrieveModelsList_shouldReturn404WhenInvokeNotImplementedMethod() {
+    RestTemplate restTemplate = new RestTemplate();
+    String tryToDeleteModelsOnGetModelsUrl = this.url + ModelCatalogPaths.MODELS;
+    expectHttpClientErrorException(thrown, HttpStatus.NOT_FOUND);
+    restTemplate.delete(tryToDeleteModelsOnGetModelsUrl);
   }
 
   @Test

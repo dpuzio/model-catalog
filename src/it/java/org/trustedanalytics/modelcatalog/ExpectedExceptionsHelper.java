@@ -16,6 +16,7 @@ package org.trustedanalytics.modelcatalog;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.hamcrest.CoreMatchers.containsString;
 
+import org.springframework.web.client.HttpClientErrorException;
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogClientException;
 
 import org.assertj.core.api.ThrowableAssert;
@@ -42,4 +43,8 @@ class ExpectedExceptionsHelper {
             .withMessageContaining(HttpStatus.NOT_FOUND.toString());
   }
 
+  static void expectHttpClientErrorException(ExpectedException thrown, HttpStatus status) {
+    thrown.expect(HttpClientErrorException.class);
+    thrown.expectMessage(containsString(status.toString()));
+  }
 }
