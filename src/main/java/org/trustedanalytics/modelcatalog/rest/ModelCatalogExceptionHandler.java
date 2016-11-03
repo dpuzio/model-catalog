@@ -13,6 +13,7 @@
  */
 package org.trustedanalytics.modelcatalog.rest;
 
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
@@ -78,5 +79,11 @@ public class ModelCatalogExceptionHandler {
   void handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e,
                                                     HttpServletResponse response) throws IOException {
     ErrorLogger.logAndSendErrorResponse(LOGGER, response, HttpStatus.NOT_FOUND, e.getMessage(), e);
+  }
+
+  @ExceptionHandler(TypeMismatchException.class)
+  void handleTypeMismatchException(TypeMismatchException e,
+                                   HttpServletResponse response) throws IOException {
+    ErrorLogger.logAndSendErrorResponse(LOGGER, response, HttpStatus.BAD_REQUEST, e.getCause().getMessage(), e);
   }
 }
