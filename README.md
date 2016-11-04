@@ -38,17 +38,17 @@ To change the default listening port, please use parameter ``-Dserver.port=[port
 Application can be tested using `curl` tool. Few examples:
 
 ```
-curl -H "Authorization: $TOKEN" http://localhost:9913/api/v1/models?orgId=00000000-0000-0000-0000-000000000000
+curl -H "Authorization: $TOKEN" http://<model-catalog-host>:<model-catalog-port>/api/v1/models?orgId=00000000-0000-0000-0000-000000000000
 
-curl -X POST -H "Authorization: $TOKEN" -H "Content-type: application/json" -d '{"name": "sample-model1","revision":"1.0","algorithm":"GBM","creationTool":"manual","description":"Sample Model One","artifactsIds":[]}' http://localhost:9913/api/v1/models?orgId=00000000-0000-0000-0000-000000000000
+curl -X POST -H "Authorization: $TOKEN" -H "Content-type: application/json" -d '{"name": "sample-model1","revision":"1.0","algorithm":"GBM","creationTool":"manual","description":"Sample Model One","artifactsIds":[]}' http://<model-catalog-host>:<model-catalog-port>/api/v1/models?orgId=00000000-0000-0000-0000-000000000000
 
-curl -X POST -H "Authorization: $TOKEN" -H "Content-type: application/json" -F artifactActions="[DOWNLOAD]" -F artifactFile=@hello.txt http://localhost:9913/api/v1/models/4d64ccbf-269a-4248-ae5c-efdfb99c3f74/artifacts
+curl -X POST -H "Authorization: $TOKEN" -H "Content-type: application/json" -F artifactActions="[DOWNLOAD]" -F artifactFile=@hello.txt http://<model-catalog-host>:<model-catalog-port>/api/v1/models/4d64ccbf-269a-4248-ae5c-efdfb99c3f74/artifacts
 
 ```
 
 `TOKEN` can be obtained from the TAP CLI tool. For example:
 ```
-tap login api.<env_domain> <user> <password>
+tap login http://api.<env_domain> <user> <password> -v DEBUG
 
 export TOKEN="bearer <access_token_pasted_from_tap_cli>"
 ```
