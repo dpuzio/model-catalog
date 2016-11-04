@@ -15,10 +15,8 @@ package org.trustedanalytics.modelcatalog;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper.expectHttpClientErrorException;
-import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper
-    .expectModelCatalogExceptionWithStatus;
-import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper
-    .expectModelCatalogExceptionWithStatusAndReason;
+import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper.expectModelCatalogExceptionWithStatus;
+import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper.expectModelCatalogExceptionWithStatusAndReason;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -89,6 +87,15 @@ public class ModelsIT {
   public void retrieveModel_shouldReturn404WhenModelNotFound() {
     expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.NOT_FOUND);
     modelCatalogReader.retrieveModel(UUID.randomUUID());
+  }
+
+  @Test
+  public void retrieveModel_shouldReturn400WhenAnyParameterIsInstanceOfWrongType() {
+    RestTemplate restTemplate = new RestTemplate();
+    String tryToGetModelWhenOrgIdParamIsNotUuidTypeUrl = this.url + ModelCatalogPaths.MODELS + "/string-instead-of-uuid";
+    expectHttpClientErrorException(thrown, HttpStatus.BAD_REQUEST);
+    ResponseEntity<ModelDTO> response = restTemplate.getForEntity(tryToGetModelWhenOrgIdParamIsNotUuidTypeUrl,
+            ModelDTO.class);
   }
 
   @Test public void retrieveModelsList_shouldReturn400WhenOrgIdParameterNotSet() {
