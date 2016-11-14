@@ -90,7 +90,7 @@ public class ArtifactsIT {
     File f = testFile();
     ArtifactDTO addedArtifact = modelCatalogWriter.addArtifact(
         modelId,
-        Collections.singleton(ArtifactActionDTO.DOWNLOAD),
+        Collections.singleton(ArtifactActionDTO.PUBLISH_JAR_SCORING_ENGINE),
         new FileInputStream(f),
         f.getName());
     final UUID artifactId = addedArtifact.getId();

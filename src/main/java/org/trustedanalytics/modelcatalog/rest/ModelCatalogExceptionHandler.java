@@ -55,6 +55,9 @@ public class ModelCatalogExceptionHandler {
       case MODEL_NOTHING_TO_UPDATE:
         status = HttpStatus.NOT_MODIFIED;
         break;
+      case REQUIRED_FIELDS_MISSING:
+        status = HttpStatus.BAD_REQUEST;
+        break;
       default:
         status = HttpStatus.INTERNAL_SERVER_ERROR;
         break;

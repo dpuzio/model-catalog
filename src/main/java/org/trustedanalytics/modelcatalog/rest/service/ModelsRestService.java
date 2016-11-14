@@ -19,7 +19,10 @@ import static org.trustedanalytics.modelcatalog.rest.service.ParamsMapper.toPara
 import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
 import org.trustedanalytics.modelcatalog.service.ModelService;
+import org.trustedanalytics.modelcatalog.service.ModelServiceException;
+import org.trustedanalytics.modelcatalog.service.ModelServiceExceptionCode;
 
+import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,10 +51,12 @@ public class ModelsRestService {
   }
 
   public ModelDTO addModel(ModelModificationParametersDTO paramsDTO, UUID orgId) {
+    checkRequiredFields(paramsDTO);
     return toModelDTO(modelService.addModel(toParameters(paramsDTO), orgId));
   }
 
   public ModelDTO updateModel(UUID modelId, ModelModificationParametersDTO paramsDTO) {
+    checkRequiredFields(paramsDTO);
     return toModelDTO(modelService.updateModel(modelId, toParameters(paramsDTO)));
   }
 
@@ -61,6 +66,17 @@ public class ModelsRestService {
 
   public ModelDTO deleteModel(UUID modelId) {
     return toModelDTO(modelService.deleteModel(modelId));
+  }
+
+  private void checkRequiredFields(ModelModificationParametersDTO paramsDTO) {
+    if (Strings.isNullOrEmpty(paramsDTO.getName())) {
+      throw new ModelServiceException(ModelServiceExceptionCode.REQUIRED_FIELDS_MISSING,
+              "Non-empty value is required for model name field");
+    }
+    if (Strings.isNullOrEmpty(paramsDTO.getCreationTool())) {
+      throw new ModelServiceException(ModelServiceExceptionCode.REQUIRED_FIELDS_MISSING,
+              "Non-empty value is required for model creationTool field");
+    }
   }
 
 }

@@ -75,6 +75,9 @@
               "$ref" : "#/definitions/ModelDTO"
             }
           },
+          "400" : {
+            "description" : "Bad request, e.g. missing required model parameters"
+          },
           "500" : {
             "description" : "Internal server error, e.g. error saving model metadata"
           }
@@ -139,6 +142,9 @@
             "schema" : {
               "$ref" : "#/definitions/ModelDTO"
             }
+          },
+          "400" : {
+            "description" : "Bad request, e.g. missing required model parameters"
           },
           "500" : {
             "description" : "Internal server error, e.g. error updating model metadata"
