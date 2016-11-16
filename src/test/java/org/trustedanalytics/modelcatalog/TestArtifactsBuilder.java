@@ -29,7 +29,7 @@ class TestArtifactsBuilder {
 
   public static Artifact exemplaryArtifact() {
     Set<ArtifactAction> actions = new HashSet<>();
-    actions.add(ArtifactAction.DOWNLOAD);
+    actions.add(ArtifactAction.PUBLISH_JAR_SCORING_ENGINE);
     return Artifact.builder()
             .id(ARTIFACT_ID)
             .filename(ARTIFACT_FILENAME)

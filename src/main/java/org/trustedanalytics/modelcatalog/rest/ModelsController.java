@@ -92,6 +92,7 @@ public class ModelsController {
   )
   @ApiResponses(value = {
           @ApiResponse(code = 201, message = "Created"),
+          @ApiResponse(code = 400, message = "Bad request, e.g. missing required model parameters"),
           @ApiResponse(code = 500, message = "Internal server error, e.g. error saving model " +
                   "metadata"),
   })
@@ -116,6 +117,7 @@ public class ModelsController {
   )
   @ApiResponses(value = {
           @ApiResponse(code = 200, message = "Model updated"),
+          @ApiResponse(code = 400, message = "Bad request, e.g. missing required model parameters"),
           @ApiResponse(code = 404, message = "Model not Found"),
           @ApiResponse(code = 500, message = "Internal server error, e.g. error updating model " +
                   "metadata"),

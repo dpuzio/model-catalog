@@ -18,8 +18,6 @@ import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper.expectH
 import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper.expectModelCatalogExceptionWithStatus;
 import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper.expectModelCatalogExceptionWithStatusAndReason;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 import org.trustedanalytics.modelcatalog.rest.ModelCatalogPaths;
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogClientBuilder;
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogReaderClient;
@@ -36,10 +34,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -61,7 +61,7 @@ public class ModelsIT {
   private ModelCatalogWriterClient modelCatalogWriter;
 
   private final UUID ORG_ID = UUID.randomUUID();
-  private final ModelModificationParametersDTO params = TestModelParamsBuilder.exemplaryParamsDTO();
+  private final ModelModificationParametersDTO PARAMS = TestModelParamsBuilder.exemplaryParamsDTO();
   private ModelDTO addedModel;
 
   @Rule
@@ -84,29 +84,38 @@ public class ModelsIT {
   }
 
   @Test
-  public void retrieveModel_shouldReturn404WhenModelNotFound() {
+  public void addModel_shouldReturn400_whenRequiredFieldsNotProvided() {
+    expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.BAD_REQUEST);
+    modelCatalogWriter.addModel(new ModelModificationParametersDTO(), UUID.randomUUID());
+  }
+
+  @Test
+  public void retrieveModel_shouldReturn404_whenModelNotFound() {
     expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.NOT_FOUND);
     modelCatalogReader.retrieveModel(UUID.randomUUID());
   }
 
   @Test
-  public void retrieveModel_shouldReturn400WhenAnyParameterIsInstanceOfWrongType() {
+  public void retrieveModel_shouldReturn400_whenAnyParameterIsInstanceOfWrongType() {
     RestTemplate restTemplate = new RestTemplate();
-    String tryToGetModelWhenOrgIdParamIsNotUuidTypeUrl = this.url + ModelCatalogPaths.MODELS + "/string-instead-of-uuid";
+    String tryToGetModelWhenOrgIdParamIsNotUuidTypeUrl =
+            this.url + ModelCatalogPaths.MODELS + "/string-instead-of-uuid";
     expectHttpClientErrorException(thrown, HttpStatus.BAD_REQUEST);
-    ResponseEntity<ModelDTO> response = restTemplate.getForEntity(tryToGetModelWhenOrgIdParamIsNotUuidTypeUrl,
-            ModelDTO.class);
+    ResponseEntity<ModelDTO> response = restTemplate.getForEntity
+            (tryToGetModelWhenOrgIdParamIsNotUuidTypeUrl, ModelDTO.class);
   }
 
-  @Test public void retrieveModelsList_shouldReturn400WhenOrgIdParameterNotSet() {
+  @Test
+  public void retrieveModelsList_shouldReturn400_whenOrgIdParameterNotSet() {
     RestTemplate restTemplate = new RestTemplate();
     String tryToGetModelsWithoutOrgIdParamUrl = this.url + ModelCatalogPaths.MODELS;
     expectHttpClientErrorException(thrown, HttpStatus.BAD_REQUEST);
-    ResponseEntity<ModelDTO> response = restTemplate.getForEntity(tryToGetModelsWithoutOrgIdParamUrl,
-            ModelDTO.class);
+    ResponseEntity<ModelDTO> response = restTemplate.getForEntity
+            (tryToGetModelsWithoutOrgIdParamUrl, ModelDTO.class);
   }
 
-  @Test public void retrieveModelsList_shouldReturn404WhenInvokeNotImplementedMethod() {
+  @Test
+  public void retrieveModelsList_shouldReturn404_whenInvokeNotImplementedMethod() {
     RestTemplate restTemplate = new RestTemplate();
     String tryToDeleteModelsOnGetModelsUrl = this.url + ModelCatalogPaths.MODELS;
     expectHttpClientErrorException(thrown, HttpStatus.NOT_FOUND);
@@ -116,14 +125,14 @@ public class ModelsIT {
   @Test
   public void updateModel_shouldUpdateAllFields() {
     // given
-    addEmptyModel();
+    addExemplaryModel();
     final UUID modelId = addedModel.getId();
     // when
     Instant before = currentTimeWithPrecisionToSeconds();
-    ModelDTO updatedModel = modelCatalogWriter.updateModel(modelId, params);
+    ModelDTO updatedModel = modelCatalogWriter.updateModel(modelId, PARAMS);
     Instant after = Instant.now();
     // then
-    ModelParamsChecker.checkThatModelDTOContainsParamsDTO(updatedModel, params);
+    ModelParamsChecker.checkThatModelDTOContainsParamsDTO(updatedModel, PARAMS);
     assertThat(updatedModel.getId()).isEqualTo(modelId);
     assertThat(updatedModel.getAddedBy()).isEqualTo(addedModel.getAddedBy());
     assertThat(updatedModel.getAddedOn()).isEqualTo(addedModel.getAddedOn());
@@ -132,22 +141,30 @@ public class ModelsIT {
   }
 
   @Test
-  public void updateModel_shouldReturn404WhenModelNotFound() {
+  public void updateModel_shouldReturn404_whenModelNotFound() {
     expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.NOT_FOUND);
-    modelCatalogWriter.updateModel(UUID.randomUUID(), params);
+    modelCatalogWriter.updateModel(UUID.randomUUID(), PARAMS);
+  }
+
+  @Test
+  public void updateModel_shouldReturn400_whenRequiredFieldsNotProvided() {
+    addExemplaryModel();
+    final UUID modelId = addedModel.getId();
+    expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.BAD_REQUEST);
+    modelCatalogWriter.updateModel(modelId, TestModelParamsBuilder.emptyParamsDTO());
   }
 
   @Test
   public void patchModel_shouldUpdateSelectedFields() {
     // given
-    addEmptyModel();
+    addExemplaryModel();
     final UUID modelId = addedModel.getId();
     // when
     Instant before = currentTimeWithPrecisionToSeconds();
-    ModelDTO updatedModel = modelCatalogWriter.patchModel(modelId, params);
+    ModelDTO updatedModel = modelCatalogWriter.patchModel(modelId, PARAMS);
     Instant after = Instant.now();
     // then
-    ModelParamsChecker.checkThatModelDTOContainsParamsDTO(updatedModel, params);
+    ModelParamsChecker.checkThatModelDTOContainsParamsDTO(updatedModel, PARAMS);
     assertThat(updatedModel.getId()).isEqualTo(modelId);
     assertThat(updatedModel.getAddedBy()).isEqualTo(addedModel.getAddedBy());
     assertThat(updatedModel.getAddedOn()).isEqualTo(addedModel.getAddedOn());
@@ -156,20 +173,20 @@ public class ModelsIT {
   }
 
   @Test
-  public void patchModel_shouldReturn304WhenNothingToUpdate() {
+  public void patchModel_shouldReturn304_whenNothingToUpdate() {
     addExemplaryModel();
     expectModelCatalogExceptionWithStatus(thrown, HttpStatus.NOT_MODIFIED);
     modelCatalogWriter.patchModel(addedModel.getId(), TestModelParamsBuilder.emptyParamsDTO());
   }
 
   @Test
-  public void patchModel_shouldReturn404WhenModelNotFound() {
+  public void patchModel_shouldReturn404_whenModelNotFound() {
     expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.NOT_FOUND);
-    modelCatalogWriter.patchModel(UUID.randomUUID(), params);
+    modelCatalogWriter.patchModel(UUID.randomUUID(), PARAMS);
   }
 
   @Test
-  public void deleteModel_shouldReturn404WhenModelNotFound() {
+  public void deleteModel_shouldReturn404_whenModelNotFound() {
     expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.NOT_FOUND);
     modelCatalogWriter.deleteModel(UUID.randomUUID());
   }
@@ -178,7 +195,7 @@ public class ModelsIT {
     Instant before = currentTimeWithPrecisionToSeconds();
     addExemplaryModel();
     Instant after = Instant.now();
-    ModelParamsChecker.checkThatModelDTOContainsParamsDTO(addedModel, params);
+    ModelParamsChecker.checkThatModelDTOContainsParamsDTO(addedModel, PARAMS);
     assertThat(addedModel.getId()).isNotNull();
     assertThat(addedModel.getAddedBy()).isEqualTo(ITSecurityConfig.USERNAME);
     checkThatIsBetween(addedModel.getAddedOn(), before, after);
@@ -195,12 +212,7 @@ public class ModelsIT {
   }
 
   private void addExemplaryModel() {
-    addedModel = modelCatalogWriter.addModel(params, ORG_ID);
-  }
-
-  private void addEmptyModel() {
-    ModelModificationParametersDTO emptyParams = TestModelParamsBuilder.emptyParamsDTO();
-    addedModel = modelCatalogWriter.addModel(emptyParams, ORG_ID);
+    addedModel = modelCatalogWriter.addModel(PARAMS, ORG_ID);
   }
 
   private void retrieveModelFromDbAndCompareWithTheAddedOne() {

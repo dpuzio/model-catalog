@@ -58,7 +58,7 @@ public class ModelsWithArtifactsIT {
   private ModelCatalogReaderClient modelCatalogReader;
   private ModelCatalogWriterClient modelCatalogWriter;
 
-  private final ModelModificationParametersDTO params = TestModelParamsBuilder.exemplaryParamsDTO();
+  private final ModelModificationParametersDTO PARAMS = TestModelParamsBuilder.exemplaryParamsDTO();
   private UUID modelId;
   private ArtifactDTO artifact1, artifact2, artifact3;
 
@@ -70,7 +70,7 @@ public class ModelsWithArtifactsIT {
 
   @Before
   public void setUp() {
-    ModelDTO model = modelCatalogWriter.addModel(params, UUID.randomUUID());
+    ModelDTO model = modelCatalogWriter.addModel(PARAMS, UUID.randomUUID());
     modelId = model.getId();
   }
 
@@ -122,8 +122,8 @@ public class ModelsWithArtifactsIT {
     artifact1 = modelCatalogWriter.addArtifact(
         modelId, Collections.emptySet(), new FileInputStream(f), f.getName());
     artifact2 = modelCatalogWriter.addArtifact(modelId,
-            Collections.singleton(ArtifactActionDTO.PUBLISH_TO_MARKETPLACE), new FileInputStream(f), f.getName());
+            Collections.singleton(ArtifactActionDTO.PUBLISH_TAP_SCORING_ENGINE), new FileInputStream(f), f.getName());
     artifact3 = modelCatalogWriter.addArtifact(modelId,
-            Collections.singleton(ArtifactActionDTO.PUBLISH_TO_TAP_SCORING_ENGINE), new FileInputStream(f), f.getName());
+            Collections.singleton(ArtifactActionDTO.PUBLISH_JAR_SCORING_ENGINE), new FileInputStream(f), f.getName());
   }
 }

@@ -14,7 +14,6 @@
 package org.trustedanalytics.modelcatalog.rest.entities;
 
 public enum ArtifactActionDTO {
-  DOWNLOAD,
-  PUBLISH_TO_TAP_SCORING_ENGINE,
-  PUBLISH_TO_MARKETPLACE,
+  PUBLISH_TAP_SCORING_ENGINE,
+  PUBLISH_JAR_SCORING_ENGINE,
 }
