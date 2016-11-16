@@ -1,7 +1,7 @@
 server.port: 9913
 
 security:
-  ignored: /v2/api-docs
+  ignored: /v2/api-docs,/healthz
 
 spring.oauth2.resource:
   id: tap
