@@ -11,14 +11,23 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog.storage;
 
-import java.io.InputStream;
+package org.trustedanalytics.modelcatalog.healthcheck;
 
-public interface FileStore {
-  InputStream retrieveFile(String location) throws FileStoreException;
+import lombok.Getter;
 
-  void addFile(String location, InputStream data) throws FileStoreException;
+import java.time.Instant;
+import java.util.UUID;
 
-  void deleteFile(String location) throws FileStoreException;
+@Getter
+public class HealthCheckTestObject {
+
+  private final long timestamp;
+  private final String id;
+
+  public HealthCheckTestObject() {
+    Instant instant = Instant.now();
+    this.timestamp = instant.getEpochSecond();
+    this.id = UUID.randomUUID().toString();
+  }
 }

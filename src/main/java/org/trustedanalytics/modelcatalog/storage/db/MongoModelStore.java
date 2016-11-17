@@ -11,7 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog.storage;
+package org.trustedanalytics.modelcatalog.storage.db;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -25,6 +25,8 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
+import org.trustedanalytics.modelcatalog.storage.db.ModelStore;
+import org.trustedanalytics.modelcatalog.storage.db.ModelStoreException;
 
 import java.util.Collection;
 import java.util.Map;

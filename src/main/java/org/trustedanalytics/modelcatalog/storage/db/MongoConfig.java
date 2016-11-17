@@ -11,9 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog.storage.config;
-
-import org.trustedanalytics.modelcatalog.storage.MongoProperties;
+package org.trustedanalytics.modelcatalog.storage.db;
 
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;

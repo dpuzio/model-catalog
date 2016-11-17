@@ -11,16 +11,26 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog.storage;
+package org.trustedanalytics.modelcatalog.storage.db;
 
-public class ModelStoreException extends Exception {
-  private static final long serialVersionUID = -6709805613026791499L;
 
-  public ModelStoreException(String message) {
-    super(message);
-  }
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
-  public ModelStoreException(String message, Throwable throwable) {
-    super(message, throwable);
-  }
+@Component
+@ConfigurationProperties(MongoProperties.PREFIX)
+@Getter
+@Setter
+public class MongoProperties {
+
+  protected static final String PREFIX = "services.store";
+
+  private String serverName;
+  private int serverPort;
+  private String dbName;
+  private String user;
+  private String password;
+
 }

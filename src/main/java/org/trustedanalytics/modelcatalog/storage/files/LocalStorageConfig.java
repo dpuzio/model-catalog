@@ -11,9 +11,7 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog.storage.config;
-
-import org.trustedanalytics.modelcatalog.storage.FileHelpers;
+package org.trustedanalytics.modelcatalog.storage.files;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
