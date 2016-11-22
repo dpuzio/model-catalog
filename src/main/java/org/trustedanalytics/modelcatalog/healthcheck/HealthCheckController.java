@@ -13,6 +13,8 @@
  */
 package org.trustedanalytics.modelcatalog.healthcheck;
 
+import org.trustedanalytics.modelcatalog.storage.files.FileStoreException;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -25,10 +27,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class HealthCheckController {
 
   private final HealthCheckMongoTester healthCheckMongoTester;
+  private final HealthCheckFileStorageTester healthCheckFileStorageTester;
 
   @Autowired
-  public HealthCheckController(HealthCheckMongoTester healthCheckMongoTester) {
+  public HealthCheckController(HealthCheckMongoTester healthCheckMongoTester,
+                               HealthCheckFileStorageTester healthCheckFileStorageTester) {
     this.healthCheckMongoTester = healthCheckMongoTester;
+    this.healthCheckFileStorageTester = healthCheckFileStorageTester;
   }
 
   @ApiOperation("Checks service health.")
@@ -40,7 +45,8 @@ public class HealthCheckController {
       value = "/healthz",
       method = RequestMethod.GET
   )
-  public void checkHealth() {
+  public void checkHealth() throws FileStoreException{
     healthCheckMongoTester.verifyMongo();
+    healthCheckFileStorageTester.verifyFileStore();
   }
 }

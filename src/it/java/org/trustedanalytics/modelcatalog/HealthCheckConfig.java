@@ -15,10 +15,14 @@
 package org.trustedanalytics.modelcatalog;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 
 import org.trustedanalytics.modelcatalog.healthcheck.HealthCheckTestObject;
+import org.trustedanalytics.modelcatalog.storage.files.FileStore;
+import org.trustedanalytics.modelcatalog.storage.files.FileStoreException;
+import org.trustedanalytics.modelcatalog.storage.files.MemoryFileStore;
 
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Profile;
@@ -26,11 +30,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoOperations;
 
+import java.io.InputStream;
+
 @Configuration
-@Profile("mongo-operations-mock")
-public class MongoOperationsConfig {
+@Profile("health-check")
+public class HealthCheckConfig {
 
   private static final MongoOperations mongoOperations = mock(MongoOperations.class);
+  private static final MemoryFileStore fileStore = mock(MemoryFileStore.class);
 
   @Bean
   public MongoOperations mongoOperations() {
@@ -38,7 +45,17 @@ public class MongoOperationsConfig {
     return mongoOperations;
   }
 
+  @Bean
+  FileStore fileStore() {
+    Mockito.reset(fileStore);
+    return fileStore;
+  }
+
   public static void throwErrorWhenTalkingToMongo() {
     doThrow(new Error()).when(mongoOperations).insert(any(HealthCheckTestObject.class));
+  }
+
+  public static void throwErrorWhenTalkingToFileStorage() throws FileStoreException {
+    doThrow(new Error()).when(fileStore).addFile(anyString(), any(InputStream.class));
   }
 }

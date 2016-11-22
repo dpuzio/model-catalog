@@ -17,6 +17,8 @@ package org.trustedanalytics.modelcatalog;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.trustedanalytics.modelcatalog.ExpectedExceptionsHelper.expectHttpServerErrorException;
 
+import org.trustedanalytics.modelcatalog.storage.files.FileStoreException;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,15 +36,15 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {Application.class, FongoConfig.class, MongoOperationsConfig.class})
+@SpringApplicationConfiguration(classes = {Application.class})
 @WebAppConfiguration
 @IntegrationTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ActiveProfiles({"integration-test", "in-memory", "mongo-operations-mock"})
+@ActiveProfiles({"integration-test", "in-memory", "health-check"})
 public class HealthCheckIT {
 
   @Value("http://localhost:${local.server.port}/healthz")
-  private String HEALTH_CHECK_PATH;
+  private String healthCheckPath;
   private RestTemplate restTemplate;
 
   @Rule
@@ -55,14 +57,22 @@ public class HealthCheckIT {
 
   @Test
   public void healthCheckEndpoint_shouldBeInsecureAndReturn200_whenAllOk() {
-    ResponseEntity<String> response = restTemplate.getForEntity(HEALTH_CHECK_PATH, String.class);
+    ResponseEntity<String> response = restTemplate.getForEntity(healthCheckPath, String.class);
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
   }
 
   @Test
   public void healthCheckEndpoint_shouldReturn500_whenMongoDoesNotWork() {
-    MongoOperationsConfig.throwErrorWhenTalkingToMongo();
+    HealthCheckConfig.throwErrorWhenTalkingToMongo();
     expectHttpServerErrorException(thrown, HttpStatus.INTERNAL_SERVER_ERROR);
-    restTemplate.getForEntity(HEALTH_CHECK_PATH, String.class);
+    restTemplate.getForEntity(healthCheckPath, String.class);
+  }
+
+  @Test
+  public void healthCheckEndpoint_shouldReturn500_whenLocalStorageDoesNotWork() throws FileStoreException {
+    HealthCheckConfig.throwErrorWhenTalkingToFileStorage();
+    expectHttpServerErrorException(thrown, HttpStatus.INTERNAL_SERVER_ERROR);
+    restTemplate.getForEntity(healthCheckPath, String.class);
+
   }
 }
