@@ -26,6 +26,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.trustedanalytics.modelcatalog.storage.files.FileHelpers;
+import org.trustedanalytics.modelcatalog.storage.files.FileStoreException;
+import org.trustedanalytics.modelcatalog.storage.files.LocalFileStore;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -11,31 +11,34 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
+
 package org.trustedanalytics.modelcatalog;
 
-import org.trustedanalytics.modelcatalog.storage.db.AbstractMongoConfigurationWithInstantConverters;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 
-import com.github.fakemongo.Fongo;
-import com.mongodb.Mongo;
+import org.trustedanalytics.modelcatalog.healthcheck.HealthCheckTestObject;
+
+import org.mockito.Mockito;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.data.mongodb.core.MongoOperations;
 
 @Configuration
-@Profile("integration-test")
-public class FongoConfig extends AbstractMongoConfigurationWithInstantConverters {
+@Profile("mongo-operations-mock")
+public class MongoOperationsConfig {
 
-  private static final String DB = "fongoDB";
-
-  @Override
-  protected String getDatabaseName() {
-    return DB;
-  }
+  private static final MongoOperations mongoOperations = mock(MongoOperations.class);
 
   @Bean
-  @Override
-  public Mongo mongo() throws Exception {
-    Fongo fongo = new Fongo("Fongo server");
-    return fongo.getMongo();
+  public MongoOperations mongoOperations() {
+    Mockito.reset(mongoOperations);
+    return mongoOperations;
+  }
+
+  public static void throwErrorWhenTalkingToMongo() {
+    doThrow(new Error()).when(mongoOperations).insert(any(HealthCheckTestObject.class));
   }
 }

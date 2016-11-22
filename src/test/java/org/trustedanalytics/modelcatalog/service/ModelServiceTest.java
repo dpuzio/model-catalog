@@ -25,8 +25,8 @@ import org.trustedanalytics.modelcatalog.TestModelParamsBuilder;
 import org.trustedanalytics.modelcatalog.TestModelsBuilder;
 import org.trustedanalytics.modelcatalog.domain.Model;
 import org.trustedanalytics.modelcatalog.security.UsernameExtractor;
-import org.trustedanalytics.modelcatalog.storage.ModelStore;
-import org.trustedanalytics.modelcatalog.storage.ModelStoreException;
+import org.trustedanalytics.modelcatalog.storage.db.ModelStore;
+import org.trustedanalytics.modelcatalog.storage.db.ModelStoreException;
 
 import com.google.common.collect.Sets;
 import org.junit.Before;

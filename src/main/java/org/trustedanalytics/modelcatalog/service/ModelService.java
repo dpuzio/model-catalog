@@ -16,8 +16,8 @@ package org.trustedanalytics.modelcatalog.service;
 import org.trustedanalytics.modelcatalog.domain.Artifact;
 import org.trustedanalytics.modelcatalog.domain.Model;
 import org.trustedanalytics.modelcatalog.security.UsernameExtractor;
-import org.trustedanalytics.modelcatalog.storage.ModelStore;
-import org.trustedanalytics.modelcatalog.storage.ModelStoreException;
+import org.trustedanalytics.modelcatalog.storage.db.ModelStore;
+import org.trustedanalytics.modelcatalog.storage.db.ModelStoreException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

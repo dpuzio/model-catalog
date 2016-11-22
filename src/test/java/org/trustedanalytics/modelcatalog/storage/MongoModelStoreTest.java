@@ -41,6 +41,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.trustedanalytics.modelcatalog.storage.db.ModelStoreException;
+import org.trustedanalytics.modelcatalog.storage.db.MongoModelStore;
 
 import java.util.HashMap;
 import java.util.Map;

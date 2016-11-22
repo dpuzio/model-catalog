@@ -11,17 +11,25 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.trustedanalytics.modelcatalog.rest;
+package org.trustedanalytics.modelcatalog.healthcheck;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class HealthCheckController {
+
+  private final HealthCheckMongoTester healthCheckMongoTester;
+
+  @Autowired
+  public HealthCheckController(HealthCheckMongoTester healthCheckMongoTester) {
+    this.healthCheckMongoTester = healthCheckMongoTester;
+  }
 
   @ApiOperation("Checks service health.")
   @ApiResponses(value = {
@@ -33,6 +41,6 @@ public class HealthCheckController {
       method = RequestMethod.GET
   )
   public void checkHealth() {
-
+    healthCheckMongoTester.verifyMongo();
   }
 }

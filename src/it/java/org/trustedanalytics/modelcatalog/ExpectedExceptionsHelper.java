@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.hamcrest.CoreMatchers.containsString;
 
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.trustedanalytics.modelcatalog.rest.client.ModelCatalogClientException;
 
 import org.assertj.core.api.ThrowableAssert;
@@ -45,6 +46,11 @@ class ExpectedExceptionsHelper {
 
   static void expectHttpClientErrorException(ExpectedException thrown, HttpStatus status) {
     thrown.expect(HttpClientErrorException.class);
+    thrown.expectMessage(containsString(status.toString()));
+  }
+
+  static void expectHttpServerErrorException(ExpectedException thrown, HttpStatus status) {
+    thrown.expect(HttpServerErrorException.class);
     thrown.expectMessage(containsString(status.toString()));
   }
 }
