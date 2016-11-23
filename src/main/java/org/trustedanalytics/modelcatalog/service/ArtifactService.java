@@ -16,10 +16,10 @@ package org.trustedanalytics.modelcatalog.service;
 import org.trustedanalytics.modelcatalog.domain.Artifact;
 import org.trustedanalytics.modelcatalog.domain.ArtifactAction;
 import org.trustedanalytics.modelcatalog.domain.Model;
-import org.trustedanalytics.modelcatalog.storage.files.FileStore;
-import org.trustedanalytics.modelcatalog.storage.files.FileStoreException;
 import org.trustedanalytics.modelcatalog.storage.db.ModelStore;
 import org.trustedanalytics.modelcatalog.storage.db.ModelStoreException;
+import org.trustedanalytics.modelcatalog.storage.files.FileStore;
+import org.trustedanalytics.modelcatalog.storage.files.FileStoreException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -46,18 +45,7 @@ public class ArtifactService {
   }
 
   public Artifact addArtifact(UUID modelId, Set<ArtifactAction> actions, MultipartFile file) {
-    try {
-      // Try first if the model exists
-      Model model = modelStore.retrieveModel(modelId);
-      if (Objects.isNull(model)) {
-        throw new ModelServiceException(
-            ModelServiceExceptionCode.MODEL_NOT_FOUND, "Model with given ID not found.");
-      }
-    } catch (ModelStoreException e) {
-      throw new ModelServiceException(
-          ModelServiceExceptionCode.MODEL_NOT_FOUND, "Unable to find model with given ID.", e);
-    }
-
+    tryToRetrieveModel(modelId);
     try {
       Artifact artifact = createArtifact(modelId, actions, file);
       fileStore.addFile(artifact.getLocation(), file.getInputStream());
@@ -77,32 +65,15 @@ public class ArtifactService {
   }
 
   public Artifact retrieveArtifact(UUID modelId, UUID artifactId) {
-    Set<Artifact> artifacts = new HashSet<>();
-    try {
-      Model model = modelStore.retrieveModel(modelId);
-      if (Objects.isNull(model)) {
-        throw new ModelServiceException(
-            ModelServiceExceptionCode.MODEL_RETRIEVE_FAILED,
-            "Model retrieve failed (model store returned null).");
-      }
-      artifacts = model.getArtifacts();
-    } catch (ModelStoreException e) {
-      throw new ModelServiceException(
-          ModelServiceExceptionCode.MODEL_RETRIEVE_FAILED, "Model retrieve failed.", e);
-    }
-
+    Model model = tryToRetrieveModel(modelId);
+    Set<Artifact> artifacts = model.getArtifacts();
     if (Objects.isNull(artifacts)) {
-      throwArtifactNotFoundException();
+      throw artifactNotFoundException();
     }
     Optional<Artifact> artifact = artifacts.stream()
             .filter(a -> a.getId().equals(artifactId))
             .findFirst();
-    if (artifact.isPresent()) {
-      return artifact.get();
-    } else {
-      throwArtifactNotFoundException();
-      return null;
-    }
+    return artifact.orElseThrow(() -> artifactNotFoundException());
   }
 
   public InputStream retrieveArtifactFile(UUID modelId, UUID artifactId) {
@@ -131,6 +102,20 @@ public class ArtifactService {
     }
   }
 
+  private Model tryToRetrieveModel(UUID modelId) {
+    try {
+      Model model = modelStore.retrieveModel(modelId);
+      if (Objects.isNull(model)) {
+        throw new ModelServiceException(
+                ModelServiceExceptionCode.MODEL_NOT_FOUND, "Model with given ID not found.");
+      }
+      return model;
+    } catch (ModelStoreException e) {
+      throw new ModelServiceException(
+              ModelServiceExceptionCode.MODEL_RETRIEVE_FAILED, "Model retrieve failed.", e);
+    }
+  }
+
   private Artifact createArtifact(UUID modelId, Set<ArtifactAction> actions, MultipartFile file) {
     UUID artifactId = UUID.randomUUID();
     return Artifact.builder()
@@ -141,8 +126,8 @@ public class ArtifactService {
             .build();
   }
 
-  private void throwArtifactNotFoundException() {
-    throw new ModelServiceException(
+  private ModelServiceException artifactNotFoundException() {
+    return new ModelServiceException(
             ModelServiceExceptionCode.ARTIFACT_NOT_FOUND, "Artifact with given ID not found.");
   }
 
