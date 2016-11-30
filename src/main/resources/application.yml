@@ -21,8 +21,8 @@ storage:
     basePath: /data/artifacts
 
 multipart:
-  maxFileSize: 100Mb
-  maxRequestSize: 100Mb
+  maxFileSize: 2048Mb
+  maxRequestSize: 2048Mb
 
 spring.profiles.active: default,local
 
