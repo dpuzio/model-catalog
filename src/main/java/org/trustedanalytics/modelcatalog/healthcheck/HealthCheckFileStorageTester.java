@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 @Service
 public class HealthCheckFileStorageTester {
@@ -38,7 +39,8 @@ public class HealthCheckFileStorageTester {
 
   public void verifyFileStore() throws FileStoreException {
     InputStream inputStream = new ByteArrayInputStream(TEXT_TO_BE_SAVED.getBytes(StandardCharsets.UTF_8));
-    fileStore.addFile(FILE_LOCATION, inputStream);
-    fileStore.deleteFile(FILE_LOCATION);
+    String uniqueFileLocation = String.format("%s-%s", FILE_LOCATION, UUID.randomUUID());
+    fileStore.addFile(uniqueFileLocation, inputStream);
+    fileStore.deleteFile(uniqueFileLocation);
   }
 }
