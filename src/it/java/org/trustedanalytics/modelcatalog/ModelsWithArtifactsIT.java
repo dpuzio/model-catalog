@@ -61,6 +61,7 @@ public class ModelsWithArtifactsIT {
   private final ModelModificationParametersDTO PARAMS = TestModelParamsBuilder.exemplaryParamsDTO();
   private UUID modelId;
   private ArtifactDTO artifact1, artifact2, artifact3;
+  private static final String DEFAULT_ORG_ID = "defaultorg";
 
   @PostConstruct
   public void init() {
@@ -70,7 +71,7 @@ public class ModelsWithArtifactsIT {
 
   @Before
   public void setUp() {
-    ModelDTO model = modelCatalogWriter.addModel(PARAMS, UUID.randomUUID());
+    ModelDTO model = modelCatalogWriter.addModel(PARAMS, DEFAULT_ORG_ID);
     modelId = model.getId();
   }
 

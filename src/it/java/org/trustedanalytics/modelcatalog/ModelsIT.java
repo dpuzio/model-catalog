@@ -60,7 +60,7 @@ public class ModelsIT {
   private ModelCatalogReaderClient modelCatalogReader;
   private ModelCatalogWriterClient modelCatalogWriter;
 
-  private final UUID ORG_ID = UUID.randomUUID();
+  private static final String DEFAULT_ORG_ID = "defaultorg";
   private final ModelModificationParametersDTO PARAMS = TestModelParamsBuilder.exemplaryParamsDTO();
   private ModelDTO addedModel;
 
@@ -86,7 +86,7 @@ public class ModelsIT {
   @Test
   public void addModel_shouldReturn400_whenRequiredFieldsNotProvided() {
     expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.BAD_REQUEST);
-    modelCatalogWriter.addModel(new ModelModificationParametersDTO(), UUID.randomUUID());
+    modelCatalogWriter.addModel(new ModelModificationParametersDTO(), DEFAULT_ORG_ID);
   }
 
   @Test
@@ -204,15 +204,15 @@ public class ModelsIT {
   }
 
   private void checkThatThereAreNoModelsInDb() {
-    assertThat(modelCatalogReader.listModels(ORG_ID)).isEmpty();
+    assertThat(modelCatalogReader.listModels(DEFAULT_ORG_ID)).isEmpty();
   }
 
   private void checkThatThereIsOneModelInDb() {
-    assertThat(modelCatalogReader.listModels(ORG_ID)).hasSize(1);
+    assertThat(modelCatalogReader.listModels(DEFAULT_ORG_ID)).hasSize(1);
   }
 
   private void addExemplaryModel() {
-    addedModel = modelCatalogWriter.addModel(PARAMS, ORG_ID);
+    addedModel = modelCatalogWriter.addModel(PARAMS, DEFAULT_ORG_ID);
   }
 
   private void retrieveModelFromDbAndCompareWithTheAddedOne() {

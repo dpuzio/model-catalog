@@ -44,7 +44,7 @@ public class ModelCatalogReaderClient {
     this.dtoJsonMapper = dtoJsonMapper;
   }
 
-  public Collection<ModelDTO> listModels(UUID orgId) {
+  public Collection<ModelDTO> listModels(String orgId) {
     return executeGetAndMapResult(
         ModelCatalogPaths.pathToModelsByOrg(orgId), dtoJsonMapper::toModelDTOCollection);
   }

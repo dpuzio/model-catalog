@@ -59,6 +59,7 @@ public class ModelServiceTest {
   @Captor
   private ArgumentCaptor<Map<String, Object>> propertiesToUpdateMapCaptor;
 
+  private static final String DEFAULT_ORG_ID = "defaultorg";
   private static final String MODIFIED_BY_PROPERTY_NAME = "modifiedBy";
   private static final String MODIFIED_ON_PROPERTY_NAME = "modifiedOn";
   private static final String NAME_PROPERTY_NAME = "name";
@@ -78,9 +79,9 @@ public class ModelServiceTest {
     // given
     Set<Model> models = Sets.newHashSet(TestModelsBuilder.exemplaryModel(), TestModelsBuilder
             .exemplaryModel());
-    when(modelStore.listModels(any(UUID.class))).thenReturn(models);
+    when(modelStore.listModels(any(String.class))).thenReturn(models);
     // when
-    Collection<Model> returnedModels = modelService.listModels(UUID.randomUUID());
+    Collection<Model> returnedModels = modelService.listModels(DEFAULT_ORG_ID);
     // then
     assertThat(models).isEqualTo(returnedModels);
   }
@@ -105,7 +106,7 @@ public class ModelServiceTest {
   public void shouldInitiateAddAndReturnModel_withGivenProperties() {
     // when
     Instant before = Instant.now();
-    Model addedModel = modelService.addModel(params, UUID.randomUUID());
+    Model addedModel = modelService.addModel(params, DEFAULT_ORG_ID);
     Instant after = Instant.now();
     // then
     ModelParamsChecker.checkThatModelDTOContainsParamsDTO(addedModel, params);
@@ -121,9 +122,9 @@ public class ModelServiceTest {
           throws ModelStoreException {
     // given
     doThrow(new ModelStoreException(""))
-            .when(modelStore).addModel(any(Model.class), any(UUID.class));
+            .when(modelStore).addModel(any(Model.class), any(String.class));
     // when
-    modelService.addModel(params, UUID.randomUUID());
+    modelService.addModel(params, DEFAULT_ORG_ID);
   }
 
   @Test

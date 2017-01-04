@@ -53,7 +53,7 @@ public class ModelService {
     this.usernameExtractor = usernameExtractor;
   }
 
-  public Collection<Model> listModels(UUID orgId) {
+  public Collection<Model> listModels(String orgId) {
     try {
       return modelStore.listModels(orgId);
     } catch (ModelStoreException e) {
@@ -76,7 +76,7 @@ public class ModelService {
     }
   }
 
-  public Model addModel(ModelModificationParameters params, UUID orgId) {
+  public Model addModel(ModelModificationParameters params, String orgId) {
     try {
       Model model = initiateNewModel(params);
       modelStore.addModel(model, orgId);

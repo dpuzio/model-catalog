@@ -70,6 +70,7 @@ public class ArtifactsIT {
   private String url;
   private ModelCatalogReaderClient modelCatalogReader;
   private ModelCatalogWriterClient modelCatalogWriter;
+  private static final String DEFAULT_ORG_ID = "defaultorg";
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -84,7 +85,7 @@ public class ArtifactsIT {
   public void client_shouldAddRetrieveAndDeleteArtifactMetadataAndFile() throws IOException {
     // add model
     ModelDTO model = modelCatalogWriter.addModel(
-            TestModelParamsBuilder.exemplaryParamsDTO(), UUID.randomUUID());
+            TestModelParamsBuilder.exemplaryParamsDTO(), DEFAULT_ORG_ID);
     final UUID modelId = model.getId();
     // add artifact together with a file
     File f = testFile();
@@ -144,7 +145,7 @@ public class ArtifactsIT {
   @Test
   public void retrieveArtifactMetadata_shouldReturn404WhenArtifactNotFound() {
     ModelDTO model = modelCatalogWriter.addModel(
-            TestModelParamsBuilder.exemplaryParamsDTO(), UUID.randomUUID());
+            TestModelParamsBuilder.exemplaryParamsDTO(), DEFAULT_ORG_ID);
     expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.NOT_FOUND);
     modelCatalogReader.retrieveArtifactMetadata(model.getId(), UUID.randomUUID());
   }
@@ -158,7 +159,7 @@ public class ArtifactsIT {
   @Test
   public void retrieveArtifactFile_shouldReturn404WhenArtifactNotFound() {
     ModelDTO model = modelCatalogWriter.addModel(
-        TestModelParamsBuilder.exemplaryParamsDTO(), UUID.randomUUID());
+        TestModelParamsBuilder.exemplaryParamsDTO(), DEFAULT_ORG_ID);
     expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.NOT_FOUND);
     modelCatalogReader.retrieveArtifactFile(model.getId(), UUID.randomUUID());
   }
@@ -172,7 +173,7 @@ public class ArtifactsIT {
   @Test
   public void deleteArtifact_shouldReturn404WhenArtifactNotFound() {
     ModelDTO model = modelCatalogWriter.addModel(
-            TestModelParamsBuilder.exemplaryParamsDTO(), UUID.randomUUID());
+            TestModelParamsBuilder.exemplaryParamsDTO(), DEFAULT_ORG_ID);
     expectModelCatalogExceptionWithStatusAndReason(thrown, HttpStatus.NOT_FOUND);
     modelCatalogWriter.deleteArtifact(model.getId(), UUID.randomUUID());
   }

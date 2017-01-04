@@ -38,9 +38,9 @@ To change the default listening port, please use parameter ``-Dserver.port=[port
 Application can be tested using `curl` tool. Few examples:
 
 ```
-curl -H "Authorization: $TOKEN" http://<model-catalog-host>:<model-catalog-port>/api/v1/models?orgId=00000000-0000-0000-0000-000000000000
+curl -H "Authorization: $TOKEN" http://<model-catalog-host>:<model-catalog-port>/api/v1/models?orgId=defaultorg
 
-curl -X POST -H "Authorization: $TOKEN" -H "Content-type: application/json" -d '{"name": "sample-model1","revision":"1.0","algorithm":"GBM","creationTool":"manual","description":"Sample Model One","artifactsIds":[]}' http://<model-catalog-host>:<model-catalog-port>/api/v1/models?orgId=00000000-0000-0000-0000-000000000000
+curl -X POST -H "Authorization: $TOKEN" -H "Content-type: application/json" -d '{"name": "sample-model1","revision":"1.0","algorithm":"GBM","creationTool":"manual","description":"Sample Model One","artifactsIds":[]}' http://<model-catalog-host>:<model-catalog-port>/api/v1/models?orgId=defaultorg
 
 curl -v -X POST -H "Authorization: $TOKEN" -F 'artifactActions=["PUBLISH_TAP_SCORING_ENGINE"];type=application/json' -F "artifactFile=@test.txt;type=application/octet-stream" http://<model-catalog-host>:<model-catalog-port>/api/v1/models/<model-id>/artifacts
 

@@ -25,8 +25,6 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
-import org.trustedanalytics.modelcatalog.storage.db.ModelStore;
-import org.trustedanalytics.modelcatalog.storage.db.ModelStoreException;
 
 import java.util.Collection;
 import java.util.Map;
@@ -46,7 +44,7 @@ public class MongoModelStore implements ModelStore {
   }
 
   @Override
-  public Collection<Model> listModels(UUID orgId) throws ModelStoreException {
+  public Collection<Model> listModels(String orgId) throws ModelStoreException {
     try {
       return mongoOperations.findAll(Model.class);
     } catch (Exception e) {
@@ -64,7 +62,7 @@ public class MongoModelStore implements ModelStore {
   }
 
   @Override
-  public void addModel(Model model, UUID orgId) throws ModelStoreException {
+  public void addModel(Model model, String orgId) throws ModelStoreException {
     try {
       mongoOperations.insert(model);
     } catch (Exception e) {

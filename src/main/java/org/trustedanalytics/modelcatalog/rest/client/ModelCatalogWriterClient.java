@@ -54,7 +54,7 @@ public class ModelCatalogWriterClient {
     this.multipartRequestsSender = multipartRequestsSender;
   }
 
-  public ModelDTO addModel(ModelModificationParametersDTO params, UUID orgId) {
+  public ModelDTO addModel(ModelModificationParametersDTO params, String orgId) {
     HttpPost request = requestFactory.preparePost(ModelCatalogPaths.pathToModelsByOrg(orgId));
     return executeWithParams(
         request, HttpStatus.CREATED, params, dtoJsonMapper::toModelDTO);

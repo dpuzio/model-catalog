@@ -45,7 +45,7 @@ public class ModelsRestServiceTest {
   @InjectMocks
   ModelsRestService service;
 
-  private final UUID orgId = UUID.randomUUID();
+  private static final String DEFAULT_ORG_ID = "defaultorg";
   private final UUID modelId = UUID.randomUUID();
   private final Model model = TestModelsBuilder.exemplaryModel();
   private final ModelDTO modelDTO = ModelMapper.toModelDTO(model);
@@ -55,9 +55,9 @@ public class ModelsRestServiceTest {
   @Test
   public void shouldListAndMapModels() {
     // given
-    when(modelService.listModels(orgId)).thenReturn(Collections.singletonList(model));
+    when(modelService.listModels(DEFAULT_ORG_ID)).thenReturn(Collections.singletonList(model));
     // when
-    Collection<ModelDTO> modelDTOs = service.listModels(orgId);
+    Collection<ModelDTO> modelDTOs = service.listModels(DEFAULT_ORG_ID);
     // then
     assertThat(modelDTOs).hasSize(1);
     assertThat(modelDTOs.contains(modelDTO));
@@ -76,10 +76,10 @@ public class ModelsRestServiceTest {
   @Test
   public void shouldAddAndMapModel() {
     // given
-    when(modelService.addModel(any(ModelModificationParameters.class), eq(orgId))).thenReturn
+    when(modelService.addModel(any(ModelModificationParameters.class), eq(DEFAULT_ORG_ID))).thenReturn
             (model);
     // when
-    ModelDTO addedModel = service.addModel(paramsDTO, orgId);
+    ModelDTO addedModel = service.addModel(paramsDTO, DEFAULT_ORG_ID);
     // then
     assertThat(addedModel).isEqualToComparingFieldByFieldRecursively(modelDTO);
   }

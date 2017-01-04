@@ -39,7 +39,7 @@ public class ModelCatalogPaths {
 
   // @formatter:on
 
-  public static String pathToModelsByOrg(UUID orgId) {
+  public static String pathToModelsByOrg(String orgId) {
     return MODELS_ORG.replace(ORG_ID, orgId.toString());
   }
 

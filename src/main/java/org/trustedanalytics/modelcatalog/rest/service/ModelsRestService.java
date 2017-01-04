@@ -40,7 +40,7 @@ public class ModelsRestService {
     this.modelService = modelService;
   }
 
-  public Collection<ModelDTO> listModels(UUID orgId) {
+  public Collection<ModelDTO> listModels(String orgId) {
     return modelService.listModels(orgId).stream()
             .map(ModelMapper::toModelDTO)
             .collect(Collectors.toSet());
@@ -50,7 +50,7 @@ public class ModelsRestService {
     return toModelDTO(modelService.retrieveModel(modelId));
   }
 
-  public ModelDTO addModel(ModelModificationParametersDTO paramsDTO, UUID orgId) {
+  public ModelDTO addModel(ModelModificationParametersDTO paramsDTO, String orgId) {
     checkRequiredFields(paramsDTO);
     return toModelDTO(modelService.addModel(toParameters(paramsDTO), orgId));
   }

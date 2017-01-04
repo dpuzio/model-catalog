@@ -54,6 +54,7 @@ public class MongoModelStoreTest {
   private static final String ID = "_id";
   private static final String EXEMPLARY_PROPERTY_NAME = "exemplary property name";
   private static final String EXEMPLARY_PROPERTY_VALUE = "exemplary property value";
+  private static final String DEFAULT_ORG_ID = "defaultorg";
 
   @Mock
   private MongoOperations mongoOperations;
@@ -72,7 +73,7 @@ public class MongoModelStoreTest {
   @Test
   public void shouldListModels() throws ModelStoreException {
     // when
-    mongoModelStore.listModels(UUID.randomUUID());
+    mongoModelStore.listModels(DEFAULT_ORG_ID);
     // then
     verify(mongoOperations).findAll(Model.class);
   }
@@ -90,7 +91,7 @@ public class MongoModelStoreTest {
 
   @Test
   public void shouldAddModel_withNoExceptions() throws ModelStoreException {
-    mongoModelStore.addModel(TestModelsBuilder.emptyModel(), UUID.randomUUID());
+    mongoModelStore.addModel(TestModelsBuilder.emptyModel(), DEFAULT_ORG_ID);
   }
 
   @Test
@@ -100,7 +101,7 @@ public class MongoModelStoreTest {
     // when, then
     assertThatExceptionOfType(ModelStoreException.class)
             .isThrownBy(() -> mongoModelStore.addModel(
-                    TestModelsBuilder.emptyModel(), UUID.randomUUID()));
+                    TestModelsBuilder.emptyModel(), DEFAULT_ORG_ID));
   }
 
   @Test

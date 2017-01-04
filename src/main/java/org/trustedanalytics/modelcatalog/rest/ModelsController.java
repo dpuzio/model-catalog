@@ -62,7 +62,7 @@ public class ModelsController {
           produces = RequestParams.CONTENT_TYPE_APP_JSON_UTF
   )
   public Collection<ModelDTO> listModels(
-          @ApiParam(value = "Organization id", required = true) @RequestParam UUID orgId) {
+          @ApiParam(value = "Organization id", required = true) @RequestParam String orgId) {
     return service.listModels(orgId);
   }
 
@@ -104,7 +104,7 @@ public class ModelsController {
   public ResponseEntity<ModelDTO> addModelAndReturnWithLocationHeader(
           @ApiParam(value = "Model entity containing only modifiable fields", required = true)
           @RequestBody ModelModificationParametersDTO model,
-          @ApiParam(value = "Organization id", required = true) @RequestParam UUID orgId) {
+          @ApiParam(value = "Organization id", required = true) @RequestParam String orgId) {
     ModelDTO addedModel = service.addModel(model, orgId);
     HttpHeaders httpHeaders = new HttpHeaders();
     addModelLocation(addedModel, httpHeaders);

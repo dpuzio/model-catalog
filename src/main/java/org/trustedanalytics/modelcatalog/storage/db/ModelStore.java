@@ -22,11 +22,11 @@ import java.util.UUID;
 
 public interface ModelStore {
 
-  Collection<Model> listModels(UUID orgId) throws ModelStoreException;
+  Collection<Model> listModels(String orgId) throws ModelStoreException;
 
   Model retrieveModel(UUID modelId) throws ModelStoreException;
 
-  void addModel(Model model, UUID orgId) throws ModelStoreException;
+  void addModel(Model model, String orgId) throws ModelStoreException;
 
   void updateModel(UUID modelId, Map<String, Object> propertiesToUpdate) throws ModelStoreException;
 
