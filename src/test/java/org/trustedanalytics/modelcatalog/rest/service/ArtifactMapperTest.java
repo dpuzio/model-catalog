@@ -16,16 +16,34 @@ package org.trustedanalytics.modelcatalog.rest.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
-
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.trustedanalytics.modelcatalog.service.ModelServiceException;
 
 
 public class ArtifactMapperTest {
 
-    @Test
-    public void shouldReturnEmptySet_whenArtifactsActionsAreNull() {
-        assertThat(ArtifactMapper.toArtifactActionSet(null))
-                .isEqualTo(Collections.EMPTY_SET);
-    }
+  @Rule
+  public final ExpectedException thrown = ExpectedException.none();
+
+  @Test
+  public void shouldReturnEmptySet_whenArtifactsActionsAreNull() {
+    assertThat(ArtifactMapper.toArtifactActionSet(null)).isEqualTo(Collections.EMPTY_SET);
+  }
+
+  @Test
+  public void shouldThrowAnException_whenInvalidArtifactActionString() throws Exception {
+    // given
+    Set<String> artifactActions = new HashSet<>(Arrays.asList("some-action"));
+
+    // when
+    // then
+    thrown.expect(ModelServiceException.class);
+    ArtifactMapper.toArtifactActionSet(artifactActions);
+  }
 }

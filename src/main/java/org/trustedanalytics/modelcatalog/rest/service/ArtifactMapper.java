@@ -13,14 +13,16 @@
  */
 package org.trustedanalytics.modelcatalog.rest.service;
 
-import org.trustedanalytics.modelcatalog.domain.Artifact;
-import org.trustedanalytics.modelcatalog.domain.ArtifactAction;
-import org.trustedanalytics.modelcatalog.rest.entities.ArtifactDTO;
-
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.EnumUtils;
+import org.trustedanalytics.modelcatalog.domain.Artifact;
+import org.trustedanalytics.modelcatalog.domain.ArtifactAction;
+import org.trustedanalytics.modelcatalog.rest.entities.ArtifactDTO;
+import org.trustedanalytics.modelcatalog.service.ModelServiceException;
+import org.trustedanalytics.modelcatalog.service.ModelServiceExceptionCode;
 
 class ArtifactMapper {
 
@@ -40,12 +42,23 @@ class ArtifactMapper {
     return Optional.ofNullable(artifactActions)
             .orElseGet(Collections::emptySet)
             .stream()
+            .map(action->checkArtifactAction(action))
             .map(ArtifactAction::valueOf)
             .collect(Collectors.toSet());
   }
 
   private static Set<String> toArtifactActionStrings(Set<ArtifactAction> artifactActions) {
     return artifactActions.stream().map(String::valueOf).collect(Collectors.toSet());
+  }
+  
+  private static String checkArtifactAction(String action) {
+    if (!EnumUtils.isValidEnum(ArtifactAction.class, action)) {
+      throw new ModelServiceException(ModelServiceExceptionCode.ARTIFACT_INVALID_ACTION,
+          "Invalid artifact action " + action + ". Acceptable actions: "
+              + EnumUtils.getEnumList(ArtifactAction.class));
+    }
+    
+    return action;
   }
 
 }

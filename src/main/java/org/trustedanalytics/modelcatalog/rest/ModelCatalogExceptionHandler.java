@@ -58,6 +58,9 @@ public class ModelCatalogExceptionHandler {
       case REQUIRED_FIELDS_MISSING:
         status = HttpStatus.BAD_REQUEST;
         break;
+      case ARTIFACT_INVALID_ACTION:
+        status = HttpStatus.BAD_REQUEST;
+        break;
       default:
         status = HttpStatus.INTERNAL_SERVER_ERROR;
         break;
