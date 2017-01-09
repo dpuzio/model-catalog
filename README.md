@@ -21,10 +21,13 @@ The first one is model-catalog application. The other one is a model provider ap
 In order to run the service locally running MongoDB service is required.
 Instructions on how to install and run MongoDB can be found here: https://docs.mongodb.com/getting-started/shell/installation/ .
 
+Model-catalog by default stores artifact files on local disk in `/data/artifacts` path - the path can be changed by setting environment variable `STORAGE_LOCAL_BASEPATH`.
+
 ### Environment variables
 To run the service locally the following environment variables need to be defined:
 
 * `SSO_TOKENKEY` - URL to the OAuth token key service (e.g. `http://uaa.<env_domain>/token_key`);
+* `STORAGE_LOCAL_BASEPATH` - a path on the local disk for storing artifact files (e.g. `/tmp/artifacts`) (OPTIONAL); 
 
 ### Running
 To run the application, use the following command:

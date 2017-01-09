@@ -18,6 +18,16 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.UUID;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.trustedanalytics.modelcatalog.TestModelParamsBuilder;
 import org.trustedanalytics.modelcatalog.TestModelsBuilder;
 import org.trustedanalytics.modelcatalog.domain.Model;
@@ -25,16 +35,7 @@ import org.trustedanalytics.modelcatalog.rest.entities.ModelDTO;
 import org.trustedanalytics.modelcatalog.rest.entities.ModelModificationParametersDTO;
 import org.trustedanalytics.modelcatalog.service.ModelModificationParameters;
 import org.trustedanalytics.modelcatalog.service.ModelService;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.UUID;
+import org.trustedanalytics.modelcatalog.service.ModelServiceException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ModelsRestServiceTest {
@@ -44,13 +45,16 @@ public class ModelsRestServiceTest {
 
   @InjectMocks
   ModelsRestService service;
+  
+  @Rule
+  public final ExpectedException thrown = ExpectedException.none();
 
   private static final String DEFAULT_ORG_ID = "defaultorg";
   private final UUID modelId = UUID.randomUUID();
   private final Model model = TestModelsBuilder.exemplaryModel();
   private final ModelDTO modelDTO = ModelMapper.toModelDTO(model);
   private final ModelModificationParametersDTO paramsDTO =
-          TestModelParamsBuilder.exemplaryParamsDTO();
+      TestModelParamsBuilder.exemplaryParamsDTO();
 
   @Test
   public void shouldListAndMapModels() {
@@ -76,8 +80,8 @@ public class ModelsRestServiceTest {
   @Test
   public void shouldAddAndMapModel() {
     // given
-    when(modelService.addModel(any(ModelModificationParameters.class), eq(DEFAULT_ORG_ID))).thenReturn
-            (model);
+    when(modelService.addModel(any(ModelModificationParameters.class), eq(DEFAULT_ORG_ID)))
+        .thenReturn(model);
     // when
     ModelDTO addedModel = service.addModel(paramsDTO, DEFAULT_ORG_ID);
     // then
@@ -88,7 +92,7 @@ public class ModelsRestServiceTest {
   public void shouldUpdateAndMapModel() {
     // given
     when(modelService.updateModel(eq(modelId), any(ModelModificationParameters.class)))
-            .thenReturn(model);
+        .thenReturn(model);
     // when
     ModelDTO updatedModel = service.updateModel(modelId, paramsDTO);
     // then
@@ -98,8 +102,8 @@ public class ModelsRestServiceTest {
   @Test
   public void shouldPatchAndMapModel() {
     // given
-    when(modelService.patchModel(eq(modelId), any(ModelModificationParameters.class))).thenReturn
-            (model);
+    when(modelService.patchModel(eq(modelId), any(ModelModificationParameters.class)))
+        .thenReturn(model);
     // when
     ModelDTO patchedModel = service.patchModel(modelId, paramsDTO);
     // then
@@ -114,6 +118,30 @@ public class ModelsRestServiceTest {
     ModelDTO deletedModel = service.deleteModel(modelId);
     // then
     assertThat(deletedModel).isEqualToComparingFieldByFieldRecursively(modelDTO);
+  }
+
+  @Test
+  public void shouldThrowAnExceptionWhenGivenInvalidModelName() throws Exception {
+    // given
+    ModelModificationParametersDTO modParamsDTO = new ModelModificationParametersDTO("\t \n",
+        "revision", "algorithm", "creationTool", "description");
+
+    // when
+    // then
+    thrown.expect(ModelServiceException.class);
+    service.addModel(modParamsDTO, DEFAULT_ORG_ID);
+  }
+  
+  @Test
+  public void shouldThrowAnExceptionWhenGivenInvalidCreationToolValue() throws Exception {
+    // given
+    ModelModificationParametersDTO modParamsDTO = new ModelModificationParametersDTO("name",
+        "revision", "algorithm", "\r \n", "description");
+
+    // when
+    // then
+    thrown.expect(ModelServiceException.class);
+    service.addModel(modParamsDTO, DEFAULT_ORG_ID);
   }
 
 }
