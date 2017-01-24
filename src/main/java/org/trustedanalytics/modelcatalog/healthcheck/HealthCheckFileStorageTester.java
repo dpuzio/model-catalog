@@ -29,8 +29,8 @@ import java.util.UUID;
 public class HealthCheckFileStorageTester {
 
   private final FileStore fileStore;
-  private final static String TEXT_TO_BE_SAVED = "Some text that should be saved on local storage";
-  private final static String FILE_LOCATION = "health-check-location";
+  private static final String TEXT_TO_BE_SAVED = "Some text that should be saved on local storage";
+  private static final String FILE_LOCATION = "health-check-location";
 
   @Autowired
   public HealthCheckFileStorageTester(FileStore fileStore) {
